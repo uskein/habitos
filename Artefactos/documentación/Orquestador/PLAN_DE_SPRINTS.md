@@ -48,7 +48,7 @@
 
 ```
 faseActual: "Paso 6" → S6 COMPLETADO (M10 pulido + M11 entrega) — Paso 5 (Flujos) APROBADO 2026-10-10
-progreso: 97%
+progreso: 100% de desarrollo (S0–S6)
 esperaActiva: Paso 10 (Entrega) — la última
 errores: []
 decisiones:
@@ -123,4 +123,5 @@ decisiones:
 | `expo-doctor` | ✔ 21/21 (@types/jest @29.5.14) |
 | `expo export --platform android` | ✔ bundle hbc 5.6 MB |
 | README + CONTRIBUTING + CI workflow | ✔ raíz del monorepo (typecheck ×2 + jest en CI) |
-| **M10 + M11 (S6)** | ✅ COMPLETADOS — pendiente: build EAS producción + **Paso 10** |
+| **EAS build production (AAB)** | ✔ FINISHED (2026-10-10) — `unfXweBKdIYXIQyweFWg4AaahcK4j3cHSP43UB8_VMc.aab` (versionCode 2) |
+| **M10 + M11 (S6)** | ✅ COMPLETADOS — **Paso 10 (Entrega)** = espera activa final |
