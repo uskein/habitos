@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flujos V2 — Simulación jugable (Pulse Clay)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0; --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3; --success:#22C55E; --error:#DC2626;
+    --r-card:24px; --r-md:16px; --r-pill:999px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14),0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:40px 4vw 80px}
+  h1,h2,h3{font-family:"Sora"}
+  .mono{font-family:"JetBrains Mono"}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:clamp(28px,4vw,40px);margin:8px 0 6px}
+  .sub{color:var(--text-muted);font-size:15px;max-width:720px;line-height:1.6}
+  .flws{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+  .fchip{border:1.5px solid var(--border);background:var(--surface);border-radius:999px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .18s var(--ease-std)}
+  .fchip.on{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:var(--sh-clay)}
+  .modes{display:flex;gap:8px;margin-top:14px}
+  .mode{border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:8px 16px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit}
+  .mode.on{background:var(--secondary);border-color:var(--secondary);color:#053b36}
+  .wrap{display:grid;grid-template-columns:minmax(300px,350px) 1fr;gap:24px;margin-top:22px;align-items:start}
+  @media (max-width:900px){.wrap{grid-template-columns:1fr}}
+  .phone{background:#12102A;border-radius:40px;padding:13px;box-shadow:0 24px 60px rgba(23,18,43,.3);position:sticky;top:20px}
+  .scr{background:var(--bg);border-radius:28px;height:600px;overflow-y:auto;position:relative;padding:16px 13px}
+  .scr::-webkit-scrollbar{width:4px}.scr::-webkit-scrollbar-thumb{background:var(--track);border-radius:4px}
+  .notch{width:100px;height:20px;background:#12102A;border-radius:0 0 13px 13px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:5}
+  .anim{animation:in .32s var(--ease-std) both}
+  @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  /* mock components */
+  .card{background:var(--surface);border-radius:var(--r-md);box-shadow:var(--sh-clay);padding:14px;margin-bottom:11px}
+  .appbar{display:flex;justify-content:space-between;align-items:center;padding:12px 4px 10px}
+  .appbar h3{font-size:17px}
+  .appbar .ico{width:34px;height:34px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-clay);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .chip{display:inline-flex;gap:5px;background:var(--surface-alt);color:var(--primary);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:800;margin:3px 4px 0 0}
+  .chip.g{background:#DDF7F4;color:#0F766E}
+  .cta{width:100%;border:0;border-radius:999px;background:var(--primary);color:#fff;padding:13px;font-weight:800;font-size:14px;font-family:inherit;margin-top:8px;cursor:pointer;transition:transform .18s var(--ease-std)}
+  .cta:active{transform:scale(.97)}
+  .cta.off{background:#C9BEFD;color:#8B84A6}
+  .btn2{width:100%;border:1.5px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);padding:11px;font-weight:800;font-size:13px;font-family:inherit;margin-top:8px;cursor:pointer}
+  .inp{border:1.5px solid var(--border);border-radius:12px;background:var(--surface);padding:12px 13px;font-size:14px;color:var(--text-muted);min-height:44px}
+  .inp.focus{border-color:var(--primary);color:var(--text)}
+  .fld label{font-size:12.5px;font-weight:800;display:block;margin-bottom:6px}
+  .fld{margin-bottom:11px}
+  .mrow{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:14px;box-shadow:var(--sh-clay);padding:13px 14px;margin-bottom:9px;font-size:14px}
+  .mrow small{color:var(--text-muted);display:block;font-size:11.5px;margin-top:2px}
+  .ava{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Sora";font-size:26px;font-weight:700;position:relative;margin:6px auto}
+  .ava .cam{position:absolute;right:-3px;bottom:-3px;width:26px;height:26px;border-radius:50%;background:var(--primary);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer}
+  .ava .cam:active{transform:scale(.9)}
+  .dots{display:flex;gap:11px;justify-content:center;margin:12px 0}
+  .dots i{width:13px;height:13px;border-radius:50%;background:var(--track)}
+  .dots i.on{background:var(--primary)}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pad b{background:var(--surface);border-radius:14px;box-shadow:var(--sh-clay);text-align:center;padding:12px 0;font-family:"Sora";font-size:17px}
+  .ovl{position:absolute;inset:0;background:rgba(247,245,255,.55);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;border-radius:28px;z-index:4;animation:fade .2s var(--ease-std)}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .sp{width:36px;height:36px;border-radius:50%;border:4px solid var(--track);border-top-color:var(--primary);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ovl p{font-size:13px;color:var(--text-muted);font-weight:700}
+  .err{background:#FEE2E2;border:1.5px solid var(--error);border-radius:14px;padding:13px;font-size:13px;color:#991B1B;line-height:1.5}
+  .err b{display:block;margin-bottom:4px}
+  .ok{background:#DCFCE7;border:1.5px solid var(--success);border-radius:14px;padding:13px;font-size:13px;color:#166534;line-height:1.5}
+  .ok b{display:block;margin-bottom:4px}
+  .carr{height:140px;border-radius:14px;background:linear-gradient(135deg,#6D4BF5,#9B7BFF);display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;margin-bottom:11px;animation:in .32s var(--ease-std)}
+  .carr .cnt{position:absolute;top:8px;right:10px;background:rgba(23,18,43,.55);color:#fff;font-family:"JetBrains Mono";font-size:10px;padding:3px 8px;border-radius:999px}
+  .carr .dd{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:5px;justify-content:center}
+  .carr .dd i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}
+  .carr .dd i.on{background:#fff;width:14px;border-radius:4px}
+  .swip{background:var(--surface);border-radius:var(--r-md);box-shadow:var(--sh-clay);padding:16px;height:190px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;animation:in .32s var(--ease-std)}
+  .swip h4{font-family:"Sora";font-size:15.5px;line-height:1.35;margin:8px 0 6px}
+  .swip p{font-size:12px;color:var(--text-muted)}
+  .medal{width:88px;height:88px;border-radius:50%;background:conic-gradient(var(--award) 0 70%,var(--track) 70%);display:flex;align-items:center;justify-content:center;margin:8px auto}
+  .medal .in{width:70px;height:70px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .medal .in b{font-size:25px}
+  .medal .in span{font-family:"JetBrains Mono";font-size:9.5px;color:var(--award);font-weight:800}
+  .seg{display:flex;background:var(--surface-alt);border-radius:999px;padding:4px;gap:4px;margin-bottom:11px}
+  .seg b{flex:1;text-align:center;padding:8px 0;border-radius:999px;font-size:12px}
+  .seg b.on{background:var(--surface);box-shadow:var(--sh-clay);color:var(--primary)}
+  .bars{display:flex;align-items:flex-end;gap:7px;height:88px;margin-top:8px}
+  .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center;gap:4px}
+  .bar .f{border-radius:6px;background:linear-gradient(180deg,var(--primary),var(--secondary));transform-origin:bottom;animation:grow .32s var(--ease-std) both;min-height:5px}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .bar span{font-size:9px;color:var(--text-muted);font-weight:700}
+  /* panel pasos */
+  .panel{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:24px}
+  .panel h3{font-size:20px}
+  .panel .hu{font-family:"JetBrains Mono";font-size:12px;color:var(--primary);background:var(--surface-alt);display:inline-block;padding:5px 11px;border-radius:8px;margin:8px 0 16px}
+  .stepline{position:relative;padding-left:26px}
+  .stepline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:3px;border-radius:3px;background:linear-gradient(180deg,var(--primary),var(--secondary))}
+  .step{position:relative;margin-bottom:14px;background:var(--surface-alt);border-radius:14px;padding:12px 15px;opacity:.45;transition:all .3s var(--ease-std)}
+  .step.done{opacity:1}
+  .step.cur{opacity:1;background:#EDE9FE;box-shadow:var(--sh-clay);transform:translateX(4px)}
+  .step::before{content:"";position:absolute;left:-24px;top:16px;width:13px;height:13px;border-radius:50%;background:var(--track);border:3px solid var(--surface)}
+  .step.cur::before{background:var(--primary);box-shadow:0 0 0 4px rgba(109,75,245,.25)}
+  .step.done::before{background:var(--success)}
+  .step b{font-size:13.5px;display:block}
+  .step .ta{font-size:12.5px;color:var(--text-muted);margin-top:4px;line-height:1.55}
+  .step .trg{font-family:"JetBrains Mono";font-size:11px;color:var(--primary);font-weight:700}
+  .nav{display:flex;gap:10px;margin-top:18px}
+  .nav button{flex:1;border:0;border-radius:999px;padding:13px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:transform .18s var(--ease-std)}
+  .nav button:active{transform:scale(.97)}
+  .nav .next{background:var(--primary);color:#fff}
+  .nav .prev{background:var(--surface-alt);color:var(--text)}
+  .nav .restart{background:var(--surface);border:1.5px solid var(--border);color:var(--text-muted)}
+  .endmsg{margin-top:14px}
+  footer{margin-top:44px;border-top:1px dashed var(--border);padding-top:16px;font-size:12.5px;color:var(--text-muted);line-height:1.7}
+</style>
+</head>
+<body>
+<span class="kicker">Skill arquitecto-producto-flujos · Paso 5</span>
+<h1>Flujos V2 — simulación jugable</h1>
+<p class="sub">Elige un flujo y un modo (camino feliz o borde). Recórrelo paso a paso: cada paso muestra <b>Trigger → Acción → Transición</b> con la estética aprobada en el teléfono.</p>
+
+<div class="flws" id="flws"></div>
+<div class="modes">
+  <button class="mode on" onclick="setMode('h',this)">🟢 Camino feliz</button>
+  <button class="mode" onclick="setMode('b',this)">⚠️ Caso borde</button>
+</div>
+
+<div class="wrap">
+  <div class="phone"><div class="scr" id="scr"><div class="notch"></div><div id="view"></div></div></div>
+  <div class="panel">
+    <h3 id="pT"></h3><div class="hu" id="pH"></div>
+    <p id="pD" style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:16px"></p>
+    <div class="stepline" id="steps"></div>
+    <div class="nav">
+      <button class="prev" onclick="move(-1)">← Atrás</button>
+      <button class="next" id="nx" onclick="move(1)">Trigger →</button>
+      <button class="restart" onclick="reset()">↺</button>
+    </div>
+    <div class="endmsg" id="end"></div>
+  </div>
+</div>
+
+<footer>
+  Reglas transversales: R9 (error con retry in-situ), R8 (reduced-motion), 4 estados por pantalla, textos en español, componentes citados del DS V1 §8.<br>
+  Archivo: <span class="mono">Artefactos/documentación/Flujos/FLUJOS_VISUAL.html</span> · lang es
+</footer>
+
+<script>
+const F=[
+{k:'Foto de perfil',hu:'HU-14 · Épica 6',d:'Alex personaliza su avatar desde Perfil.',
+ h:[['Toca badge 📷','Abre selector de origen (galería/cámara) con permiso explicado','Sheet → picker nativo'],
+    ['Elige la foto','Recorte circular 1:1 + validación ≤2 MB y mime','preview en ClayAvatarPicker'],
+    ['«Usar esta foto»','imageStore guarda UUID en FileSystem → updatePhoto','avatar se actualiza con easing clay']],
+ b:[['Toca badge 📷','Solicitud de permiso de galería','dialogo nativo'],
+    ['Denegar','estado de error con enlace a Ajustes + opción gradiente','err card + btn2'],
+    ['«Usar gradiente»','clearPhoto() → avatar V1 intacto','fallback iniciales']]},
+
+{k:'Validación PIN',hu:'HU-16 · Épica 7',d:'Desbloqueo con feedback visible (nada congelado).',
+ h:[['4.º dígito','se dispara validate() y aparece ClayLoader','overlay blur+spinner'],
+    ['Respuesta ≤1 s','haptic success + SessionGate → App','transición a tabs']],
+ b:[['4.º dígito','ClayLoader visible mientras valida','overlay blur+spinner'],
+    ['PIN incorrecto','haptic error + borde error + contador 2/5','err in-situ, loader se retira'],
+    ['5.º fallo','backoff RATE_LIMITED con cuenta regresiva','err deshabilitado 30 s']]},
+
+{k:'Crear hito',hu:'HU-17 · Épica 8',d:'Hito con imágenes y ligazón, guardado transaccional.',
+ h:[['Toca «+ Nuevo hito»','sheet new-hito con preview en vivo','formSheet'],
+    ['Nombre + chips + 2 fotos','CTA habilitado (Zod válido)','cta active'],
+    ['«Guardar hito»','create() tx: hito+imágenes+links → lista','nueva MilestoneCard animada']],
+ b:[['Deja el nombre vacío','CTA permanece deshabilitado con mensaje','cta off + msg'],
+    ['Añade la 11.ª foto','error Límite (10) con instrucción','err card'],
+    ['Guardar con 10 fotos ok','create() tx → lista + toast','success']]},
+
+{k:'Ver hito + carrusel',hu:'HU-18 · Épica 8',d:'Navegación del carrusel y comentario.',
+ h:[['Abre el hito','ClayCarousel muestra slide 1/3 con dots','detalle'],
+    ['Desliza →','snap 320 ms a slide 2, contador 2/3','transición easing.std'],
+    ['«Comentar»','sheet con textarea ≤500 → guardar','comentario en card']],
+ b:[['Hito sin imágenes','vista de texto con CTA «añadir foto»','empty state'],
+    ['«Borrar»','confirmación Alert → remove() + limpia FileSystem','back a lista']]},
+
+{k:'Crear medalla',hu:'HU-21/22 · Épica 10',d:'Logro personalizado con criterio y vínculos.',
+ h:[['«+ Crear medalla»','sheet new-logro con preview de anillo','formSheet'],
+    ['Criterio «Combinado» + hábito + meta','chips seleccionados, umbral 7, progreso barra','preview 5/7'],
+    ['«Crear medalla»','createCustom (is_custom=1) → Mis logros','medalla en lista']],
+ b:[['Sin vínculos','CTA deshabilitado + error «selecciona ≥1»','cta off + err'],
+    ['Intentar editar una seed','acción bloqueada (🔒) — seeds inmutables','chip locked'],
+    ['Crear con vínculos','alta exitosa → lista','success']]},
+
+{k:'Desbloqueo de medalla',hu:'HU-23 · Épica 10',d:'Evaluación idempotente post check-in.',
+ h:[['Check-in de hoy','evaluateEvent evalúa criterios de medallas custom','dominio puro'],
+    ['Umbral alcanzado (7/7)','unlock idempotente + CelebrationWatcher','modal 4 s (R5)'],
+    ['Ver en Mis logros','medalla con anillo 100 % y fecha','estado desbloqueada']],
+ b:[['Check-in sin umbral','sin unlocks; progreso se actualiza (5→6)','solo barra'],
+    ['Segundo check-in mismo día','no re-desbloquea (UNIQUE user+achievement)','sin evento'],
+    ['Evento duplicado','evaluateEvent retorna []','idempotente']]},
+
+{k:'Crear motivación',hu:'HU-24 · Épica 11',d:'Card con disparador por defecto «sin racha».',
+ h:[['«+ Motivación»','sheet con preview swipeable en vivo','formSheet'],
+    ['Texto 44/140 + meta 2 L','trigger «si hoy no hay racha» preseleccionado','seg on'],
+    ['«Guardar motivación»','create() → colección de Alex','chip nuevo']],
+ b:[['Texto 141 caracteres','CTA deshabilitado + contador rojo','msg error'],
+    ['50 motivaciones','error Límite con gestión sugerida','err card']]},
+
+{k:'Motivación en Hoy',hu:'HU-25 · Épica 11',d:'La cola aparece solo cuando el día va sin racha.',
+ h:[['Abrir Hoy sin check-in','motivationQueueService encola hasta 5 (meta sin racha primero)','SwipeCard entra con animación'],
+    ['Arrastra → (≥90 px)','guardar ★ y avanza a la siguiente','stamp + remoción'],
+    ['«Deshacer»','revierte la última acción','card vuelve a la pila']],
+ b:[['Hoy CON check-in','la pila no aparece — racha en marcha','solo contenido normal'],
+    ['Arrastre <90 px','la card vuelve al centro con easing clay','snap back'],
+    ['Reduced-motion','sin rotación; acción por botones accesibles','estado accesible']]},
+
+{k:'Stats de meta',hu:'HU-19/20 · Épica 9',d:'Progreso, notas y gráficos día/hora.',
+ h:[['Abrir meta','progreso 64 % + sección stats','goal/[id]'],
+    ['Ver «por día»','ClayBars anima 7 barras gradiente','bars 320 ms'],
+    ['Añadir nota','GOAL_UPDATE tx → nota con fecha mono','nota persistida']],
+ b:[['Meta sin historial','empty con CTA «+ Añadir avance»','empty state'],
+    ['stats_cache corrupta','error + retry → recompute','err in-situ']]},
+
+{k:'Stats de hábito',hu:'HU-26 · Épica 12',d:'Tasa 30 días, hora pico y hitos ligados.',
+ h:[['Abrir hábito → stats','tasa 78 % + barras día','habit/[id]'],
+    ['Ver «por hora»','Victory muestra pico 7 AM','tooltip'],
+    ['Sección hitos','acceso a hitos ligados + crear','cruce R8→hitos']],
+ b:[['<3 registros','empty «pocos datos»','empty state'],
+    ['Error de caché','retry in-situ (R9)','err card']]},
+];
+let fi=0,mode='h',step=0;
+const fl=document.getElementById('flws');
+F.forEach((f,i)=>{const b=document.createElement('button');b.className='fchip'+(i?'':' on');b.textContent=f.k;b.onclick=()=>selF(i);fl.appendChild(b)});
+function selF(i){fi=i;step=0;[...fl.children].forEach((c,j)=>c.classList.toggle('on',j===i));render()}
+function setMode(m,btn){mode=m;step=0;[...document.querySelectorAll('.mode')].forEach(b=>b.classList.remove('on'));btn.classList.add('on');render()}
+function reset(){step=0;render()}
+function move(d){const arr=F[fi][mode==='h'?'h':'b'];step=Math.max(0,Math.min(arr.length-1,step+d));render()}
+function pad(){let h='<div class="pad">';for(const x of['1','2','3','4','5','6','7','8','9','','0','⌫'])h+=`<b>${x}</b>`;return h+'</div>'}
+function bars(v){return v.map((x,i)=>`<div class="bar"><div class="f" style="height:${x}%;animation-delay:${i*.05}s"></div><span>${'LMMJVSD'[i]||''}</span></div>`).join('')}
+function render(){
+ const f=F[fi],arr=f[mode==='h'?'h':'b'],s=arr[step];
+ document.getElementById('pT').textContent=f.k+' — '+(mode==='h'?'camino feliz':'caso borde');
+ document.getElementById('pH').textContent=f.hu;
+ document.getElementById('pD').textContent=f.d;
+ document.getElementById('steps').innerHTML=arr.map((x,i)=>`<div class="step ${i<step?'done':''} ${i===step?'cur':''}">
+   <b>${i+1}. ${x[0]}</b><div class="ta"><span class="trg">→</span> ${x[1]}</div><div class="ta"><span class="trg">⟳</span> ${x[2]}</div></div>`).join('');
+ document.getElementById('end').innerHTML = step===arr.length-1?'<div class="ok"><b>✅ Flujo completado</b>'+(mode==='h'?'Happy path recorrido.':'Borde resuelto con estado en contexto (R9).')+'</div>':'';
+ document.getElementById('nx').disabled = step===arr.length-1;
+ document.getElementById('nx').style.opacity = step===arr.length-1?.5:1;
+ document.getElementById('view').innerHTML=`<div class="appbar"><h3>${f.k}</h3><div class="ico">☰</div></div><div class="anim">${screen(f.k,mode,step,arr.length)}</div>`;
+}
+function screen(k,m,st,n){
+ const last=st===n-1;
+ if(k==='Foto de perfil') return m==='h'
+   ? (st===0?`<div class="ava">AR<div class="cam">📷</div></div><div class="card" style="text-align:center"><small style="color:var(--text-muted)">Toca la cámara →</small></div>`
+    : st===1?`<div class="ava" style="background:linear-gradient(135deg,#2EC4B6,#6D4BF5)">AR<div class="cam">✓</div></div><div style="text-align:center"><span class="chip">preview 1:1</span></div><button class="cta">Usar esta foto</button>`
+    : `<div class="ava">AR<div class="cam">📷</div></div><div class="ok"><b>✅ Foto actualizada</b>Se guardó en tu perfil.</div>`)
+   : (st===0?`<div class="ava">AR<div class="cam">📷</div></div>` : st===1?`<div class="err"><b>⛔ Permiso denegado</b>Activa la galería en Ajustes.<button>Abrir ajustes</button></div>`
+    : `<div class="ava">AR</div><button class="btn2">Usar gradiente (sin foto)</button>`);
+ if(k==='Validación PIN') return `<div class="dots">${'<i class="on"></i>'.repeat(m==='h'?4:4)}${'<i></i>'.repeat(2)}</div>${pad()}
+   ${st>=1?`<div class="ovl"><div class="sp"></div><p>Validando…</p></div>`:''}
+   ${last&&m==='b'&&st===1?`<div class="err" style="position:relative;z-index:6"><b>⚠️ PIN incorrecto (2/5)</b>Reintentar</div>`:''}
+   ${last&&m==='b'&&st===2?`<div class="err" style="position:relative;z-index:6"><b>⏳ RATE_LIMITED</b>Espera 30 s</div>`:''}
+   ${last&&m==='h'?`<div class="ok" style="position:relative;z-index:6"><b>🔓 Bienvenido</b>Abriendo la app…</div>`:''}`;
+ if(k==='Crear hito') return m==='h'
+  ? (st===0?`<div class="fld"><label>Nombre</label><div class="inp">Ej. Primera 5K</div></div><button class="cta off">Guardar hito</button>`
+   : st===1?`<div class="fld"><label>Nombre</label><div class="inp focus">Primera 5K completada</div></div><div><span class="chip">🏃 Correr</span><span class="chip g">🎯 Meta 50 km</span></div><div class="fld" style="margin-top:8px"><label>Fotos (2/10)</label><div style="display:flex;gap:7px"><i style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#6D4BF5,#9B7BFF);display:flex;align-items:center;justify-content:center;font-style:normal">🏃</i><i style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#2EC4B6,#6D4BF5);display:flex;align-items:center;justify-content:center;font-style:normal">🌅</i></div></div><button class="cta">Guardar hito</button>`
+   : `<div class="ok"><b>✅ Hito guardado</b>3 imágenes · 2 ligazones (transaccional)</div><div class="card"><b>Primera 5K completada</b><div class="mono" style="font-size:11px;color:var(--text-muted)">2026-10-12</div></div>`)
+  : (st===0?`<div class="fld"><label>Nombre</label><div class="inp">vacío</div><div style="font-size:11.5px;color:var(--error);font-weight:700;margin-top:4px">El nombre es obligatorio</div></div><button class="cta off">Guardar hito</button>`
+   : st===1?`<div class="fld"><label>Fotos</label><div class="err"><b>⚠️ 11 imágenes</b>Máximo 10</div></div><button class="cta off">Guardar hito</button>`
+   : `<div class="ok"><b>✅ Hito creado</b>Con 10 fotos válidas</div>`);
+ if(k==='Ver hito + carrusel') return m==='h'
+  ? (st===0?`<div class="carr">🏃<div class="cnt mono">1/3</div><div class="dd"><i class="on"></i><i></i><i></i></div></div><div class="card"><b>Primera 5K completada</b></div>`
+   : st===1?`<div class="carr" style="background:linear-gradient(135deg,#2EC4B6,#6D4BF5)">🌅<div class="cnt mono">2/3</div><div class="dd"><i></i><i class="on"></i><i></i></div></div><div class="card"><b>Primera 5K completada</b></div>`
+   : `<div class="carr" style="background:linear-gradient(135deg,#F59E0B,#FF6B6B)">🎉<div class="cnt mono">3/3</div><div class="dd"><i></i><i></i><i class="on"></i></div></div><div class="card"><b>💬 Comentario</b><p style="font-size:13px;color:var(--text-muted)">Lo logré en el parque 🏞</p></div>`)
+  : (st===0?`<div class="card" style="text-align:center"><div style="font-size:36px">🖼️</div><b>Sin imágenes</b><p style="font-size:12.5px;color:var(--text-muted)">solo texto</p></div><button class="cta">📷 Añadir foto</button>`
+   : `<div class="err"><b>🗑 ¿Borrar hito?</b>Se eliminarán sus fotos.<button>Sí, borrar</button></div>`);
+ if(k==='Crear medalla') return m==='h'
+  ? (st===0?`<div class="fld"><label>Nombre</label><div class="inp">Ej. Semana de hierro</div></div><button class="cta off">Crear medalla</button>`
+   : st===1?`<div class="medal"><div class="in"><b>🏅</b><span>5/7</span></div></div><div><span class="chip">🏃 Correr</span><span class="chip g">🎯 Meta 50 km</span></div><div class="seg"><b class="on">7 días</b><b>14</b></div><button class="cta">Crear medalla</button>`
+   : `<div class="ok"><b>✅ Medalla creada</b>is_custom = 1 · progreso 5/7</div><div class="medal"><div class="in"><b>🏅</b><span>5/7</span></div></div>`)
+  : (st===0?`<div class="fld"><label>Ligada a</label><div class="err"><b>⚠️ Sin vínculos</b>Selecciona ≥1 hábito o meta</div></div><button class="cta off">Crear medalla</button>`
+   : st===1?`<div class="mrow">⭐ Primera vez <span style="color:var(--text-muted)">🔒 seed</span></div><div class="err" style="font-size:12.5px"><b>🔒 Inmutable</b>Las medallas semilla no se editan.</div>`
+   : `<div class="ok"><b>✅ Creada con vínculos</b></div>`);
+ if(k==='Desbloqueo de medalla') return m==='h'
+  ? (st===0?`<div class="mrow">💧 Check-in hoy <span style="color:var(--primary)">✓</span></div><div class="card"><b>Evaluando medallas…</b></div>`
+   : st===1?`<div class="medal"><div class="in"><b>🏅</b><span>7/7</span></div></div><div class="ok"><b>🎉 ¡Semana de hierro!</b>Celebración R5 · 4 s</div>`
+   : `<div class="medal"><div class="in"><b>🏅</b><span>7/7</span></div></div><div class="mrow">Desbloqueada <span class="mono" style="font-size:11px">2026-10-10</span></div>`)
+  : (st===0?`<div class="mrow">Progreso <b>5/7 → 6/7</b></div><div class="card"><small style="color:var(--text-muted)">sin unlock todavía</small></div>`
+   : st===1?`<div class="mrow">Segundo check-in hoy <span>✓</span></div><div class="card"><b>Sin cambios</b><small style="color:var(--text-muted)">idempotente — UNIQUE(user, achievement)</small></div>`
+   : `<div class="ok"><b>✅ evaluateEvent → []</b>nada que desbloquear</div>`);
+ if(k==='Crear motivación') return m==='h'
+  ? (st===0?`<div class="fld"><label>Tu motivación</label><div class="inp">Escribe algo que te levante…</div><div style="font-size:11px;color:var(--text-muted);text-align:right">0/140</div></div><button class="cta off">Guardar</button>`
+   : st===1?`<div class="fld"><label>Tu motivación</label><div class="inp focus">Beber agua es el botón reset del cerebro.</div><div style="font-size:11px;color:var(--text-muted);text-align:right">44/140</div></div><div class="seg"><b class="on">Sin racha</b><b>Mañana</b></div><button class="cta">Guardar</button>`
+   : `<div class="ok"><b>✅ Motivación guardada</b>meta: 2 L diarios · trigger no_streak</div>`)
+  : (st===0?`<div class="fld"><label>Tu motivación</label><div class="inp focus">AAAA…</div><div style="font-size:11px;color:var(--error);font-weight:800;text-align:right">141/140</div><div style="font-size:11.5px;color:var(--error);font-weight:700">Máximo 140 caracteres</div></div><button class="cta off">Guardar</button>`
+   : `<div class="err"><b>⚠️ 50/50 motivaciones</b>Gestiona las existentes primero.</div>`);
+ if(k==='Motivación en Hoy') return m==='h'
+  ? (st===0?`<div class="card" style="background:linear-gradient(135deg,#6D4BF5,#8B6BFF);color:#fff"><small style="opacity:.85">🔥 Racha</small><b style="font-family:Sora;font-size:22px">14 días</b></div><div class="swip"><div><div style="font-size:30px">🔥</div><h4>«Un día flojo no borra una semana fuerte.»</h4><p>Meta: Correr 50 km</p></div><p style="font-size:11px">→ guardar · ← descartar</p></div>`
+   : st===1?`<div class="swip"><div class="chip" style="position:absolute;top:12px;right:12px;background:#DCFCE7;color:#166534">★ GUARDADA</div><div><div style="font-size:30px">🌱</div><h4>«Beber agua es el botón reset.»</h4><p>Meta: 2 L</p></div></div>`
+   : `<div class="ok"><b>↺ Deshecho</b>la card volvió a la pila</div>`)
+  : (st===0?`<div class="card"><b>💧 Beber 2 L</b><div class="mrow" style="margin-top:8px;box-shadow:none;background:var(--surface-alt)">Check-in hecho <span style="color:var(--success)">✓</span></div></div><div class="card" style="text-align:center"><small style="color:var(--text-muted)">sin pila de motivaciones — racha en marcha</small></div>`
+   : st===1?`<div class="swip" style="transform:rotate(-4deg)"><div><h4>«…»</h4></div><p style="font-size:11px">arrastre &lt; 90 px → snap back</p></div>`
+   : `<div class="card"><b>Accesible</b><div style="display:flex;gap:8px;margin-top:8px"><button class="btn2" style="margin:0">✕ Descartar</button><button class="cta" style="margin:0">★ Guardar</button></div></div>`);
+ if(k==='Stats de meta') return m==='h'
+  ? (st===0?`<div class="card"><b>🎯 Correr 50 km</b><div style="height:8px;background:var(--track);border-radius:6px;margin-top:8px;overflow:hidden"><i style="display:block;width:64%;height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary))"></i></div><small style="color:var(--text-muted)">32/50 km</small></div>`
+   : st===1?`<div class="card"><b style="font-size:13.5px">Por día</b><div class="bars">${bars([78,64,91,55,83,40,72])}</div></div>`
+   : `<div class="card"><b style="font-size:13.5px">Notas</b><div class="inp" style="min-height:40px;font-size:13px">Semana 2: subí intensidad los martes.</div></div>`)
+  : (st===0?`<div class="card" style="text-align:center"><div style="font-size:34px">📊</div><b>Sin historial</b><button class="cta">+ Añadir avance</button></div>`
+   : `<div class="err"><b>⚠️ Error de stats</b>no se pudo leer stats_cache<button>Reintentar</button></div>`);
+ if(k==='Stats de hábito') return m==='h'
+  ? (st===0?`<div class="card"><div style="display:flex;justify-content:space-between"><b>💧 Beber 2 L</b><span class="chip">78% 30d</span></div><div class="bars">${bars([78,64,91,55,83,40,72])}</div></div>`
+   : st===1?`<div class="card"><b style="font-size:13.5px">Por hora</b><div class="bars" style="height:60px">${bars([30,95,52,24,60,44])}</div><small class="mono" style="color:var(--text-muted)">pico 7 AM</small></div>`
+   : `<div class="card"><b style="font-size:13.5px">Hitos ligados</b><div><span class="chip">🏁 30 días de agua</span></div></div>`)
+  : (st===0?`<div class="card" style="text-align:center"><div style="font-size:32px">📈</div><b>Pocos datos</b><small style="color:var(--text-muted)">≥3 registros</small></div>`
+   : `<div class="err"><b>⚠️ Error</b>retry in-situ (R9)<button>Reintentar</button></div>`);
+ return '<div class="card">…</div>';
+}
+render();
+</script>
+</body>
+</html>

@@ -27,6 +27,9 @@ export function rowToAchievement(r: {
   description: string;
   icon: string;
   criteria: string;
+  is_custom?: number;
+  progress_style?: string | null;
+  unlock_mode?: string | null;
 }): Achievement {
   return {
     id: r.id,
@@ -35,5 +38,8 @@ export function rowToAchievement(r: {
     description: r.description,
     icon: r.icon,
     criteria: JSON.parse(r.criteria),
+    isCustom: r.is_custom === 1,
+    progressStyle: (r.progress_style as Achievement['progressStyle']) ?? undefined,
+    unlockMode: (r.unlock_mode as Achievement['unlockMode']) ?? undefined,
   };
 }

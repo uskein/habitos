@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo B — Pulse Clay V2 (Compacto/Editorial)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0;
+    --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3;
+    --success:#22C55E; --error:#DC2626;
+    --r-card:16px; --r-md:12px; --r-pill:999px;
+    --sh-flat:0 1px 3px rgba(23,18,43,.08);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:40px 5vw 80px}
+  h1,h2,h3,.sora{font-family:"Sora","Plus Jakarta Sans",sans-serif}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--secondary)}
+  h1{font-size:34px;margin:6px 0 26px}
+  h2{font-size:20px;margin:44px 0 14px;padding-top:20px;border-top:1px solid var(--border)}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh-flat);padding:16px}
+  .label{font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .sw{border-radius:10px;padding:12px 10px;height:80px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;font-size:11px}
+  .sw small{opacity:.85;font-size:10px}
+  .btn{border:1px solid var(--border);border-radius:var(--r-pill);padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:var(--surface);color:var(--text);transition:all .18s var(--ease-std)}
+  .btn-p{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn-p:hover{background:var(--primary-hover)}
+  .btn-d{background:var(--surface-alt);color:#8B84A6;border-color:transparent;cursor:not-allowed}
+  /* 1 Avatar */
+  .ava-wrap{position:relative;width:72px;height:72px}
+  .ava{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Sora";font-size:24px;font-weight:700;border:2px solid var(--surface);box-shadow:var(--sh-flat)}
+  .cam{position:absolute;right:-6px;bottom:-6px;width:26px;height:26px;border-radius:9px;background:var(--primary);border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer}
+  /* 2 Loader integrado en la card (no overlay) */
+  .pin\boxed{width:270px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;position:relative;overflow:hidden;box-shadow:var(--sh-flat)}
+  .pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:16px}
+  .pin-dots i{width:13px;height:13px;border-radius:50%;background:var(--track)}
+  .pin-dots i.on{background:var(--primary)}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pad b{background:var(--surface-alt);border-radius:12px;text-align:center;padding:11px 0;font-size:17px;font-family:"Sora";font-weight:600}
+  .inline-load{display:none;align-items:center;gap:10px;justify-content:center;background:var(--surface-alt);border-radius:10px;padding:10px;margin-top:12px}
+  .pinbox.loading .inline-load{display:flex}
+  .pinbox.loading .pad{opacity:.4;pointer-events:none}
+  .spinner{width:20px;height:20px;border-radius:50%;border:3px solid var(--track);border-top-color:var(--primary);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .inline-load p{font-size:12.5px;color:var(--text-muted);font-weight:600}
+  /* 3 Milestone compacto con imagen lateral */
+  .mile{width:420px;display:flex;gap:0;padding:0;overflow:hidden}
+  .mile .thumb{width:130px;min-height:170px;display:flex;align-items:center;justify-content:center;font-size:38px;position:relative;background:linear-gradient(135deg,#6D4BF5,#2EC4B6)}
+  .cnt{position:absolute;top:8px;left:8px;background:rgba(23,18,43,.55);color:#fff;font-family:"JetBrains Mono";font-size:10px;padding:2px 7px;border-radius:999px}
+  .ndots{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:5px;justify-content:center}
+  .ndots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}
+  .ndots i.on{background:#fff;width:14px;border-radius:4px}
+  .mile .body{padding:14px 16px;flex:1}
+  .date{font-family:"JetBrains Mono";font-size:10.5px;color:var(--text-muted)}
+  .mile h3{font-size:15.5px;margin:5px 0 5px}
+  .mile p{font-size:12.5px;color:var(--text-muted);line-height:1.5}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface-alt);color:var(--primary);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;margin:8px 6px 0 0}
+  .chip.goal{background:#DDF7F4;color:#0F766E}
+  .acts{display:flex;gap:6px;margin-top:10px}
+  .mini-btn{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .mini-btn.pri{background:var(--primary);border-color:var(--primary);color:#fff}
+  /* 5 Swipe minimal */
+  .swipe-stage{width:280px;height:300px;position:relative;user-select:none}
+  .swip{position:absolute;inset:0;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);box-shadow:var(--sh-flat);padding:20px;display:flex;flex-direction:column;justify-content:space-between;cursor:grab;touch-action:none}
+  .swip h3{font-family:"Sora";font-size:17.5px;line-height:1.35;margin:8px 0}
+  .swip p{font-size:12.5px;color:var(--text-muted)}
+  .sw-actions{display:flex;gap:10px;margin-top:12px;justify-content:center}
+  .sw-actions button{width:52px;height:52px;border-radius:50%;border:1px solid var(--border);background:var(--surface);font-size:19px;cursor:pointer;transition:transform .2s var(--ease-clay)}
+  .sw-actions button:hover{transform:scale(1.1)}
+  .hint{font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:10px}
+  /* Charts */
+  .bars{display:flex;align-items:flex-end;gap:9px;height:150px}
+  .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center;gap:5px}
+  .bar .fill{border-radius:6px 6px 3px 3px;background:var(--primary);transform-origin:bottom;animation:grow .32s var(--ease-std) both;min-height:5px}
+  .bar .fill.alt{background:var(--secondary)}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .bar span{font-size:10px;color:var(--text-muted);font-weight:600}
+  .bar b{font-family:"JetBrains Mono";font-size:10.5px}
+  .stat-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .stat-h h3{font-size:14px}
+  .stat-h .pill{font-family:"JetBrains Mono";font-size:11px;background:var(--surface-alt);color:var(--primary);padding:3px 9px;border-radius:999px;font-weight:700}
+  .stats3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .note{background:var(--surface-alt);border-left:3px solid var(--secondary);border-radius:8px;padding:9px 11px;font-size:12.5px;color:var(--text-muted);margin-top:10px}
+  .spark svg{width:100%;height:64px;display:block}
+  @media (max-width:640px){body{padding:24px 16px 60px}.mile{width:100%;flex-direction:column}.mile .thumb{width:100%;min-height:120px}}
+</style>
+</head>
+<body>
+<span class="kicker">Prototipo B · Variante compacta/editorial</span>
+<h1>Pulse Clay V2 — mismos componentes, otro énfasis</h1>
+
+<h2>Paleta (idéntica a V1 — solo cambia la disposición)</h2>
+<div class="swatches">
+  <div class="sw" style="background:#6D4BF5">primary<small>#6D4BF5</small></div>
+  <div class="sw" style="background:#2EC4B6">secondary<small>#2EC4B6</small></div>
+  <div class="sw" style="background:#FF6B6B">streak<small>#FF6B6B</small></div>
+  <div class="sw" style="background:#F59E0B">award<small>#F59E0B</small></div>
+  <div class="sw" style="background:#DDD5FB;color:#17122B">track<small>#DDD5FB</small></div>
+  <div class="sw" style="background:#17122B">text<small>#17122B</small></div>
+</div>
+
+<h2>1 · ClayAvatarPicker — esquina redondeada (no círculo)</h2>
+<div class="row">
+  <div class="card" style="text-align:center">
+    <div class="label">Estado vacío</div>
+    <div class="ava-wrap" style="margin:0 auto"><div class="ava">MK</div><div class="cam">📷</div></div>
+  </div>
+  <div class="card" style="max-width:260px">
+    <div class="label">Diferencia con A</div>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6">Avatar con <b>radio 22 px</b> (squircle), borde 2 px, sombra plana. Sensación más «app de productividad» que «social».</p>
+  </div>
+</div>
+
+<h2>2 · ClayLoader — barra integrada (sin overlay full)</h2>
+<div class="row">
+  <div class="pinbox" id="pinbox">
+    <div class="pin-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <div class="pad"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b></b><b>0</b><b>⌫</b></div>
+    <div class="inline-load"><div class="spinner"></div><p>Validando PIN…</p></div>
+  </div>
+  <div class="card" style="max-width:280px">
+    <div class="label">Comportamiento</div>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6">Al 4.º dígito el <b>pad se atenúa (40 %)</b> y aparece una fila inline con spinner 20 px + «Validando PIN…» sobre <span class="mono">surfaceAlt</span>. Sin capa blur; más discreto, misma información.</p>
+    <button class="btn btn-p" style="margin-top:12px" onclick="demoPin()">Probar animación</button>
+  </div>
+</div>
+
+<h2>3 · MilestoneCard — thumb lateral + carrusel compacto</h2>
+<div class="row">
+  <div class="card mile">
+    <div class="thumb">🏃<div class="cnt mono" id="ccnt">1/3</div><div class="ndots" id="ndots"><i class="on"></i><i></i><i></i></div></div>
+    <div class="body">
+      <span class="date mono">2026-10-12</span>
+      <h3>Primera 5K completada</h3>
+      <p>Salí a las 6:40 AM y no paré. El sueño valió la pena.</p>
+      <span class="chip">🏃 Correr 3×/sem</span><span class="chip goal">🎯 Meta 50 km</span>
+      <div class="acts"><button class="mini-btn pri">💬 Comentar</button><button class="mini-btn">📷 Foto</button></div>
+    </div>
+  </div>
+  <div class="card" style="max-width:280px">
+    <div class="label">Diferencia con A</div>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6">Imagen <b>lateral 130 px</b> en vez de full-bleed: más densidad de información, mejor para listas largas de hitos. Carrusel por toque en el thumb.</p>
+  </div>
+</div>
+
+<h2>5 · Motivaciones — swipe + botones (accesible)</h2>
+<div class="row">
+  <div>
+    <div class="swipe-stage" id="stage">
+      <div class="swip"><div><div style="font-size:34px">🔥</div><h3>«Un día flojo no borra una semana fuerte.»</h3><p>Meta: <b>Correr 50 km este mes</b> · sin racha hoy</p></div><p style="font-size:11px">Arrastra o usa los botones</p></div>
+      <div class="swip"><div><div style="font-size:34px">🌱</div><h3>«Beber agua es el botón reset del cerebro.»</h3><p>Meta: <b>2 L diarios</b> · creada por ti</p></div><p style="font-size:11px">Arrastra o usa los botones</p></div>
+    </div>
+    <div class="sw-actions">
+      <button title="Descartar" onclick="advance(false)">✕</button>
+      <button title="Guardar" onclick="advance(true)">★</button>
+    </div>
+    <div class="hint">Doble vía: swipe <b>y</b> botones (accesibilidad / motor)</div>
+  </div>
+  <div class="card" style="max-width:290px">
+    <div class="label">Comportamiento</div>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6">Misma física que A (rotación ±12°, escala 0.96) pero con <b>botones de respaldo</b> siempre visibles → accesible sin gestos. Undo bajo la pila.</p>
+    <div class="sw-actions" style="justify-content:flex-start;margin-top:10px"><button style="width:40px;height:40px;font-size:15px" onclick="alert('Undo demo')">↺</button></div>
+  </div>
+</div>
+
+<h2>6 · Estadísticas — barras sólidas + Skia + Victory</h2>
+<div class="stats3">
+  <div class="card">
+    <div class="stat-h"><h3>Día · hábito</h3><span class="pill">78%</span></div>
+    <div class="bars">
+      <div class="bar"><b>78</b><div class="fill" style="height:78%"></div><span>L</span></div>
+      <div class="bar"><b>64</b><div class="fill" style="height:64%"></div><span>M</span></div>
+      <div class="bar"><b>91</b><div class="fill alt" style="height:91%"></div><span>X</span></div>
+      <div class="bar"><b>55</b><div class="fill" style="height:55%"></div><span>J</span></div>
+      <div class="bar"><b>83</b><div class="fill" style="height:83%"></div><span>V</span></div>
+      <div class="bar"><b>40</b><div class="fill" style="height:40%"></div><span>S</span></div>
+      <div class="bar"><b>72</b><div class="fill alt" style="height:72%"></div><span>D</span></div>
+    </div>
+  </div>
+  <div class="card spark">
+    <div class="stat-h"><h3>Racha · Skia</h3><span class="pill mono">pico 14</span></div>
+    <svg viewBox="0 0 260 64" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="gb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6D4BF5"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient>
+        <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6D4BF5" stop-opacity=".12"/><stop offset="1" stop-color="#6D4BF5" stop-opacity="0"/></linearGradient>
+      </defs>
+      <path d="M0,50 L43,44 L86,47 L130,30 L173,34 L216,16 L260,9 L260,64 L0,64 Z" fill="url(#ga)"/>
+      <path d="M0,50 L43,44 L86,47 L130,30 L173,34 L216,16 L260,9" fill="none" stroke="url(#gb)" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="card">
+    <div class="stat-h"><h3>Hora · Victory</h3><span class="pill mono">7 AM</span></div>
+    <div class="bars" style="height:100px">
+      <div class="bar"><div class="fill" style="height:30%"></div><span>6h</span></div>
+      <div class="bar"><div class="fill" style="height:95%"></div><span>7h</span></div>
+      <div class="bar"><div class="fill" style="height:52%"></div><span>8h</span></div>
+      <div class="bar"><div class="fill" style="height:24%"></div><span>12h</span></div>
+      <div class="bar"><div class="fill" style="height:60%"></div><span>20h</span></div>
+    </div>
+    <div class="note">En Hábito · Meta · Hito</div>
+  </div>
+</div>
+
+<h2>Referencia — botones (V1, sin cambios)</h2>
+<div class="row">
+  <button class="btn btn-p">Guardar</button>
+  <button class="btn">Cancelar</button>
+  <button class="btn btn-d" disabled>Deshabilitado</button>
+</div>
+
+<script>
+  function demoPin(){const b=document.getElementById('pinbox');b.classList.add('loading');setTimeout(()=>b.classList.remove('loading'),1600)}
+  let i=0;const dots=[...document.getElementById('ndots').children],cnt=document.getElementById('ccnt');
+  const grads=['linear-gradient(135deg,#6D4BF5,#2EC4B6)','linear-gradient(135deg,#2EC4B6,#F59E0B)','linear-gradient(135deg,#F59E0B,#FF6B6B)'];
+  function setI(k){i=(k+3)%3;document.querySelector('.thumb').style.background=grads[i];dots.forEach((d,j)=>d.classList.toggle('on',j===i));cnt.textContent=(i+1)+'/3'}
+  dots.forEach((d,j)=>d.onclick=()=>setI(j));
+  document.querySelector('.thumb').onclick=()=>setI(i+1);
+  setInterval(()=>setI(i+1),3400);
+
+  const stage=document.getElementById('stage');
+  let sx=0,dx=0,drag=false;
+  function topEl(){return stage.lastElementChild}
+  function bind(el){
+    if(!el)return;
+    el.onpointerdown=e=>{drag=true;sx=e.clientX;el.setPointerCapture(e.pointerId);el.style.transition='none'};
+    el.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/16}deg)`};
+    el.onpointerup=()=>{drag=false;el.style.transition='transform .35s var(--ease-clay)';
+      if(Math.abs(dx)>90){el.style.transform=`translateX(${dx>0?500:-500}px) rotate(${dx>0?22:-22}deg)`;el.style.opacity=0;
+        setTimeout(()=>{el.remove();bind(topEl())},350)}else{el.style.transform=''}dx=0};
+  }
+  bind(topEl());
+  function advance(keep){const el=topEl();if(!el)return;el.style.transition='transform .35s var(--ease-clay)';el.style.transform=`translateX(${keep?500:-500}px) rotate(${keep?22:-22}deg)`;el.style.opacity=0;setTimeout(()=>{el.remove();bind(topEl())},350)}
+</script>
+</body>
+</html>

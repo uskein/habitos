@@ -374,4 +374,46 @@ el wordmark tipográfico es el identificador único.
 
 ---
 
+## 8. Extensión V2 — «Pulse Clay V2» (aprobada 2026-10-10, prototipo A)
+
+La V2 **extiende** este manual sin modificar ningún token V1. Fuente visual:
+`Artefactos/documentación/Prototipos/prototipo-a-pulse-clay-v2.html`.
+
+### 8.1 Token nuevo
+
+| Token | Valor | Uso |
+|---|---|---|
+| `chartArea` | `#6D4BF5` al 12 % de opacidad | Relleno de área bajo sparklines (Skia `LinearGradient`) |
+
+Prohibido usar `chartArea` fuera de gráficos. Nada más cambia en §2.
+
+### 8.2 Componentes nuevos (specs estrictas)
+
+| Componente | Medidas | Comportamiento |
+|---|---|---|
+| **ClayAvatarPicker** | 88 / 56 / 40 px, círculo, borde 3 px `surface` | Gradiente `primary → secondary` con iniciales `Sora` 700; badge cámara 30 px `primary`; flujo galería/cámara → recorte circular → preview → confirmar; opción «Quitar foto» |
+| **ClayLoader** (PIN) | Overlay `inset:0`, blur 10, velo `bg` 55 %; spinner 36 px | Arco `primary` sobre `track`, giro 800 ms **lineal infinito**; texto «Validando…» 13 px `textMuted`; pad visible pero deshabilitado; haptic al salir (success/error) |
+| **MilestoneCard** | Ancho flujo, radio `card` (24), padding 0 + body 16/18 | Carrusel 16:9 full-bleed arriba; fecha `mono` 11; título `Sora` 17; chips de ligazón a hábito/meta (tint `surfaceAlt`/`primary` y `secondarySoft`/`#0F766E`); acciones en `mini-btn` pill |
+| **ClayCarousel** | Altura de contenedor, dots 8 px | Snap 320 ms `easing.std`; dot activo: 20×8 px radio pill `#FFF`; contador mono «n/t» sobre velo `text` 55 % |
+| **SwipeCard** (Motivaciones) | 320 px de ancho, alto 330 px | Arrastre con fricción; rotación máx ±12°; escala 0.96; stamps «GUARDAR ★» `success` / «DESCARTAR ✕» `error` con opacidad lineal a 90 px; release con `easing.clay` 350 ms; undo |
+| **ClayBars** | Altura 160 px, barra 16 px, radio 8 | Fill gradiente `primary → secondary` (vertical), track `#DDD5FB`; animación `scaleY` 320 ms `easing.std`, retardo escalonado 50 ms |
+| **ClaySparkline** | Línea 2.5 px, área `chartArea` | Gradiente lineal `primary → secondary` sobre la línea; punto final 4 px `secondary` |
+| **Victory (drill-down)** | — | Solo en pantalla de Estadísticas: tooltips, sectores, selección de rango |
+
+### 8.3 Movimiento V2
+
+- Overlay del loader: `opacity` 200 ms `easing.std` (nunca bloquear el hilo JS > 1 s).
+- Carrusel: snap 320 ms; dots 200 ms.
+- Swipe: seguimiento lineal al arrastre, asentado 350 ms `easing.clay`.
+- Barras: `transform: scaleY` con `transform-origin: bottom`.
+- **`prefers-reduced-motion` / `useReducedMotion()`:** spinner se congela con frame estático, barras aparecen a altura final, swipe pierde rotación.
+
+### 8.4 Accesibilidad V2
+
+- Pares aprobados reutilizan §5.1; los stamps usan `success`/`error` con borde 3 px (no solo color: llevan texto).
+- Swipes **siempre** con acción alternativa (botones o menú) para lectores de pantalla.
+- Carrusel: `accessibilityRole="pagetab"`, contador anunciado, dots con label «Foto n de t».
+
+---
+
 *Documento generado como SSOT — edición solo mediante proceso de diseño con validación de usuario.*

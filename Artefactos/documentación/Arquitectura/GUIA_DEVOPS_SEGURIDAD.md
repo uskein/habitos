@@ -177,3 +177,40 @@ services:
 | Regresión tras OTA | `eas update --channel production --republish` o rollback a versión anterior |
 | Corrupción de caché de streaks | Herramienta dev: recompute total desde `habit_logs` (script `scripts/recompute-streaks.js`) |
 | Próximo release | Tag `v*` → pipeline completo → QA en channel preview → promote |
+
+---
+
+## V2 — DevOps y seguridad (2026-10-10)
+
+### 1. Repositorio remoto
+- **URL:** `https://github.com/uskein/habitos` (privado) — creado y vinculado como `origin`, branch `main` con tracking.
+- Regla: `commit` → `push` antes de cada `eas build` (EAS clona el remoto).
+
+### 2. Icono y splash de la app
+- Icono «H»: fuente **Sora** en blanco sobre `primary` #6D4BF5, generado en:
+  - `assets/icon.png` (1024²) · `assets/android-icon-foreground.png` (H blanca, área segura) · `assets/android-icon-background.png` (pleno primary) · `assets/favicon.png` · `splash-icon.png`
+- Registrado en `app.json`: `icon`, `splash` (fondo `#6D4BF5`) y `android.adaptiveIcon`.
+- Regenerar: script PowerShell con `System.Drawing` + `assets/fonts/Sora-Variable.ttf`.
+
+### 3. CI/CD (sin cambios de pipeline)
+- GitHub Actions `.github/workflows/ci.yml`: `npm ci` → typecheck `@habitos/shared` → typecheck `@habitos/mobile` → `npm test` (Jest).
+- Builds EAS: `development` (dev client) · `preview` (APK instalable) · `production` (AAB).
+
+### 4. Seguridad V2 — controles nuevos
+
+| Riesgo | Control |
+|---|---|
+| **Path traversal** en fotos | Nombres de archivo **solo UUID**; jamás concatenar input del usuario en rutas; directorio fijo `photos/` |
+| Archivos maliciosos | Validación de extensión + MIME + tamaño ≤2 MB antes de copiar (`imageStore`) |
+| Permisos | `expo-image-picker` con mensajes de uso; solo se piden al usar la función (mínimo privilegio) |
+| Inyección SQL | Continúa: solo prepared statements en repositorios; Zod antes de SQL |
+| Datos de perfil | `photo_uri` es dato local; sin red → sin riesgo de exfiltración (Fase 2: firmar URLs) |
+| Nuevas dependencias | `victory-native`/`image-picker`/`manipulator`/`datetimepicker` pasan `expo-doctor` 21/21 antes de merge |
+| Secrets | Ninguno nuevo en cliente; GH token solo en entorno Actions |
+
+### 5. Runbook V2 (adicional al §5)
+| Evento | Acción |
+|---|---|
+| Fotos huérfanas (registro borrado) | Script `scripts/prune-photos.js` (compara FS vs rutas en BD) |
+| stats_cache corrupta | Borrar tabla → `statsAggregator.recomputeAll()` |
+| Icono actualizado | Regenerar PNGs → bump `version` → `eas build` |

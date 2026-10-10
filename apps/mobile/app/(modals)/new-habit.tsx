@@ -2,7 +2,9 @@ import {
   CreateHabitInput,
   HABIT_CATEGORIES,
   HABIT_COLOR_TOKENS,
+  TIME_SLOTS,
   type CreateHabitInputType,
+  type TimeSlot,
 } from '@habitos/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -17,6 +19,13 @@ import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
 const ICONS = ['💧', '📚', '🏃', '🧘', '🥗', '🧹', '💊', '🛏️'];
 const DAYS = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
 const CATEGORY_LABELS = { bienestar: 'Bienestar', meta: 'Meta', habito: 'Hábito' } as const;
+const SLOT_OPTIONS = ['none', ...TIME_SLOTS] as const;
+const SLOT_LABELS = {
+  none: 'Sin tramo',
+  morning: 'Mañana',
+  afternoon: 'Tarde',
+  evening: 'Noche',
+} as const;
 
 type Category = (typeof HABIT_CATEGORIES)[number];
 type ColorToken = (typeof HABIT_COLOR_TOKENS)[number];
@@ -31,6 +40,7 @@ export default function NewHabitSheet() {
   const [colorToken, setColorToken] = useState<ColorToken>('primary-soft');
   const [frequency, setFrequency] = useState<'daily' | 'custom'>('daily');
   const [customDays, setCustomDays] = useState<number[]>([1, 3, 5]);
+  const [slot, setSlot] = useState<(typeof SLOT_OPTIONS)[number]>('none');
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -46,6 +56,7 @@ export default function NewHabitSheet() {
     colorToken,
     frequency,
     customDays: frequency === 'custom' ? customDays : undefined,
+    timeSlot: (slot === 'none' ? undefined : slot) as TimeSlot | undefined,
   });
 
   const submit = async () => {
@@ -113,7 +124,14 @@ export default function NewHabitSheet() {
         options={['daily', 'custom'] as const}
         value={frequency}
         onChange={setFrequency}
-        labels={{ daily: 'Todos los días', custom: 'Días personalizados' }}
+        labels={{ daily: 'Todos los d��as', custom: 'D��as personalizados' }}
+      />
+      <Text style={styles.label}>Tramo (opcional)</Text>
+      <ChipsTabs
+        options={SLOT_OPTIONS}
+        value={slot}
+        onChange={setSlot}
+        labels={SLOT_LABELS}
       />
       {frequency === 'custom' && (
         <View style={styles.daysRow}>

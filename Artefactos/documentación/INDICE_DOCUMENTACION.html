@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub de Documentación — App Hábitos (Pulse Clay)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --secondary:#2EC4B6; --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3; --track:#DDD5FB; --award:#F59E0B;
+    --r-card:24px; --r-md:16px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14),0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:44px 5vw 90px}
+  h1,h2{font-family:"Sora"}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:clamp(30px,4.4vw,44px);margin:8px 0 8px}
+  .sub{color:var(--text-muted);font-size:15.5px;max-width:760px;line-height:1.65}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+  .stat{background:var(--surface);border-radius:18px;box-shadow:var(--sh-clay);padding:14px 20px;min-width:120px}
+  .stat b{font-family:"Sora";font-size:26px;display:block;color:var(--primary)}
+  .stat span{font-size:12px;color:var(--text-muted);font-weight:700}
+  .search{margin-top:26px;max-width:420px}
+  .search input{width:100%;border:1.5px solid var(--border);border-radius:999px;background:var(--surface);padding:14px 22px;font-size:15px;font-family:inherit;color:var(--text);box-shadow:var(--sh-clay)}
+  .search input:focus{outline:none;border-color:var(--primary)}
+  section{margin-top:44px}
+  h2{font-size:21px;display:flex;align-items:center;gap:10px}
+  h2 .n{width:32px;height:32px;border-radius:11px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:16px}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--surface);border-radius:var(--r-md);box-shadow:var(--sh-clay);padding:18px 18px 16px;transition:transform .18s var(--ease-std),box-shadow .18s var(--ease-std);position:relative}
+  a.card:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(109,75,245,.2),0 3px 8px rgba(23,18,43,.07)}
+  a.card h3{font-size:15.5px;margin-bottom:7px}
+  a.card p{font-size:13px;color:var(--text-muted);line-height:1.55}
+  .tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+  .tag{font-size:10.5px;font-weight:800;letter-spacing:.6px;padding:4px 10px;border-radius:999px;background:var(--surface-alt);color:var(--primary)}
+  .tag.v2{background:#DCFCE7;color:#166534}
+  .tag.html{background:#DDF7F4;color:#0F766E}
+  .tag.ext{background:#FEF3C7;color:#92400E}
+  .muted{color:var(--text-muted)}
+  footer{margin-top:56px;border-top:1px dashed var(--border);padding-top:18px;font-size:12.5px;color:var(--text-muted);line-height:1.7}
+  .mono{font-family:"JetBrains Mono"}
+</style>
+</head>
+<body>
+<span class="kicker">App Hábitos · Pulse Clay</span>
+<h1>Hub de documentación</h1>
+<p class="sub">Single source of truth del proyecto: identidad visual, arquitectura técnica, producto y flujos. Cada tarjeta enlaza el markdown canónico y su showcase interactivo. Filtra con el buscador.</p>
+
+<div class="stats">
+  <div class="stat"><b>3</b><span>skills cerradas</span></div>
+  <div class="stat"><b>30</b><span>historias (HU-1…30)</span></div>
+  <div class="stat"><b>17</b><span>flujos jugables</span></div>
+  <div class="stat"><b>24</b><span>blueprints ×4 estados</span></div>
+  <div class="stat"><b>12</b><span>ADR (001…012)</span></div>
+</div>
+
+<div class="search"><input id="q" type="search" placeholder="Buscar… (ej. hitos, PIN, sitemap, stack)" aria-label="Buscar documentación"></div>
+
+<section>
+  <h2><span class="n">1</span> Identidad visual — <span class="muted">skill disenador-identidad-marca</span></h2>
+  <div class="grid">
+    <a class="card" href="Diseño%20Visual/manual-identidad-visual.md"><h3>Manual de identidad (SSOT)</h3><p>Tokens, tipografía, easings, componentes DS y §8 Extensión V2.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Diseño%20Visual/identidad-visual-v2.html"><h3>Showcase visual V2</h3><p>Paleta, tipografía y componentes en vivo con la extensión V2.</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span></div></a>
+    <a class="card" href="Prototipos/prototipo-a-pulse-clay-v2.html"><h3>Prototipo A — inmersivo ✅</h3><p>Prototipo aprobado: app completa + 3 pantallas de creación interactivas.</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span><span class="tag">aprobado</span></div></a>
+    <a class="card" href="Prototipos/prototipo-b-pulse-clay-v2.html"><h3>Prototipo B — contenido</h3><p>Variante descartada (referencia de decisión).</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span></div></a>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">2</span> Arquitectura técnica — <span class="muted">skill arquitecto-proyecto</span></h2>
+  <div class="grid">
+    <a class="card" href="Arquitectura/README_ARQUITECTURA.md"><h3>README Arquitectura + ADR</h3><p>Stack, patrones y ADR-001…ADR-012 (los 5 nuevos de V2).</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Arquitectura/ESTRUCTURA_DIRECTORIOS.md"><h3>Estructura de directorios</h3><p>Árbol canónico del monorepo (apps/mobile, packages/shared).</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Arquitectura/MODELO_DE_DATOS.md"><h3>Modelo de datos (ERD)</h3><p>Tablas V1 + §2.8–§2.12: milestone, motivation, achievement custom, stats_cache.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Arquitectura/CONTRATOS_API.md"><h3>Contratos de repositorios</h3><p>Interfaces V1 + repositorios y agregados nuevos de V2.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Arquitectura/GUIA_DEVOPS_SEGURIDAD.md"><h3>Guía DevOps y seguridad</h3><p>CI, EAS, runbook de fotos (FileSystem/UUID) y reglas de higiene.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">3</span> Producto y flujos — <span class="muted">skill arquitecto-producto-flujos</span></h2>
+  <div class="grid">
+    <a class="card" href="Producto%20y%20Flujos/REQUERIMIENTOS_FUNCIONALES.md"><h3>Requerimientos funcionales</h3><p>Persona, épicas 1–12, HU-1…HU-26 con criterios, reglas 1–10.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Requerimientos/REQUERIMIENTOS_VISUAL.html"><h3>Showcase Requerimientos V2</h3><p>Épicas 6–12 con criterios interactivos marcables.</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span><span class="tag">aprobado</span></div></a>
+    <a class="card" href="Producto%20y%20Flujos/ARQUITECTURA_INFORMACION.md"><h3>Arquitectura de la información</h3><p>Sitemap 16→23 nodos, reglas R1–R13, trayectorias feliz.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="ArquitecturaInformacion/ARQUITECTURA_INFORMACION_VISUAL.html"><h3>Showcase Sitemap V2</h3><p>Nodos navegables con ficha (ruta, componentes, datos, estados).</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span><span class="tag">aprobado</span></div></a>
+    <a class="card" href="Producto%20y%20Flujos/BLUEPRINTS_DE_PANTALLAS.md"><h3>Blueprints de pantallas</h3><p>8 pantallas V1 + 12 V2, cada una con 4 estados obligatorios.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Blueprints/BLUEPRINTS_VISUAL.html"><h3>Storybook Blueprints V2</h3><p>12 pantallas en phone-frame con selector Loading/Empty/Success/Error.</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span><span class="tag">aprobado</span></div></a>
+    <a class="card" href="Producto%20y%20Flujos/FLUJOS_DE_USUARIO.md"><h3>Flujos de usuario</h3><p>F1–F9 V1 + F10–F19 V2, contratos tocados y criterios de hecho.</p><div class="tags"><span class="tag">MD</span><span class="tag v2">V1+V2</span></div></a>
+    <a class="card" href="Flujos/FLUJOS_VISUAL.html"><h3>Simulación jugable de flujos</h3><p>10 flujos V2: happy path y borde, paso a paso Trigger→Acción→Transición.</p><div class="tags"><span class="tag html">HTML</span><span class="tag v2">V2</span><span class="tag">aprobado</span></div></a>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">4</span> Planificación — <span class="muted">skill orquestador-proyecto</span></h2>
+  <div class="grid">
+    <a class="card" href="Orquestador/PLAN_DE_SPRINTS.md"><h3>Plan de sprints</h3><p>Estado V1 (100 % ✅) y pipeline + decisiones de V2.</p><div class="tags"><span class="tag">MD</span><span class="tag ext">bitácora</span></div></a>
+    <a class="card" href="../CONTRIBUTING.md"><h3>CONTRIBUTING</h3><p>Convenciones de commits, ramas y estilo del monorepo.</p><div class="tags"><span class="tag">MD</span></div></a>
+    <a class="card" href="../README.md"><h3>README raíz</h3><p>Setup, comandos, estructura y arquitectura resumida.</p><div class="tags"><span class="tag">MD</span></div></a>
+  </div>
+</section>
+
+<footer>
+  Single source of truth · Pulse Clay tokens (primary <span class="mono">#6D4BF5</span>, secondary <span class="mono">#2EC4B6</span>) · lang es · WCAG AA heredado.<br>
+  Archivo: <span class="mono">Artefactos/documentación/INDICE_DOCUMENTACION.html</span> · enlaza MD canónicos + showcases de las 3 skills.
+</footer>
+
+<script>
+document.getElementById('q').addEventListener('input',e=>{
+  const t=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('a.card').forEach(c=>{
+    c.style.display = !t || c.textContent.toLowerCase().includes(t) ? '' : 'none';
+  });
+  document.querySelectorAll('section').forEach(s=>{
+    const vis=[...s.querySelectorAll('a.card')].some(c=>c.style.display!=='none');
+    s.style.display = vis ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>

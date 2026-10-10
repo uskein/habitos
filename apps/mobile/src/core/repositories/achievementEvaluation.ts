@@ -24,12 +24,28 @@ async function loadStats(db: SQLiteDatabase): Promise<EvaluationStats> {
     new Date().toISOString().slice(0, 10),
   );
 
+  /** V2 — fechas por hábito y estado por meta (criterios habit_ids/goal_ids). */
+  const habitDateRows = await db.getAllAsync<{ habit_id: string; log_date: string }>(
+    'SELECT habit_id, log_date FROM habit_log WHERE completed = 1 ORDER BY log_date',
+  );
+  const habitDates: Record<string, string[]> = {};
+  for (const r of habitDateRows) {
+    (habitDates[r.habit_id] ??= []).push(r.log_date);
+  }
+  const goalRows = await db.getAllAsync<{ id: string; current_value: number; target_value: number }>(
+    'SELECT id, current_value, target_value FROM goal',
+  );
+  const goalStates: Record<string, { current: number; target: number }> = {};
+  for (const g of goalRows) goalStates[g.id] = { current: g.current_value, target: g.target_value };
+
   return {
     habitCount: habitCount?.n ?? 0,
     globalCompletedDates: dates.map((d) => d.log_date),
     bestGlobalStreak: global.bestStreak,
     checkinCount: checkins?.n ?? 0,
     goalsCompleted: goalsCompleted?.n ?? 0,
+    habitDates,
+    goalStates,
   };
 }
 

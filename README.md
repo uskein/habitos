@@ -60,6 +60,19 @@ npx eas-cli@latest build --platform android --profile production    # APK de pro
 
 Aprobados en device (Paso 5, `FLUJOS_DE_USUARIO.md`): primer arranque, crear/marcar hábito, check-in, progreso de meta, rutina de regreso, PIN ×5, nombre inválido, rollback de BD, check-in duplicado.
 
+## V2 — Mejoras (M12–M25)
+
+- **Fotos** (HU-14/17): avatar de perfil e imágenes de hito en `FileSystem` (UUID, ≤250 KB/2 MB).
+- **Hitos** (HU-17/18): creación con ligazones y hasta 10 fotos, detalle con carrusel, actividad antes/después.
+- **Plan enriquecido** (HU-19/20): notas de avance y stats de meta.
+- **Medallas custom** (HU-21–23): criterios `habit_count`/`goal_complete`/`combined`, crear/editar/borrar.
+- **Motivaciones** (HU-24/25): cola descartable en Hoy con «Deshacer».
+- **Stats extendidas** (HU-26): tasa 30 d, distribución por hora, tendencia y filtro por tramo.
+- **Racha con freeze** (HU-27): 2 freezes/mes, automático al romper racha, manual ❄ en Logros.
+- **Backup cifrado** (HU-28): export/import con scrypt + AES-256-GCM (`(modals)/backup`).
+- **Hito compartible** (HU-29): tarjeta 1080×1080 renderizada con Skia → sheet nativo.
+- **Horarios por hábito** (HU-30): tramo mañana/tarde/noche, orden en Hoy y filtro de stats.
+
 ## Documentación
 
 | Doc | Contenido |

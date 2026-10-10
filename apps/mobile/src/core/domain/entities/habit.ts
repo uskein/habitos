@@ -1,4 +1,5 @@
 /** Entidades HABIT / HABIT_LOG / HABIT_STREAK_CACHE — MODELO_DE_DATOS §2.2–2.4 */
+import type { TimeSlot } from '@habitos/shared';
 
 export type HabitCategory = 'bienestar' | 'meta' | 'habito';
 export type HabitFrequency = 'daily' | 'custom';
@@ -18,6 +19,8 @@ export interface Habit {
   sortOrder: number;
   isArchived: boolean;
   createdAt: string;
+  /** V2.1 · HU-30 — tramo opcional (mañana/tarde/noche). */
+  timeSlot: TimeSlot | null;
   updatedAt: string;
   syncStatus: SyncStatus;
 }

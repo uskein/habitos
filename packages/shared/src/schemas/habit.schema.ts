@@ -4,7 +4,7 @@ import {
   HABIT_COLOR_TOKENS,
   HABIT_FREQUENCIES,
 } from '../constants/categories';
-import { LIMITS } from '../constants/limits';
+import { LIMITS, TIME_SLOTS } from '../constants/limits';
 
 const HabitInputShape = z
   .object({
@@ -21,6 +21,8 @@ const HabitInputShape = z
       .regex(/^\d{2}:\d{2}$/)
       .nullable()
       .optional(),
+    /** V2.1 · HU-30 — tramo opcional (mañana/tarde/noche). */
+    timeSlot: z.enum(TIME_SLOTS).nullable().optional(),
   })
   .strict();
 

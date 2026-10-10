@@ -27,6 +27,16 @@ export const palette = {
   awardSoft: '#FEF3C7',
   textFaded: '#9B95B5',
   track: '#DDD5FB',
+  /** V2 — relleno de área en gráficos (primary @12%). Solo vistas de stats. */
+  chartArea: 'rgba(109,75,245,0.12)',
+} as const;
+
+/** Velos V2 (máscaras sobre contenido) — contador de carrusel, dots, overlays. */
+export const veils = {
+  /** texto sobre foto (manual §8.2: velo text 55 %) */
+  dark: 'rgba(23,18,43,0.55)',
+  /** dots inactivos del carrusel */
+  light: 'rgba(255,255,255,0.55)',
 } as const;
 
 export const badgeTints = {

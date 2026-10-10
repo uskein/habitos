@@ -225,3 +225,83 @@ Rate limiting global (Throttler) + límite estricto en `/sync/batch` (máx 500 o
 - UUIDs no enumerables; sin endpoints de enumeración.
 - Payloads de sync acotados (tamaño y nº de ops).
 - En Fase 2: autorización por recurso (`userId` del token, nunca del body), RBAC mínimo (user/admin).
+
+---
+
+## V2 — Contratos nuevos (2026-10-10)
+
+Mismo patrón V1: contratos de **repositorios locales** (la app es local-first; los endpoints REST de Fase 2 se derivarán de aquí). Todo input pasa por Zod **antes** de tocar SQL.
+
+### Repositorios nuevos
+
+```ts
+// milestoneRepository
+list(): Promise<Milestone[]>                                  // orden occur rening
+create(tx: { title, note?, occurredAt, imageUris[], links[] }): Promise<Milestone>  // TRANSACCIONAL
+updateNote(id, note): Promise<void>
+remove(id): Promise<void>                                     // cascada + limpia FileSystem
+
+// motivationRepository
+list(): Promise<Motivation[]>
+create(input): Promise<Motivation>
+setActive(id, active): Promise<void>
+listForQueue(goalId | null): Promise<Motivation[]>            // candidatas a cola
+registerShow(motivationId, date): Promise<void>               // idempotente
+```
+
+### Repositorios extendidos
+
+```ts
+// achievementRepository (V1 intacto)
+listCustom(): Promise<Achievement[]>                          // is_custom = 1
+createCustom(input): Promise<Achievement>
+updateCustom(id, input): Promise<Achievement>
+removeCustom(id): Promise<void>                               // jamás sobre seeds V1
+
+// statsRepository (V1 intacto)
+getGoalStats(goalId): Promise<GoalStats>                      // desde stats_cache
+getHabitStats(habitId): Promise<HabitStats>
+getMilestoneActivity(): Promise<MilestoneActivity>
+
+// userProfileRepository (V1 intacto)
+updatePhoto(uri): Promise<void>                               // uri validada por imageStore
+clearPhoto(): Promise<void>
+```
+
+### Servicios puros nuevos
+
+```ts
+// motivationQueueService — regla del negocio
+evaluateQueue(motivations, todayCheckin, todayDate): Motivation[]  // «si hoy no hay racha»
+// statsAggregator — recálculo → stats_cache (transaccional, tipo ADR-006)
+recomputeGoal(goalId) / recomputeHabit(habitId)
+```
+
+### `evaluateEvent` (extensión compatible V1)
+- Nuevos shapes de `criteria`: `habit_ids`/`goal_ids` + `mode: any|all`.
+- Firmas y retorno **sin cambios** (`string[]` de keys desbloqueados) → contrato V1 no se rompe.
+
+### Schemas Zod nuevos (`@habitos/shared`)
+- `milestone.schema.ts` → `createMilestoneSchema` (title ≤80, note ≤500, occurredAt date, imageUris ≤10, links ≤20)
+- `motivation.schema.ts` → `createMotivationSchema` (text ≤140, emoji ≤4, goalId uuid|null, triggerType enum)
+- `achievementCustom.schema.ts` → `createCustomAchievementSchema` (nombre, criterio con umbral ≥1, ≥1 vínculo)
+- **Regla V1:** `.partial()` únicamente sobre shapes base sin `.refine()`.
+
+### Manejo de errores (hereda envelope V2)
+Códigos nuevos: `MILESTONE_IMAGE_LIMIT` (10), `IMAGE_TOO_LARGE` (>2 MB), `IMAGE_INVALID_TYPE`, `MOTIVATION_LIMIT` (50), `ACHIEVEMENT_SEED_IMMUTABLE`.
+
+### V2.1 � Contratos de las mejoras aprobadas (HU-27�HU-30)
+
+| Contrato | Cambio | Rompe V1/V2? |
+|---|---|---|
+| `CreateHabitInput` / `UpdateHabitInput` | + `timeSlot: z.enum(['morning','afternoon','evening']).nullable().optional()` | No (opcional) |
+| `StreakRepository.consumeFreeze(date)` | Nuevo m�todo: consume 1 freeze si queda cuota mensual | Nuevo, no rompe |
+| `StreakRepository.availableFreezes(month)` | Nuevo: cuenta freezes restantes del mes | Nuevo |
+| `HabitRepository.listByDate` | Devuelve h�bitos ordenados `time_slot` (NULL al final) | Orden ampliado, misma firma |
+| `statsRepository.getHabitStats` | + filtro opcional `timeSlot` | No (opcional) |
+| `backupService.exportEncrypted(password)` | Nuevo agregado interno: JSON cifrado + fotos ? FileSystem | No toca repositoryInterfaces |
+| `backupService.importEncrypted(file, password)` | Nuevo: valida Zod completo antes de reemplazar (rollback total) | Idem |
+| `milestoneShareService.render(milestoneId)` | Nuevo: Skia offscreen 1080�1080 ? PNG temporal | Idem |
+| `streakCalculator` (dominio puro) | + par�metro `freezesAvailable` para decidir congelaci�n | No (default 0 = V1) |
+
+**Errores nuevos:** `FREEZE_QUOTA_EXCEEDED`, `BACKUP_PASSWORD_INVALID`, `BACKUP_CORRUPT`, `SHARE_RENDER_FAILED`.

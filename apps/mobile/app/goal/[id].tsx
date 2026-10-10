@@ -2,13 +2,17 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
-import { useAddProgress, useGoal } from '@/features/goals/useGoals';
+import { useAddProgress, useGoal, useGoalStats, useGoalUpdates, useUpdateGoalNote } from '@/features/goals/useGoals';
+import { MilestoneSection } from '@/features/milestones/MilestoneSection';
 import { AppBar } from '@/ui/navigation/AppBar';
+import { ClayBars } from '@/ui/feedback/ClayBars';
 import { EmptyState } from '@/ui/feedback/EmptyState';
+import { HourlyChart } from '@/ui/feedback/HourlyChart';
 import { Progress } from '@/ui/feedback/Progress';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
+import { ClayCard } from '@/ui/primitives/ClayCard';
 import { ClayInput } from '@/ui/primitives/ClayInput';
 
 const DELTAS = [1, 5, 10];
@@ -87,7 +91,7 @@ export default function GoalDetail() {
 
         {!done && (
           <View style={styles.actions}>
-            <Text style={styles.section}>Registrar progreso</Text>
+            <Text style={styles.blockTitle}>Registrar progreso</Text>
             <View style={styles.deltaRow}>
               {DELTAS.map((d) => (
                 <ClayButton
@@ -126,7 +130,141 @@ export default function GoalDetail() {
             <Text style={styles.doneText}>🎉 Meta cumplida</Text>
           </View>
         )}
+
+        <GoalHistory goalId={g.id} />
+        <GoalStatsSection goalId={g.id} unit={g.unit} />
+
+        <MilestoneSection entityType="goal" entityId={g.id} />
       </ScrollView>
+    </View>
+  );
+}
+
+/** HU-19 — historial de progresos con edición de notas (tx GOAL_UPDATE). */
+function GoalHistory({ goalId }: { goalId: string }) {
+  const toast = useToast();
+  const updates = useGoalUpdates(goalId);
+  const editNote = useUpdateGoalNote();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+
+  return (
+    <View style={styles.sectionWrap}>
+      <Text style={styles.blockTitle}>Historial y notas</Text>
+      {updates.isPending ? (
+        <Skeleton height={72} borderRadius={20} />
+      ) : updates.isError ? (
+        <ClayButton label="Reintentar" variant="secondary" onPress={() => void updates.refetch()} />
+      ) : (updates.data ?? []).length === 0 ? (
+        <EmptyState title="Aún sin registros" description="Registra tu primer progreso arriba." blob="◷" />
+      ) : (
+        (updates.data ?? []).map((u) => (
+          <ClayCard key={u.id} style={styles.updateCard}>
+            <View style={styles.updateHeader}>
+              <Text style={styles.updateDelta}>+{u.delta}</Text>
+              <Text style={styles.updateDate}>{u.entryDate}</Text>
+              <ClayButton
+                label={editingId === u.id ? 'Cerrar' : 'Editar nota'}
+                variant="ghost"
+                onPress={() => {
+                  if (editingId === u.id) {
+                    setEditingId(null);
+                  } else {
+                    setEditingId(u.id);
+                    setDraft(u.note ?? '');
+                  }
+                }}
+              />
+            </View>
+            {editingId === u.id ? (
+              <View style={styles.noteEditRow}>
+                <ClayInput
+                  label="Nota"
+                  placeholder="¿Cómo fue ese avance?"
+                  value={draft}
+                  onChangeText={setDraft}
+                  maxLength={120}
+                />
+                <ClayButton
+                  label="Guardar"
+                  loading={editNote.isPending}
+                  disabled={editNote.isPending}
+                  onPress={() =>
+                    editNote.mutate(
+                      { updateId: u.id, note: draft },
+                      {
+                        onSuccess: () => {
+                          setEditingId(null);
+                          toast.show('Nota guardada', 'success');
+                        },
+                        onError: (e) =>
+                          toast.show(e instanceof Error ? e.message : 'No se pudo guardar', 'error'),
+                      },
+                    )
+                  }
+                />
+              </View>
+            ) : u.note ? (
+              <Text style={styles.updateNote}>{u.note}</Text>
+            ) : (
+              <Text style={styles.updateNoteEmpty}>Sin nota</Text>
+            )}
+          </ClayCard>
+        ))
+      )}
+    </View>
+  );
+}
+
+/** HU-20 · R9 — stats día/hora de meta: ClayBars 7 días + Victory hora pico. */
+function GoalStatsSection({ goalId, unit }: { goalId: string; unit: string | null }) {
+  const stats = useGoalStats(goalId);
+
+  if (stats.isPending) {
+    return (
+      <View style={styles.sectionWrap}>
+        <Text style={styles.blockTitle}>Estadísticas</Text>
+        <Skeleton height={180} borderRadius={24} />
+      </View>
+    );
+  }
+
+  if (stats.isError) {
+    return (
+      <View style={styles.sectionWrap}>
+        <Text style={styles.blockTitle}>Estadísticas</Text>
+        <EmptyState
+          title="No se pudieron calcular las stats"
+          blob="⚠"
+          action={<ClayButton label="Reintentar" onPress={() => void stats.refetch()} />}
+        />
+      </View>
+    );
+  }
+
+  const s = stats.data!;
+
+  return (
+    <View style={styles.sectionWrap}>
+      <Text style={styles.blockTitle}>Estadísticas</Text>
+      {s.updates === 0 ? (
+        <EmptyState
+          title="Aún no hay datos"
+          description="Registra progreso para ver el cumplimiento por día y tu hora pico."
+          blob="◷"
+        />
+      ) : (
+        <ClayCard style={styles.statsCard}>
+          <Text style={styles.statsLabel}>Últimos 7 días ({unit ?? 'avances'})</Text>
+          <ClayBars
+            data={s.daily.map((d) => ({ label: d.label, value: d.total }))}
+            height={140}
+            accessibilityLabel="Cumplimiento por día de los últimos 7 días"
+          />
+          <Text style={styles.statsLabel}>Hora pico</Text>
+          <HourlyChart hourly={s.hourly} />
+        </ClayCard>
+      )}
     </View>
   );
 }
@@ -176,11 +314,81 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.sm,
   },
-  section: {
+  blockTitle: {
     fontFamily: fonts.display,
     fontWeight: '700',
     fontSize: 16,
     color: palette.text,
+  },
+  sectionWrap: {
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  updateCard: {
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  updateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  updateDelta: {
+    fontFamily: fonts.mono,
+    fontWeight: '700',
+    fontSize: 18,
+    color: palette.primary,
+    fontVariant: ['tabular-nums'],
+  },
+  updateDate: {
+    flex: 1,
+    fontFamily: fonts.mono,
+    fontSize: 12,
+    color: palette.textMuted,
+  },
+  updateNote: {
+    fontFamily: fonts.body,
+    fontSize: 14,
+    color: palette.text,
+  },
+  updateNoteEmpty: {
+    fontFamily: fonts.body,
+    fontSize: 13,
+    color: palette.textMuted,
+    fontStyle: 'italic',
+  },
+  noteEditRow: {
+    gap: spacing.sm,
+  },
+  statsCard: {
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  statsLabel: {
+    fontFamily: fonts.body,
+    fontWeight: '600',
+    fontSize: 12,
+    color: palette.textMuted,
+  },
+  hourlyWrap: {
+    gap: spacing.sm,
+  },
+  peak: {
+    fontFamily: fonts.body,
+    fontSize: 13,
+    color: palette.textMuted,
+  },
+  peakValue: {
+    fontFamily: fonts.mono,
+    fontWeight: '700',
+    fontSize: 15,
+    color: palette.primary,
+  },
+  chartBox: {
+    height: 160,
+    backgroundColor: palette.surfaceAlt,
+    borderRadius: radii.md,
+    paddingVertical: spacing.sm,
   },
   deltaRow: {
     flexDirection: 'row',

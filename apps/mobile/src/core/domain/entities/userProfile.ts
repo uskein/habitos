@@ -7,4 +7,6 @@ export interface UserProfile {
   locale: string;
   themeMode: 'light' | 'dark' | 'system';
   createdAt: string;
+  /** V2 · HU-14 — ruta en documentDirectory/photos (null = iniciales). */
+  photoUri?: string | null;
 }

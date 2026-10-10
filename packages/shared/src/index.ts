@@ -5,3 +5,7 @@ export * from './schemas/habit.schema';
 export * from './schemas/goal.schema';
 export * from './schemas/wellEntry.schema';
 export * from './schemas/sync.schema';
+export * from './schemas/milestone.schema';
+export * from './schemas/motivation.schema';
+export * from './schemas/achievementCustom.schema';
+export * from './schemas/backup.schema';

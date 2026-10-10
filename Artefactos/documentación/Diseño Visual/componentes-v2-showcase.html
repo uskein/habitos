@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Componentes V2 — Design System Pulse Clay (showcase)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0; --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB; --chartArea:rgba(109,75,245,.12);
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3; --success:#22C55E; --error:#DC2626;
+    --danger-soft:#FEE2E2; --secondary-soft:#DDF7F4;
+    --veil-dark:rgba(23,18,43,.55); --veil-light:rgba(255,255,255,.55);
+    --r-lg:24px; --r-md:16px; --r-sm:8px; --r-pill:999px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14),0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:44px 5vw 90px}
+  h1,h2{font-family:"Sora"}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:clamp(28px,4vw,40px);margin:8px 0 6px}
+  .sub{color:var(--text-muted);max-width:720px;line-height:1.6}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px;margin-top:30px}
+  .demo{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh-clay);padding:22px}
+  .demo h3{font-size:16px;margin-bottom:4px}
+  .demo .spec{font-family:"JetBrains Mono";font-size:11px;color:var(--primary);background:var(--surface-alt);display:inline-block;padding:4px 9px;border-radius:8px;margin:6px 0 16px}
+  .stage{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--r-md);padding:18px;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:240px;justify-content:center;position:relative;overflow:hidden}
+  .cap{font-size:11.5px;color:var(--text-muted);margin-top:12px;line-height:1.55}
+  /* Loader */
+  .loader{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;background:rgba(247,245,255,.55);backdrop-filter:blur(10px)}
+  .spin{width:36px;height:36px;border-radius:50%;border:4px solid var(--track);border-top-color:var(--primary);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loader p{font-size:13px;font-weight:700;color:var(--text-muted)}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;opacity:.55}
+  .pad b{background:var(--surface);border-radius:12px;box-shadow:var(--sh-clay);text-align:center;padding:9px 0;font-family:"Sora";font-size:14px}
+  /* Bars */
+  .bars{display:flex;align-items:flex-end;gap:9px;height:160px;width:100%;padding:0 6px}
+  .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:6px}
+  .bar .track{width:16px;height:calc(100% - 24px);background:var(--track);border-radius:8px;overflow:hidden;display:flex;align-items:flex-end}
+  .bar .fill{width:100%;border-radius:8px;background:linear-gradient(180deg,var(--primary),var(--secondary));transform-origin:bottom;animation:grow .32s var(--ease-std) both}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .bar span{font-size:10px;font-weight:700;color:var(--text-muted)}
+  /* Carousel */
+  .carr{width:100%;height:170px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--primary),#9B7BFF);position:relative;display:flex;align-items:center;justify-content:center;font-size:52px}
+  .cnt{position:absolute;top:8px;right:10px;background:var(--veil-dark);color:#fff;font-family:"JetBrains Mono";font-size:10px;font-weight:700;padding:3px 8px;border-radius:var(--r-pill)}
+  .dots{position:absolute;bottom:10px;left:0;right:0;display:flex;gap:6px;justify-content:center}
+  .dots i{width:8px;height:8px;border-radius:50%;background:var(--veil-light)}
+  .dots i.on{width:20px;border-radius:var(--r-pill);background:#fff}
+  /* Swipe */
+  .swipe{width:280px;height:300px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-clay);padding:26px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;position:relative;animation:enter .3s var(--ease-std)}
+  @keyframes enter{from{opacity:0;transform:translateY(14px) rotate(-3deg)}to{opacity:1;transform:rotate(-5deg)}}
+  .stamp{position:absolute;top:16px;border:3px solid var(--border);border-radius:var(--r-md);padding:4px 12px;font-weight:800;font-size:13.5px;letter-spacing:1px}
+  .stamp.save{left:16px;transform:rotate(-8deg);border-color:var(--success);color:var(--success);opacity:.9}
+  .stamp.gone{right:16px;transform:rotate(8deg);border-color:var(--error);color:var(--error);opacity:.25}
+  .swipe .em{font-size:46px}
+  .swipe h4{font-family:"Sora";font-size:17px;text-align:center;line-height:1.4}
+  .swipe .hint{font-size:11px;color:#9B95B5}
+  .swipe .btns{display:flex;gap:18px}
+  .swipe .btns b{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:transform .18s var(--ease-std)}
+  .swipe .btns b:active{transform:scale(.9)}
+  .b-x{background:var(--danger-soft);color:var(--error)}
+  .b-s{background:var(--secondary-soft);color:var(--success)}
+  /* Avatar */
+  .ava{width:88px;height:88px;border-radius:50%;border:3px solid var(--surface);display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:700;font-size:26px;color:#fff;position:relative}
+  .ava.grad{background:linear-gradient(135deg,var(--primary),var(--secondary))}
+  .ava.photo{background:linear-gradient(135deg,#2EC4B6,var(--primary));font-size:34px}
+  .ava .cam{position:absolute;right:-3px;bottom:-3px;width:30px;height:30px;border-radius:50%;background:var(--primary);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer}
+  /* Sparkline */
+  .spark{width:100%;height:90px}
+  .sp-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke:url(#grad);stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1s var(--ease-std) forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  footer{margin-top:46px;border-top:1px dashed var(--border);padding-top:16px;font-size:12.5px;color:var(--text-muted);line-height:1.7}
+  .mono{font-family:"JetBrains Mono"}
+</style>
+</head>
+<body>
+<span class="kicker">Skill orquestador-proyecto · Paso 3 — Design System V2</span>
+<h1>Componentes V2 en acción</h1>
+<p class="sub">Los 6 componentes nuevos del manual §8.2 con los tokens exactos de Pulse Clay. Cada demo incluye su especificación y trazabilidad al blueprint/HU correspondiente. <b>Todos implementados en <span class="mono">src/ui/</span> con tsc limpio.</b></p>
+
+<div class="grid">
+
+  <div class="demo">
+    <h3>1 · ClayLoader</h3>
+    <div class="spec">overlay blur 10 · velo bg 55% · spinner 36 px · 800 ms lineal</div>
+    <div class="stage">
+      <div class="pad"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b></div>
+      <div class="loader"><div class="spin"></div><p>Validando…</p></div>
+    </div>
+    <p class="cap"><b>HU-16 · F11 · BP 10</b> — pad visible deshabilitado; sale con haptic ≤1 s; reduced-motion congela el spinner.</p>
+  </div>
+
+  <div class="demo">
+    <h3>2 · ClayBars</h3>
+    <div class="spec">h 160 · barra 16 r8 · gradiente primary→secondary · scaleY 320 ms +50 ms escalonado</div>
+    <div class="stage">
+      <div class="bars">
+        <div class="bar"><div class="track"><div class="fill" style="height:78%;animation-delay:0s"></div></div><span>L</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:64%;animation-delay:.05s"></div></div><span>M</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:91%;animation-delay:.1s"></div></div><span>X</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:55%;animation-delay:.15s"></div></div><span>J</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:83%;animation-delay:.2s"></div></div><span>V</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:40%;animation-delay:.25s"></div></div><span>S</span></div>
+        <div class="bar"><div class="track"><div class="fill" style="height:72%;animation-delay:.3s"></div></div><span>D</span></div>
+      </div>
+    </div>
+    <p class="cap"><b>HU-20/26 · F18/F19 · BP 18/19</b> — track #DDD5FB; reduced-motion monta altura final.</p>
+  </div>
+
+  <div class="demo">
+    <h3>3 · ClayCarousel</h3>
+    <div class="spec">snap 320 ms std · dots 8 px (activo 20 pill) · contador mono velo 55%</div>
+    <div class="stage">
+      <div class="carr">🏃<div class="cnt mono">2/3</div><div class="dots"><i></i><i class="on"></i><i></i></div></div>
+    </div>
+    <p class="cap"><b>HU-18 · F13 · BP 13</b> — 1 imagen ⇒ sin carrusel; dots con role tab y label «Foto n de t» (§8.4).</p>
+  </div>
+
+  <div class="demo">
+    <h3>4 · SwipeCard</h3>
+    <div class="spec">320×330 · rotación máx ±12° · escala 0.96 · stamps a 90 px · release clay 350 ms</div>
+    <div class="stage">
+      <div class="swipe">
+        <div class="stamp save">★ GUARDAR</div>
+        <div class="stamp gone">✕ DESCARTAR</div>
+        <div class="em">🔥</div>
+        <h4>«Un día flojo no borra una semana fuerte.»</h4>
+        <div class="hint">Arrastra → guardar · ← descartar</div>
+        <div class="btns"><b class="b-x" title="Alternativa accesible">✕</b><b class="b-s" title="Alternativa accesible">★</b></div>
+      </div>
+    </div>
+    <p class="cap"><b>HU-25 · F17 · BP 11</b> — reduced-motion sin rotación; botones siempre visibles (lectores de pantalla); «deshacer» lo aporta el consumidor.</p>
+  </div>
+
+  <div class="demo">
+    <h3>5 · ClayAvatar (+ badge cámara)</h3>
+    <div class="spec">88/56/40 · borde 3 surface · gradiente primary→secondary · badge 30 primary</div>
+    <div class="stage">
+      <div class="ava photo">🏞️<div class="cam">📷</div></div>
+      <div class="ava grad">AR</div>
+    </div>
+    <p class="cap"><b>HU-14 · F10 · BP 9</b> — foto UUID en FileSystem; sin foto ⇒ gradiente + iniciales (fallback V1 intacto); permiso denegado ⇒ error + gradiente.</p>
+  </div>
+
+  <div class="demo">
+    <h3>6 · ClaySparkline</h3>
+    <div class="spec">línea 2.5 px · área chartArea (primary 12%) · punto final 4 px secondary · Skia</div>
+    <div class="stage">
+      <svg class="spark" viewBox="0 0 280 90" preserveAspectRatio="none" aria-label="Tendencia">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6D4BF5"/><stop offset="1" stop-color="#2EC4B6"/>
+          </linearGradient>
+        </defs>
+        <path d="M10,70 L52,58 L95,64 L137,42 L180,48 L222,30 L270,20 L270,84 L10,84 Z" fill="var(--chartArea)" stroke="none"/>
+        <path class="sp-line" d="M10,70 L52,58 L95,64 L137,42 L180,48 L222,30 L270,20"/>
+        <circle cx="270" cy="20" r="4" fill="#2EC4B6"/>
+        <line x1="10" y1="84" x2="270" y2="84" stroke="var(--veil-light)" stroke-width="1"/>
+      </svg>
+    </div>
+    <p class="cap"><b>HU-26 · F19 · BP 19</b> — único uso permitido del token <span class="mono">chartArea</span> (manual §8.1, prohibido fuera de gráficos).</p>
+  </div>
+
+</div>
+
+<footer>
+  Fidelidad: hex/rgba literales solo en <span class="mono">src/core/theme/theme.ts</span> (palette, veils, chartArea) · tipografías Sora/Plus Jakarta Sans/JetBrains Mono · easings std/clay V1 · R8 reduce-motion en todos los componentes animados.<br>
+  Validación: <span class="mono">npx tsc --noEmit</span> ✅ · trazabilidad: manual-identidad-visual.md §8 + BLUEPRINTS_DE_PANTALLAS §1.1 + FLUJOS F10–F19.
+</footer>
+</body>
+</html>

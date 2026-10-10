@@ -1,5 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import * as m001 from './migrations/001_initial';
+import * as m002 from './migrations/002_v2';
 
 interface Migration {
   version: number;
@@ -8,7 +9,7 @@ interface Migration {
 }
 
 /** Registry — orden ascendente obligatorio; nunca editar una ya aplicada. */
-const MIGRATIONS: Migration[] = [m001];
+const MIGRATIONS: Migration[] = [m001, m002];
 
 /**
  * Migrador versionado ligero (tabla _migrations).

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo A — Pulse Clay V2 (Inmersivo)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-active:#4F32CC;
+    --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3;
+    --success:#22C55E; --error:#DC2626;
+    --r-card:24px; --r-md:16px; --r-pill:999px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14), 0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:40px 5vw 80px}
+  h1,h2,h3,.sora{font-family:"Sora","Plus Jakarta Sans",sans-serif}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:34px;margin:6px 0 26px}
+  h2{font-size:20px;margin:44px 0 14px;padding-top:20px;border-top:1px dashed var(--border)}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .card{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:18px}
+  .label{font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+  .hexchip{display:inline-block;padding:3px 8px;border-radius:8px;background:var(--surface-alt);font-size:11px;margin:2px}
+  /* ---- paleta ---- */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .sw{border-radius:14px;padding:12px 10px;height:86px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;font-size:11px;box-shadow:var(--sh-clay)}
+  .sw small{opacity:.85;font-size:10px}
+  /* ---- tipografía ---- */
+  .ty span{display:block}
+  .ty .t1{font-family:"Sora";font-size:28px;font-weight:700}
+  .ty .t2{font-family:"Sora";font-size:18px;font-weight:600;margin-top:6px}
+  .ty .t3{font-size:15px;margin-top:6px;color:var(--text-muted)}
+  .ty .t4{font-family:"JetBrains Mono";font-size:13px;margin-top:6px;color:var(--primary)}
+  /* ---- botones ---- */
+  .btn{border:0;border-radius:var(--r-pill);padding:14px 26px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:transform .18s var(--ease-std),background .18s}
+  .btn:active{transform:scale(.97)}
+  .btn-p{background:var(--primary);color:#fff}
+  .btn-p:hover{background:var(--primary-hover)}
+  .btn-s{background:var(--surface-alt);color:var(--primary)}
+  .btn-d{background:#C9BEFD;color:#8B84A6;cursor:not-allowed}
+  /* ---- 1 Avatar picker ---- */
+  .ava-wrap{position:relative;width:88px;height:88px}
+  .ava{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Sora";font-size:30px;font-weight:700;border:3px solid var(--surface);box-shadow:var(--sh-clay)}
+  .cam{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:var(--primary);border:3px solid var(--surface);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;cursor:pointer;transition:transform .2s var(--ease-clay)}
+  .cam:hover{transform:scale(1.12)}
+  .ava-small .ava,.ava-small{width:56px;height:56px;font-size:20px}
+  .ava-mini .ava,.ava-mini{width:40px;height:40px;font-size:15px}
+  /* ---- 2 Loader PIN ---- */
+  .pin\boxed{width:280px;background:var(--surface);border-radius:var(--r-card);padding:24px;position:relative;overflow:hidden;box-shadow:var(--sh-clay)}
+  .pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:18px}
+  .pin-dots i{width:14px;height:14px;border-radius:50%;background:var(--track);display:block}
+  .pin-dots i.on{background:var(--primary)}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .pad b{background:var(--surface-alt);border-radius:16px;text-align:center;padding:13px 0;font-size:19px;font-family:"Sora";font-weight:600}
+  .loader{position:absolute;inset:0;background:rgba(247,245,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s var(--ease-std);z-index:5}
+  .pinbox.loading .loader{opacity:1;pointer-events:auto}
+  .spinner{width:36px;height:36px;border-radius:50%;border:4px solid var(--track);border-top-color:var(--primary);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loader p{font-size:13px;color:var(--text-muted);font-weight:600}
+  /* ---- 3+4 Milestone + carousel ---- */
+  .mile{width:340px;padding:0;overflow:hidden}
+  .carr{position:relative;height:190px;overflow:hidden}
+  .carr .track{display:flex;height:100%;transition:transform .32s var(--ease-std)}
+  .carr .slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px}
+  .s1{background:linear-gradient(135deg,#6D4BF5,#9B7BFF)}
+  .s2{background:linear-gradient(135deg,#2EC4B6,#6D4BF5)}
+  .s3{background:linear-gradient(135deg,#F59E0B,#FF6B6B)}
+  .dots{position:absolute;bottom:10px;left:0;right:0;display:flex;gap:6px;justify-content:center}
+  .dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;transition:all .2s}
+  .dots i.on{background:#fff;width:20px;border-radius:6px}
+  .cnt{position:absolute;top:10px;right:12px;background:rgba(23,18,43,.55);color:#fff;font-family:"JetBrains Mono";font-size:11px;padding:3px 8px;border-radius:999px}
+  .mile .body{padding:16px 18px 18px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-alt);color:var(--primary);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;margin-right:8px}
+  .chip.goal{background:#DDF7F4;color:#0F766E}
+  .date{font-family:"JetBrains Mono";font-size:11px;color:var(--text-muted)}
+  .mile h3{font-size:17px;margin:8px 0 6px}
+  .mile p{font-size:13.5px;color:var(--text-muted);line-height:1.5}
+  .mile .acts{display:flex;gap:8px;margin-top:14px}
+  .mini-btn{border:0;background:var(--surface-alt);color:var(--text);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .mini-btn.pri{background:var(--primary);color:#fff}
+  /* ---- 5 Swipe motivación ---- */
+  .swipe-stage{width:300px;height:330px;position:relative;user-select:none}
+  .swip{position:absolute;inset:0;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--sh-clay);padding:24px;display:flex;flex-direction:column;justify-content:space-between;cursor:grab;touch-action:none;transition:transform .1s linear}
+  .swip:active{cursor:grabbing}
+  .swip .emo{font-size:44px}
+  .swip h3{font-family:"Sora";font-size:21px;line-height:1.3;margin:12px 0 8px}
+  .swip p{font-size:13.5px;color:var(--text-muted)}
+  .stamp{position:absolute;top:26px;font-family:"Sora";font-weight:800;font-size:17px;padding:6px 14px;border-radius:10px;border:3px solid;opacity:0;transition:opacity .1s}
+  .stamp.keep{right:20px;color:var(--success);border-color:var(--success);transform:rotate(10deg)}
+  .stamp.dump{left:20px;color:var(--error);border-color:var(--error);transform:rotate(-10deg)}
+  .hint{font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px}
+  .undo{margin-top:10px;text-align:center}
+  /* ---- 6 Charts ---- */
+  .bars{display:flex;align-items:flex-end;gap:12px;height:160px;padding-top:10px}
+  .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center;gap:6px}
+  .bar .fill{border-radius:8px;background:linear-gradient(180deg,var(--primary),var(--secondary));transform-origin:bottom;animation:grow .32s var(--ease-std) both;min-height:6px}
+  @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .bar span{font-size:10.5px;color:var(--text-muted);font-weight:600}
+  .bar b{font-family:"JetBrains Mono";font-size:11px;color:var(--text)}
+  .spark{background:var(--surface);border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--sh-clay)}
+  .spark svg{width:100%;height:70px;display:block}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--text-muted);margin-top:8px}
+  .legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:5px}
+  .stats3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .stat-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .stat-h h3{font-size:15px}
+  .stat-h .pill{font-family:"JetBrains Mono";font-size:12px;background:var(--surface-alt);color:var(--primary);padding:3px 10px;border-radius:999px;font-weight:700}
+  .note{background:var(--surface-alt);border-left:4px solid var(--secondary);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text-muted);margin-top:12px}
+  /* ---- pantallas de creación ---- */
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .tab{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:9px 18px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;transition:all .18s var(--ease-std)}
+  .tab.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .sheet{display:none;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);overflow:hidden;max-width:760px}
+  .sheet.on{display:block}
+  .sheet-head{background:linear-gradient(135deg,var(--primary),#8B6BFF);color:#fff;padding:18px 24px}
+  .sheet-head .grab{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.45);margin:0 auto 12px}
+  .sheet-head h3{font-family:"Sora";font-size:19px}
+  .sheet-head p{font-size:12.5px;opacity:.85;margin-top:3px}
+  .sheet-body{padding:20px 24px 24px;display:grid;gap:16px}
+  .fld label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+  .fld input[type=text],.fld textarea,.fld select{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:13px 15px;font-size:15px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border .18s}
+  .fld input:focus,.fld textarea:focus{border-color:var(--primary)}
+  .fld textarea{min-height:74px;resize:vertical}
+  .pick{display:flex;gap:8px;flex-wrap:wrap}
+  .pick .p{border:1.5px solid var(--border);background:var(--surface-alt);border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;user-select:none;transition:all .18s var(--ease-clay)}
+  .pick .p.sel{background:var(--primary);border-color:var(--primary);color:#fff;transform:scale(1.05)}
+  .pick .p.sel.g{background:var(--secondary);border-color:var(--secondary);color:#063}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .up{border:2px dashed var(--track);border-radius:var(--r-md);padding:18px;text-align:center;color:var(--text-muted);font-size:13.5px;cursor:pointer;transition:border .2s}
+  .up:hover{border-color:var(--primary);color:var(--primary)}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .thumbs i{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative}
+  .thumbs i.x::after{content:"✕";position:absolute;top:-6px;right:-6px;background:var(--error);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .preview-lab{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+  /* preview hito */
+  .prev-mile{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;max-width:300px}
+  .prev-mile .ph{height:110px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,#6D4BF5,#9B7BFF)}
+  .prev-mile .pb{padding:12px 14px}
+  .prev-mile h4{font-family:"Sora";font-size:14.5px;margin:4px 0}
+  .prev-mile p{font-size:12px;color:var(--text-muted)}
+  /* preview medalla */
+  .medal{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--award) 0 70%,var(--track) 70%);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-clay);position:relative}
+  .medal .inner{width:96px;height:96px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  .medal .inner b{font-size:30px}
+  .medal .inner span{font-family:"JetBrains Mono";font-size:11px;color:var(--award);font-weight:700}
+  .medal.locked{filter:grayscale(.9);opacity:.75}
+  .crit{display:grid;gap:10px}
+  .crit .c{border:1.5px solid var(--border);border-radius:var(--r-md);padding:13px 15px;cursor:pointer;transition:all .18s}
+  .crit .c.sel{border-color:var(--primary);background:#F3EFFF}
+  .crit .c b{font-size:14px;display:block}
+  .crit .c small{color:var(--text-muted);font-size:12px}
+  .crit .c .rd{float:right;width:18px;height:18px;border-radius:50%;border:2px solid var(--track)}
+  .crit .c.sel .rd{border-color:var(--primary);background:radial-gradient(circle,var(--primary) 45%,transparent 50%)}
+  /* preview motivación */
+  .prev-swip{width:250px;height:230px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--sh-clay);padding:20px;display:flex;flex-direction:column;justify-content:space-between;position:relative;border:1px solid var(--border)}
+  .prev-swip h4{font-family:"Sora";font-size:16.5px;line-height:1.3;margin-top:8px}
+  .prev-swip p{font-size:12px;color:var(--text-muted)}
+  .seg{display:flex;background:var(--surface-alt);border-radius:999px;padding:4px;gap:4px}
+  .seg b{flex:1;text-align:center;padding:9px 0;border-radius:999px;font-size:12.5px;cursor:pointer;transition:all .18s var(--ease-std)}
+  .seg b.on{background:var(--surface);box-shadow:var(--sh-clay);color:var(--primary)}
+  .cta{width:100%;border:0;border-radius:var(--r-pill);background:var(--primary);color:#fff;padding:15px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;transition:transform .18s var(--ease-std)}
+  .cta:active{transform:scale(.98)}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr}}
+  /* ---- fin pantallas ---- */
+  @media (max-width:640px){body{padding:24px 16px 60px}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<span class="kicker">Prototipo A · Variante inmersiva</span>
+<h1>Pulse Clay V2 — Componentes extendidos</h1>
+
+<h2>Paleta (sin cambios respecto a V1)</h2>
+<div class="swatches">
+  <div class="sw" style="background:#6D4BF5">primary<small>#6D4BF5</small></div>
+  <div class="sw" style="background:#5B3AE0">hover<small>#5B3AE0</small></div>
+  <div class="sw" style="background:#2EC4B6">secondary<small>#2EC4B6</small></div>
+  <div class="sw" style="background:#FF6B6B">streak<small>#FF6B6B</small></div>
+  <div class="sw" style="background:#F59E0B">award<small>#F59E0B</small></div>
+  <div class="sw" style="background:#67617E">textMuted<small>#67617E</small></div>
+  <div class="sw" style="background:#DDD5FB;color:#17122B">track<small>#DDD5FB</small></div>
+  <div class="sw" style="background:#17122B">text<small>#17122B</small></div>
+</div>
+<div class="row" style="margin-top:14px">
+  <span class="hexchip">Sora — títulos</span><span class="hexchip">Plus Jakarta Sans — cuerpo</span><span class="hexchip">JetBrains Mono — datos/fechas</span>
+  <span class="hexchip">easing std .2/.8/.2/1</span><span class="hexchip">easing clay .34/1.56/.64/1</span><span class="hexchip">durations 120–400 ms</span>
+</div>
+
+<h2>1 · ClayAvatarPicker — imagen de perfil</h2>
+<div class="row">
+  <div class="card" style="text-align:center">
+    <div class="label">Estado vacío (gradiente + iniciales)</div>
+    <div class="ava-wrap" style="margin:0 auto"><div class="ava">MK</div><div class="cam" title="Cambiar foto">📷</div></div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:12px">88 px · borde 3 px surface</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <div class="label">Tamaño medio (perfil de hábito)</div>
+    <div class="ava-wrap ava-small" style="margin:0 auto"><div class="ava">US</div><div class="cam">📷</div></div>
+  </div>
+  <div class="card" style="text-align:center">
+    <div class="label">Mini (comentario en hito)</div>
+    <div class="ava-wrap ava-mini" style="margin:0 auto"><div class="ava">MK</div></div>
+  </div>
+  <div class="card" style="max-width:250px">
+    <div class="label">Flujo</div>
+    <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6">Tocar badge 📷 → galería/cámara (<b>expo-image-picker</b>) → recorte circular → preview local → guardado al confirmar. Opción «Quitar foto» en estado con foto.</p>
+  </div>
+</div>
+
+<h2>2 · ClayLoader — validación de PIN</h2>
+<div class="row">
+  <div class="pinbox" id="pinbox">
+    <div class="pin-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <div class="pad"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b></b><b>0</b><b>⌫</b></div>
+    <div class="loader"><div class="spinner"></div><p>Validando…</p></div>
+  </div>
+  <div class="card" style="max-width:280px">
+    <div class="label">Comportamiento</div>
+    <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6">Al 4.º dígito: overlay <b>blur 10</b> + velo 55 %, spinner 36 px girando 800 ms lineal. El pad queda visible pero deshabilitado. Éxito → haptic success + transición; error → haptic error, borde <span class="mono" style="color:var(--error)">error</span> y parpadeo. Nunca pantalla congelada.</p>
+    <button class="btn btn-p" style="margin-top:14px" onclick="demoPin()">Probar animación</button>
+  </div>
+</div>
+
+<h2>3 · MilestoneCard + 4 · ClayCarousel</h2>
+<div class="row">
+  <div class="card mile">
+    <div class="carr" id="carr">
+      <div class="track" id="ctrack">
+        <div class="slide s1">🏃</div>
+        <div class="slide s2">🏅</div>
+        <div class="slide s3">🎉</div>
+      </div>
+      <div class="cnt mono" id="ccnt">1/3</div>
+      <div class="dots" id="cdots"><i class="on"></i><i></i><i></i></div>
+    </div>
+    <div class="body">
+      <span class="date mono">2026-10-12</span>
+      <h3>Primera 5K completada</h3>
+      <p>Lo logré en el parque, salí a las 6:40 AM y no paré. El sueño valió la pena.</p>
+      <div style="margin-top:12px"><span class="chip">🏃 Correr 3×/sem</span><span class="chip goal">🎯 Meta 50 km</span></div>
+      <div class="acts">
+        <button class="mini-btn pri">💬 Comentar</button>
+        <button class="mini-btn">📷 Añadir foto</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="max-width:290px">
+    <div class="label">Especificación</div>
+    <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6">Carrusel 16:9 full-bleed con snap 320 ms <b>easing.std</b>, dots 8 px (track→primary), contador mono «n/t». Cada hito se liga a <b>1+ hábitos</b> y/o <b>1+ metas</b> (chips). Comentarios con avatar mini; imágenes múltiples ilimitadas (galería local).</p>
+  </div>
+</div>
+
+<h2>5 · SwipeCard — Motivaciones descartables</h2>
+<div class="row">
+  <div>
+    <div class="swipe-stage" id="stage">
+      <div class="swip" data-k="keep"><div class="stamp keep">GUARDAR ★</div><div class="stamp dump">DESCARTAR ✕</div>
+        <div><div class="emo">🔥</div><h3>«Un día flojo no borra una semana fuerte.»</h3><p>Meta: <b>Correr 50 km este mes</b> · sin racha reportada hoy</p></div>
+        <p style="font-size:11.5px">Arrastra → guardar · ← descartar</p>
+      </div>
+      <div class="swip" data-k="keep"><div class="stamp keep">GUARDAR ★</div><div class="stamp dump">DESCARTAR ✕</div>
+        <div><div class="emo">🌱</div><h3>«Beber agua es el botón reset del cerebro.»</h3><p>Meta: <b>2 L diarios</b> · creada por ti</p></div>
+        <p style="font-size:11.5px">Arrastra → guardar · ← descartar</p>
+      </div>
+    </div>
+    <div class="hint">Se muestra cuando <b>no hay racha reportada hoy</b> (check-in pendiente)</div>
+    <div class="undo"><button class="mini-btn" onclick="location.reload()">↺ Deshacer último</button></div>
+  </div>
+  <div class="card" style="max-width:300px">
+    <div class="label">Comportamiento</div>
+    <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6">Pila de máx. 5 cards. Arrastre horizontal con fricción: rotación máx ±12°, escala 0.96, stamps con opacidad por umbral 90 px. Derecha = guardar en favoritas, izquierda = descartar. <b>easing.clay</b> al asentarse. Undo disponible.</p>
+  </div>
+</div>
+
+<h2>6 · Estadísticas combinadas (Views + Skia + Victory)</h2>
+<div class="stats3">
+  <div class="card">
+    <div class="stat-h"><h3>ClayBars · día</h3><span class="pill">30d 78%</span></div>
+    <div class="bars">
+      <div class="bar"><b>78%</b><div class="fill" style="height:78%;animation-delay:0s"></div><span>L</span></div>
+      <div class="bar"><b>64%</b><div class="fill" style="height:64%;animation-delay:.05s"></div><span>M</span></div>
+      <div class="bar"><b>91%</b><div class="fill" style="height:91%;animation-delay:.1s"></div><span>X</span></div>
+      <div class="bar"><b>55%</b><div class="fill" style="height:55%;animation-delay:.15s"></div><span>J</span></div>
+      <div class="bar"><b>83%</b><div class="fill" style="height:83%;animation-delay:.2s"></div><span>V</span></div>
+      <div class="bar"><b>40%</b><div class="fill" style="height:40%;animation-delay:.25s"></div><span>S</span></div>
+      <div class="bar"><b>72%</b><div class="fill" style="height:72%;animation-delay:.3s"></div><span>D</span></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--primary)"></i>cumplido</span><span><i style="background:var(--track)"></i>pendiente</span></div>
+  </div>
+  <div class="card">
+    <div class="stat-h"><h3>ClaySparkline · racha</h3><span class="pill mono">pico 14</span></div>
+    <div class="spark">
+      <svg viewBox="0 0 260 70" preserveAspectRatio="none">
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6D4BF5"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6D4BF5" stop-opacity=".12"/><stop offset="1" stop-color="#6D4BF5" stop-opacity="0"/></linearGradient>
+        </defs>
+        <path d="M0,55 L40,48 L80,50 L120,34 L160,38 L200,18 L260,10 L260,70 L0,70 Z" fill="url(#g2)"/>
+        <path d="M0,55 L40,48 L80,50 L120,34 L160,38 L200,18 L260,10" fill="none" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="260" cy="10" r="4" fill="#2EC4B6"/>
+      </svg>
+      <div class="legend"><span>SVG Skia-style · área 12 %</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="stat-h"><h3>Victory · por hora</h3><span class="pill mono">pico 7 AM</span></div>
+    <div class="bars" style="height:110px">
+      <div class="bar"><div class="fill" style="height:30%"></div><span>6h</span></div>
+      <div class="bar"><div class="fill" style="height:95%"></div><span>7h</span></div>
+      <div class="bar"><div class="fill" style="height:52%"></div><span>8h</span></div>
+      <div class="bar"><div class="fill" style="height:24%"></div><span>12h</span></div>
+      <div class="bar"><div class="fill" style="height:60%"></div><span>20h</span></div>
+      <div class="bar"><div class="fill" style="height:44%"></div><span>21h</span></div>
+    </div>
+    <div class="note">📈 Mejor hora: 7 AM · Activa en <b>Hábito</b>, <b>Meta</b> y <b>Hito</b></div>
+  </div>
+</div>
+
+<h2>Pantallas de creación V2 — Hitos · Motivaciones · Logros/Medallas</h2>
+<div class="tabs">
+  <button class="tab on" data-t="mh" onclick="tab('mh',this)">🏁 Crear hito</button>
+  <button class="tab" data-t="mm" onclick="tab('mm',this)">💬 Crear motivación</button>
+  <button class="tab" data-t="ml" onclick="tab('ml',this)">🏅 Crear logro / medalla</button>
+</div>
+
+<!-- CREAR HITO -->
+<div class="sheet on" id="t-mh">
+  <div class="sheet-head"><div class="grab"></div><h3>Nuevo hito</h3><p>Un momento logrado — lígalo a tus hábitos y metas</p></div>
+  <div class="sheet-body">
+    <div class="fld"><label>Nombre del hito</label><input type="text" placeholder="Ej. Primera 5K completada" oninput="pHito(this.value)"></div>
+    <div class="grid2">
+      <div class="fld"><label>Fecha</label><input type="text" value="2026-10-12" readonly></div>
+      <div class="fld"><label>¿Relacionado con…?</label>
+        <div class="pick" id="pH">
+          <span class="p sel" onclick="tgl(this)">🏃 Correr 3×/sem</span>
+          <span class="p" onclick="tgl(this)">💧 2 L agua</span>
+          <span class="p sel g" onclick="tgl(this)">🎯 Meta 50 km</span>
+          <span class="p" onclick="tgl(this)">📚 Leer 20 min</span>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:6px">Multi-selección: 0..n hábitos + 0..n metas (chips)</p>
+      </div>
+    </div>
+    <div class="fld"><label>Comentario</label><textarea placeholder="Cómo fue, qué sentiste…" oninput="pHitoC(this.value)"></textarea></div>
+    <div class="fld"><label>Imágenes (máx 10)</label>
+      <div class="up" onclick="addImg()">📷 Tocar para añadir desde galería o cámara</div>
+      <div class="thumbs" id="thumbs"><i style="background:linear-gradient(135deg,#6D4BF5,#9B7BFF)">🏃</i><i class="x" style="background:linear-gradient(135deg,#2EC4B6,#6D4BF5)">🌅</i></div>
+    </div>
+    <div class="grid2">
+      <div><div class="preview-lab">Vista previa de la card</div>
+        <div class="prev-mile"><div class="ph">🏃</div><div class="pb"><span class="date mono">2026-10-12</span><h4 id="pvT">Primera 5K completada</h4><p id="pvC">Tu comentario aparecerá aquí…</p><div><span class="chip">🏃 Correr 3×/sem</span><span class="chip goal">🎯 Meta 50 km</span></div></div></div>
+      </div>
+      <div>
+        <div class="preview-lab">Carrusel resultante</div>
+        <div class="prev-mile" style="margin-top:8px"><div class="ph" style="background:linear-gradient(135deg,#2EC4B6,#6D4BF5)">🌅<div class="cnt mono">1/3</div></div><div class="pb"><p style="font-size:11.5px">Cada imagen genera un slide con snap + dots + contador n/t</p></div></div>
+      </div>
+    </div>
+    <button class="cta">Guardar hito</button>
+  </div>
+</div>
+
+<!-- CREAR MOTIVACIÓN -->
+<div class="sheet" id="t-mm">
+  <div class="sheet-head"><div class="grab"></div><h3>Nueva motivación</h3><p>Card descartable que aparece si el día va sin racha</p></div>
+  <div class="sheet-body">
+    <div class="fld"><label>Tu motivación</label><textarea placeholder="Ej. Un día flojo no borra una semana fuerte." oninput="pMot(this.value)"></textarea></div>
+    <div class="grid2">
+      <div class="fld"><label>Emoji / imagen</label>
+        <div class="pick">
+          <span class="p sel" onclick="tglEmoji(this)">🔥</span><span class="p" onclick="tglEmoji(this)">🌱</span><span class="p" onclick="tglEmoji(this)">💪</span><span class="p" onclick="tglEmoji(this)">🧠</span><span class="p" onclick="tglEmoji(this)">⚡</span>
+        </div>
+      </div>
+      <div class="fld"><label>Ligar a meta (opcional)</label>
+        <select><option>🎯 Correr 50 km este mes</option><option>💧 Beber 2 L diarios</option><option>📚 Terminar 2 libros</option><option>— Sin meta —</option></select>
+      </div>
+    </div>
+    <div class="fld"><label>Cuándo mostrarla</label>
+      <div class="seg" id="segMot">
+        <b class="on" onclick="seg(this)">Si hoy no hay racha</b>
+        <b onclick="seg(this)">Cada mañana</b>
+        <b onclick="seg(this)">Al fallar un día</b>
+      </div>
+    </div>
+    <div class="grid2">
+      <div><div class="preview-lab">Vista previa (card swipeable)</div>
+        <div class="prev-swip" id="pvMot" style="margin-top:10px">
+          <div><div style="font-size:34px" id="pvEm">🔥</div><h4 id="pvM">«Tu motivación aparecerá aquí…»</h4><p>Meta: <b>Correr 50 km este mes</b> · creada por ti</p></div>
+          <p style="font-size:11px">→ guardar · ← descartar</p>
+        </div>
+      </div>
+      <div>
+        <div class="preview-lab">Disparador (regla de dominio)</div>
+        <div style="background:var(--surface-alt);border-radius:var(--r-md);padding:14px;font-size:13px;color:var(--text-muted);line-height:1.6;margin-top:10px">
+          <b style="color:var(--text)">IF</b> <span class="mono">checkinDeHoy == vacío</span><br>
+          <b style="color:var(--text)">THEN</b> encola motivaciones de la meta en la pila (máx 5)<br>
+          <b style="color:var(--text)">ELSE</b> no mostrar (ya hay racha en marcha)
+        </div>
+        <div class="preview-lab" style="margin-top:14px">Tus motivaciones</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <span class="chip">🔥 3</span><span class="chip">🌱 2</span><span class="chip goal">+ Nueva</span>
+        </div>
+      </div>
+    </div>
+    <button class="cta">Guardar motivación</button>
+  </div>
+</div>
+
+<!-- CREAR LOGRO / MEDALLA -->
+<div class="sheet" id="t-ml">
+  <div class="sheet-head"><div class="grab"></div><h3>Nuevo logro / medalla</h3><p>Configura el criterio: hábitos, metas o ambos</p></div>
+  <div class="sheet-body">
+    <div class="grid2">
+      <div class="fld"><label>Nombre</label><input type="text" value="Semana de hierro" oninput="pMed(this.value)"></div>
+      <div class="fld"><label>Icono / emoji</label>
+        <div class="pick">
+          <span class="p sel" onclick="tglMed(this)">🏅</span><span class="p" onclick="tglMed(this)">🏆</span><span class="p" onclick="tglMed(this)">👑</span><span class="p" onclick="tglMed(this)">⚡</span><span class="p" onclick="tglMed(this)">🎖️</span>
+        </div>
+      </div>
+    </div>
+    <div class="fld"><label>Tipo de criterio</label>
+      <div class="crit" id="crit">
+        <div class="c sel" onclick="crit(this,'hábito')"><span class="rd"></span><b>Completar hábito(s)</b><small>Se desbloquea al alcanzar el umbral en los hábitos elegidos</small></div>
+        <div class="c" onclick="crit(this,'meta')"><span class="rd"></span><b>Alcanzar meta(s)</b><small>Al cerrar 1..n metas elegidas</small></div>
+        <div class="c" onclick="crit(this,'ambos')"><span class="rd"></span><b>Combinado: hábitos + metas</b><small>Cumplir ambos tipos (Y lógico)</small></div>
+        <div class="c" onclick="crit(this,'racha')"><span class="rd"></span><b>Racha alcanzada</b><small>Días consecutivos (personal 1–365)</small></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label id="lblSel">Hábitos ligados</label>
+        <div class="pick" id="pLig">
+          <span class="p sel" onclick="tgl(this)">🏃 Correr 3×/sem</span>
+          <span class="p" onclick="tgl(this)">💧 2 L agua</span>
+          <span class="p sel" onclick="tgl(this)">📚 Leer 20 min</span>
+        </div>
+        <div class="pick" id="pLigM" style="margin-top:8px">
+          <span class="p sel g" onclick="tgl(this)">🎯 Meta 50 km</span>
+          <span class="p g" onclick="tgl(this)">💧 2 L × 30 días</span>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:6px">Los mismos chips seleccionan hábitos y metas — la medalla se liga a lo que elijas</p>
+      </div>
+      <div class="fld"><label>Umbral</label>
+        <div class="seg" id="segUmb"><b class="on" onclick="seg(this)">7 días</b><b onclick="seg(this)">14</b><b onclick="seg(this)">30</b><b onclick="seg(this)">Custom</b></div>
+        <label style="margin-top:14px;display:block">Progreso visible</label>
+        <div class="seg" id="segProg"><b class="on" onclick="seg(this)">Barra</b><b onclick="seg(this)">Nivel</b><b onclick="seg(this)">Oculto</b></div>
+        <label style="margin-top:14px;display:block">Desbloqueo</label>
+        <div class="seg" id="segDes"><b class="on" onclick="seg(this)">Automático</b><b onclick="seg(this)">Revisar</b></div>
+      </div>
+    </div>
+    <div class="grid2" style="align-items:center">
+      <div><div class="preview-lab">Medalla — estado resultante</div>
+        <div style="display:flex;gap:16px;align-items:center;margin-top:10px">
+          <div class="medal" id="pvMedal"><div class="inner"><b id="pvIc">🏅</b><span id="pvNm" style="max-width:80px;text-align:center;font-size:9px">SEMANA DE HIERRO</span></div></div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.6">
+            Anillo = progreso<br><span class="mono" style="color:var(--award)">5/7</span> hacia el umbral<br>
+            Ligada a: <b style="color:var(--text)" id="pvLig">Correr 3×/sem + Meta 50 km</b>
+          </div>
+        </div>
+      </div>
+      <div><div class="preview-lab">Configuración resumida</div>
+        <div style="background:var(--surface-alt);border-radius:var(--r-md);padding:14px;font-size:13px;line-height:1.7;margin-top:10px">
+          Criterio: <b id="pvCt">hábito</b> · Umbral: <b id="pvUb">7 días</b><br>
+          Progreso: <b>barra</b> · Desbloqueo: <b>automático</b><br>
+          Se evalúa en cada <b>check-in</b> y al <b>cerrar meta</b> (evaluateEvent)
+        </div>
+        <div class="preview-lab" style="margin-top:14px">Medallas existentes (editar/eliminar)</div>
+        <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+          <span class="chip">🏅 Primera vez — ✎</span><span class="chip goal">🏆 Meta cumplida — ✎</span><span class="chip" style="background:var(--surface-alt);color:var(--text-muted)">👑 Racha 30 — ✎</span>
+        </div>
+      </div>
+    </div>
+    <button class="cta">Crear medalla</button>
+  </div>
+</div>
+
+<h2>Referencia rápida — estados de botón (V1, sin cambios)</h2>
+<div class="row">
+  <button class="btn btn-p">Guardar</button>
+  <button class="btn btn-s">Cancelar</button>
+  <button class="btn btn-d" disabled>Deshabilitado</button>
+</div>
+
+<script>
+  // Carrusel
+  let ci=0;const n=3;
+  const track=document.getElementById('ctrack'),dots=[...document.getElementById('cdots').children],cnt=document.getElementById('ccnt');
+  function setC(i){ci=(i+n)%n;track.style.transform=`translateX(${-ci*100}%)`;dots.forEach((d,k)=>d.classList.toggle('on',k===ci));cnt.textContent=(ci+1)+'/'+n}
+  dots.forEach((d,k)=>d.onclick=()=>setC(k));
+  setInterval(()=>setC(ci+1),3200);
+
+  // Loader PIN
+  function demoPin(){const b=document.getElementById('pinbox');b.classList.add('loading');setTimeout(()=>b.classList.remove('loading'),1600)}
+
+  // Swipe
+  const stage=document.getElementById('stage');
+  let top=stage.lastElementChild, sx=0, dx=0, drag=false;
+  function bind(el){
+    el.onpointerdown=e=>{drag=true;sx=e.clientX;el.setPointerCapture(e.pointerId);el.style.transition='none'};
+    el.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/14}deg) scale(.96)`;
+      el.querySelector('.stamp.keep').style.opacity=dx>0?Math.min(dx/90,1):0;
+      el.querySelector('.stamp.dump').style.opacity=dx<0?Math.min(-dx/90,1):0};
+    el.onpointerup=()=>{drag=false;el.style.transition='transform .35s var(--ease-clay),opacity .35s';
+      if(Math.abs(dx)>90){el.style.transform=`translateX(${dx>0?600:-600}px) rotate(${dx>0?24:-24}deg)`;el.style.opacity=0;
+        setTimeout(()=>{el.remove();top=stage.lastElementChild;if(top)bind(top)},350)}
+      else{el.style.transform='';el.querySelector('.stamp.keep').style.opacity=0;el.querySelector('.stamp.dump').style.opacity=0}
+      dx=0};
+  }
+  if(top)bind(top);
+
+  // ---- Pantallas de creación ----
+  function tab(k,btn){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'));document.getElementById('t-'+k).classList.add('on');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on')}
+  function tgl(el){el.classList.toggle('sel');refreshMed()}
+  function tglEmoji(el){[...el.parentNode.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');document.getElementById('pvEm').textContent=el.textContent}
+  function tglMed(el){[...el.parentNode.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');document.getElementById('pvIc').textContent=el.textContent}
+  function seg(el){[...el.parentNode.children].forEach(c=>c.classList.remove('on'));el.classList.add('on');
+    if(el.parentNode.id==='segUmb')document.getElementById('pvUb').textContent=el.textContent}
+  function pHito(v){document.getElementById('pvT').textContent=v||'Nombre del hito'}
+  function pHitoC(v){document.getElementById('pvC').textContent=v||'Tu comentario aparecerá aquí…'}
+  function pMot(v){document.getElementById('pvM').textContent='«'+(v||'Tu motivación aparecerá aquí…')+'»'}
+  function pMed(v){document.getElementById('pvNm').textContent=(v||'MEDALLA').toUpperCase();refreshMed()}
+  let imgN=2;
+  function addImg(){if(imgN>=10)return;const em=['🌅','💪','🏅','🎉','🌇'][imgN%5];
+    const i=document.createElement('i');i.className='x';i.style.background=['linear-gradient(135deg,#6D4BF5,#2EC4B6)','linear-gradient(135deg,#F59E0B,#FF6B6B)','linear-gradient(135deg,#2EC4B6,#6D4BF5)','linear-gradient(135deg,#FF6B6B,#6D4BF5)','linear-gradient(135deg,#6D4BF5,#9B7BFF)'][imgN%5];i.textContent=em;
+    i.onclick=()=>{i.remove();imgN--};document.getElementById('thumbs').appendChild(i);imgN++}
+  function crit(el,kind){[...el.parentNode.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');
+    document.getElementById('pvCt').textContent=kind;
+    document.getElementById('lblSel').textContent=kind==='meta'?'Metas ligadas':kind==='racha'?'Hábito base (racha)':kind==='ambos'?'Hábitos + metas ligados':'Hábitos ligados'}
+  function refreshMed(){const sel=[...document.querySelectorAll('#pLig .p.sel, #pLigM .p.sel')].map(s=>s.textContent.replace(/^[^\s]+\s/,''));
+    document.getElementById('pvLig').textContent=sel.length?sel.join(' + '):'sin ligar';
+</script>
+</body>
+</html>

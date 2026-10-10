@@ -11,6 +11,8 @@ import { HabitCard } from '@/features/habits/HabitCard';
 import { StreakCard } from '@/features/habits/StreakCard';
 import { CheckInCard } from '@/features/wellbeing/CheckInCard';
 import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog } from '@/features/habits/useHabits';
+import { useFreezes } from '@/features/habits/useFreezes';
+import { MotivationCard } from '@/features/motivations/MotivationCard';
 
 function greetingFor(h: number): string {
   if (h < 12) return 'Buenos días';
@@ -24,6 +26,7 @@ export default function HoyScreen() {
   const profile = useProfile();
   const streak = useGlobalStreak();
   const habits = useHabitsToday();
+  const freezes = useFreezes();
   const toggle = useToggleLog();
 
   if (habits.isPending || profile.isPending) {
@@ -92,6 +95,8 @@ export default function HoyScreen() {
             globalStreak={streak.data?.currentStreak ?? 0}
             completedCount={completed}
             totalCount={list.length}
+            freezesLeft={freezes.data?.available}
+            frozenToday={freezes.data?.frozenToday}
           />
         </Animated.View>
 
@@ -100,6 +105,13 @@ export default function HoyScreen() {
         </View>
 
         <CheckInCard />
+
+        <MotivationCard />
+        <ClayButton
+          label="+ Motivación"
+          variant="ghost"
+          onPress={() => router.push('/(modals)/new-motivacion')}
+        />
 
         <View style={styles.list}>
           {list.map((h) => (

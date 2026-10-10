@@ -10,6 +10,7 @@ interface ProfileRow {
   locale: string;
   theme_mode: string;
   created_at: string;
+  photo_uri: string | null;
 }
 
 function toProfile(r: ProfileRow): UserProfile {
@@ -20,6 +21,7 @@ function toProfile(r: ProfileRow): UserProfile {
     locale: r.locale,
     themeMode: r.theme_mode as UserProfile['themeMode'],
     createdAt: r.created_at,
+    photoUri: r.photo_uri,
   };
 }
 
@@ -27,7 +29,8 @@ export const userProfileRepository = {
   async get(): Promise<UserProfile | null> {
     const db = await getDb();
     const row = await db.getFirstAsync<ProfileRow>(
-      'SELECT id, display_name, avatar_seed, locale, theme_mode, created_at FROM user_profile LIMIT 1',
+      `SELECT id, display_name, avatar_seed, locale, theme_mode, created_at, photo_uri
+       FROM user_profile LIMIT 1`,
     );
     return row ? toProfile(row) : null;
   },
@@ -92,6 +95,31 @@ export const userProfileRepository = {
     });
     const updated = await this.get();
     if (!updated) throw new AppError(ERROR_CODES.INTERNAL, 'Perfil no actualizado');
+    return updated;
+  },
+
+  /** V2 · HU-14 — guarda la ruta de la foto (el binario ya está en imageStore). */
+  async setPhoto(photoUri: string): Promise<UserProfile> {
+    if (!photoUri.startsWith('file:')) {
+      throw new AppError(ERROR_CODES.IMAGE_INVALID_TYPE, 'Ruta de foto no válida');
+    }
+    const db = await getDb();
+    const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM user_profile LIMIT 1');
+    if (!existing) throw new AppError(ERROR_CODES.NOT_FOUND, 'No hay perfil local');
+    await db.runAsync('UPDATE user_profile SET photo_uri = ? WHERE id = ?', photoUri, existing.id);
+    const updated = await this.get();
+    if (!updated) throw new AppError(ERROR_CODES.INTERNAL, 'Foto no guardada');
+    return updated;
+  },
+
+  /** V2 · HU-14 — quitar foto (borrado del archivo lo hace el caller). */
+  async clearPhoto(): Promise<UserProfile> {
+    const db = await getDb();
+    const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM user_profile LIMIT 1');
+    if (!existing) throw new AppError(ERROR_CODES.NOT_FOUND, 'No hay perfil local');
+    await db.runAsync('UPDATE user_profile SET photo_uri = NULL WHERE id = ?', existing.id);
+    const updated = await this.get();
+    if (!updated) throw new AppError(ERROR_CODES.INTERNAL, 'Foto no quitada');
     return updated;
   },
 };

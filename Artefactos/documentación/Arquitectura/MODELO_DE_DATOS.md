@@ -270,3 +270,89 @@ COMMIT;   -- cualquier fallo revierte TODO
 - PIN/biometría: hash **scrypt** + salt en **SecureStore** (Keychain/Keystore) — nunca en SQLite.
 - Evaluación pendiente (backlog): **SQLCipher** para cifrar el archivo SQLite completo.
 - Datos exportados (función "exportar datos") solo bajo acción explícita del usuario.
+
+---
+
+## V2 — Tablas nuevas y extensiones (2026-10-10)
+
+### 2.8 `MILESTONE` + `MILESTONE_IMAGE` + `MILESTONE_LINK`
+
+| Campo | Tipo | Restricciones | Descripción |
+|---|---|---|---|
+| `MILESTONE.id` | uuid PK | — | — |
+| `MILESTONE.user_id` | uuid | FK `USER_PROFILE.id` | — |
+| `MILESTONE.title` | text | NOT NULL, ≤80 | Nombre del hito |
+| `MILESTONE.note` | text | NULL, ≤500 | Comentario del hito |
+| `MILESTONE.occurred_at` | date | NOT NULL | Fecha del logro |
+| `MILESTONE.created_at` | timestamp | default now | — |
+| `MILESTONE.sync_state` | text | `pending\|synced` | Outbox Fase 2 |
+| `MILESTONE_IMAGE.id` | uuid PK | — | — |
+| `MILESTONE_IMAGE.milestone_id` | uuid | FK **ON DELETE CASCADE** | — |
+| `MILESTONE_IMAGE.uri` | text | NOT NULL | Ruta FileSystem (UUID) |
+| `MILESTONE_IMAGE.position` | integer | NOT NULL | Orden en carrusel |
+| `MILESTONE_LINK.milestone_id` | uuid | FK CASCADE, PK juntos | — |
+| `MILESTONE_LINK.entity_type` | text | `habit\|goal` | Ligazón |
+| `MILESTONE_LINK.entity_id` | uuid | PK juntos | Hábito o meta |
+
+### 2.9 `MOTIVATION` + `MOTIVATION_SHOW`
+
+| Campo | Tipo | Restricciones | Descripción |
+|---|---|---|---|
+| `MOTIVATION.id` | uuid PK | — | — |
+| `MOTIVATION.user_id` | uuid | FK perfil | — |
+| `MOTIVATION.text` | text | NOT NULL, ≤140 | Texto de la card |
+| `MOTIVATION.emoji` | text | default `🔥` | — |
+| `MOTIVATION.goal_id` | uuid | FK `GOAL.id`, NULL | Meta ligada (opcional) |
+| `MOTIVATION.trigger_type` | text | `no_streak\|morning\|missed_day` | Cuándo se encola |
+| `MOTIVATION.active` | integer | default 1 | — |
+| `MOTIVATION.created_at` | timestamp | default now | — |
+| `MOTIVATION_SHOW.(motivation_id, shown_on)` | — | **PK juntos** | Historial/no repetir |
+
+### 2.10 `ACHIEVEMENT` — columnas nuevas (migración V2)
+
+| Campo | Tipo | Restricciones | Descripción |
+|---|---|---|---|
+| `is_custom` | integer | default 0 | 1 = creado por el usuario (borrable) |
+| `progress_style` | text | `bar\|level\|hidden` | Cómo se muestra el avance |
+| `unlock_mode` | text | `auto\|review` | Automático o con revisión |
+| `criteria` (ampliado) | json | `{type, threshold, habit_ids?:uuid[], goal_ids?:uuid[], mode?:'any'\|'all'}` | Compatibilidad total con V1 |
+
+### 2.11 `STATS_CACHE`
+
+| Campo | Tipo | Restricciones | Descripción |
+|---|---|---|---|
+| `key` | text PK | `goal:<id>:day` / `habit:<id>:hour` / `milestone:activity` | — |
+| `payload` | json | — | Series y agregados |
+| `computed_at` | timestamp | — | Freshness |
+
+### 2.12 Extensión `USER_PROFILE`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `photo_uri` | text NULL | Path FileSystem del avatar; NULL ⇒ gradiente + iniciales (fallback V1) |
+
+### Índices nuevos
+
+| Tabla | Índice | Consulta protegida |
+|---|---|---|
+| `MILESTONE` | `(user_id, occurred_at DESC)` | Lista de hitos |
+| `MILESTONE_IMAGE` | `(milestone_id, position)` | Carrusel ordenado |
+| `MOTIVATION` | `(goal_id, active)` | Cola por meta |
+| `HABIT_LOG` | `(habit_id, created_at)` | Stats por hora |
+| `GOAL_UPDATE` | `(goal_id, created_at)` | Stats por hora de metas |
+| `STATS_CACHE` | `(computed_at)` | Limpieza de caché vieja |
+
+### Migración V2
+Versión `_migrations` **siguiente a la V1** (mismo migrador versionado): `ALTER TABLE` de 3 columnas en `ACHIEVEMENT`, `ALTER TABLE USER_PROFILE ADD photo_uri`, `CREATE TABLE` de las 5 nuevas + índices. Idempotente y transaccional (rollback ⇒ versión anterior intacta).
+
+### 2.13 Mejoras V2.1 (aprobadas 2026-10-10 � HU-27�HU-30)
+
+| Elemento | Tipo | Detalle |
+|---|---|---|
+| `HABIT.time_slot` | text NULL (`morning`\|`afternoon`\|`evening`) | Tramo horario opcional; ordena �Hoy� y filtra stats |
+| `STREAK_FREEZE` | tabla | `id, user_id, used_date` � m�x. 2 usos/mes; `UNIQUE(user_id, used_date)` |
+| `HABIT.reminder_at` | (reservado) | No se implementa en V2 � solo time_slot |
+| Backup | sin tabla | Export/import JSON cifrado con fotos (archivo, no BD) |
+| Compartir hito | sin tabla | Render Skia 1080�1080 en memoria + expo-sharing |
+
+**Migraci�n V2.1:** `ALTER TABLE HABIT ADD time_slot` + `CREATE TABLE STREAK_FREEZE` + �ndice � misma versi�n `_migrations` encadenada.

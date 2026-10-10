@@ -52,8 +52,14 @@ export default function RootLayout() {
                 <Stack.Screen name="(modals)/check-in" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="(modals)/change-pin" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="(modals)/edit-profile" options={{ presentation: 'formSheet' }} />
+                <Stack.Screen name="(modals)/new-hito" options={{ presentation: 'formSheet' }} />
+                <Stack.Screen name="(modals)/new-logro" options={{ presentation: 'formSheet' }} />
+                <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
+                <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="goal/[id]" />
                 <Stack.Screen name="habit/[id]" />
+                <Stack.Screen name="hitos/index" />
+                <Stack.Screen name="hito/[id]" />
               </Stack>
               <CelebrationWatcher />
             </SessionGate>

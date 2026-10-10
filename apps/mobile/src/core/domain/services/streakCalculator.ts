@@ -33,8 +33,16 @@ export interface StreakResult {
 /**
  * Calcula racha actual y récord desde las fechas completadas (YYYY-MM-DD).
  * Racha = días consecutivos terminando hoy o ayer (hoy pendiente aún no rompe).
+ *
+ * V2.1 · HU-27 — `freezesAvailable` (default 0 = V1 intacto): nº de freezes que
+ * pueden tapar huecos; se consumen en orden (hueco final primero, luego internos).
+ * bestStreak es histórico: los freezes no lo alteran.
  */
-export function computeStreak(completedDates: string[], today: string): StreakResult {
+export function computeStreak(
+  completedDates: string[],
+  today: string,
+  freezesAvailable = 0,
+): StreakResult {
   if (completedDates.length === 0) {
     return { currentStreak: 0, bestStreak: 0, lastCompletedDate: null };
   }
@@ -43,16 +51,35 @@ export function computeStreak(completedDates: string[], today: string): StreakRe
   const last = sorted[sorted.length - 1]!;
 
   const gapFromToday = daysBetween(last, today);
-  const alive = gapFromToday <= 1;
+  let remaining = freezesAvailable;
+  let alive = gapFromToday <= 1;
+  let frozenTail = 0; // días perdidos (hoy..último log) protegidos por freeze
+  if (!alive) {
+    const missing = gapFromToday - 1; // hoy pendiente no cuenta
+    if (missing <= remaining) {
+      alive = true;
+      remaining -= missing;
+      frozenTail = missing;
+    }
+  }
 
   let currentStreak = 0;
   if (alive) {
     currentStreak = 1;
     for (let i = sorted.length - 1; i > 0; i--) {
       const prev = sorted[i - 1]!;
-      if (daysBetween(prev, sorted[i]!) === 1) currentStreak++;
-      else break;
+      const gap = daysBetween(prev, sorted[i]!);
+      if (gap === 1) {
+        currentStreak++;
+      } else if (gap - 1 <= remaining) {
+        // hueco intertapado por freeze
+        remaining -= gap - 1;
+        currentStreak += gap;
+      } else {
+        break;
+      }
     }
+    currentStreak += frozenTail;
   }
 
   let bestStreak = 1;
@@ -72,6 +99,10 @@ export function computeStreak(completedDates: string[], today: string): StreakRe
 /**
  * Racha global: días en que AL MENOS un hábito se completó, consecutivos hasta hoy/ayer.
  */
-export function computeGlobalStreak(allCompletedDates: string[], today: string): StreakResult {
-  return computeStreak(allCompletedDates, today);
+export function computeGlobalStreak(
+  allCompletedDates: string[],
+  today: string,
+  freezesAvailable = 0,
+): StreakResult {
+  return computeStreak(allCompletedDates, today, freezesAvailable);
 }

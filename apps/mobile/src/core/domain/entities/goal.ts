@@ -25,3 +25,13 @@ export interface GoalUpdate {
   entryDate: string;
   createdAt: string;
 }
+
+/** V2 · HU-20 — estadísticas de meta: 7 días + distribución por hora. */
+export interface GoalStats {
+  /** Últimos 7 días (cronológicos), suma de deltas por día. */
+  daily: { date: string; label: string; total: number }[];
+  /** Registros por hora del día (0–23). */
+  hourly: number[];
+  /** Nº total de registros (para estado empty). */
+  updates: number;
+}

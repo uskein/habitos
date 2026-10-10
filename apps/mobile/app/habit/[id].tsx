@@ -10,10 +10,17 @@ import {
   useHabitHistory,
   useToggleLog,
 } from '@/features/habits/useHabits';
+import { MilestoneSection } from '@/features/milestones/MilestoneSection';
+import { useHabitStats } from '@/features/habits/useStats';
 import { EmptyState } from '@/ui/feedback/EmptyState';
+import { ClayBars } from '@/ui/feedback/ClayBars';
+import { ClaySparkline } from '@/ui/feedback/ClaySparkline';
+import { HourlyChart } from '@/ui/feedback/HourlyChart';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
 import { AppBar } from '@/ui/navigation/AppBar';
+import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
+import { ClayButton } from '@/ui/primitives/ClayButton';
 
 interface MonthCell {
   day: number;
@@ -179,10 +186,81 @@ export default function HabitDetail() {
           />
         )}
 
+        <HabitStatsSection habitId={h.id} />
+
+        <MilestoneSection entityType="habit" entityId={h.id} />
+
         <Pressable onPress={onArchive} disabled={archive.isPending} style={styles.archive}>
           <Text style={styles.archiveText}>Archivar hábito</Text>
         </Pressable>
       </ScrollView>
+    </View>
+  );
+}
+
+/** HU-26 · V2 — stats: tasa 30 d (ClayBars), hora (Victory) y tendencia (Sparkline).
+ *  V2.1 · HU-30 — ChipsTabs de tramo filtra día/hora (sin tramo = sin filtro). */
+const STAT_SLOTS = ['all', 'morning', 'afternoon', 'evening'] as const;
+const STAT_SLOT_LABELS = {
+  all: 'Todo el día',
+  morning: 'Mañana',
+  afternoon: 'Tarde',
+  evening: 'Noche',
+} as const;
+
+function HabitStatsSection({ habitId }: { habitId: string }) {
+  const [slot, setSlot] = useState<(typeof STAT_SLOTS)[number]>('all');
+  const stats = useHabitStats(habitId, slot === 'all' ? null : slot);
+
+  if (stats.isPending) {
+    return (
+      <View style={styles.statsSection}>
+        <Text style={styles.statsTitle}>Estadísticas</Text>
+        <Skeleton height={200} borderRadius={24} />
+      </View>
+    );
+  }
+
+  if (stats.isError) {
+    return (
+      <View style={styles.statsSection}>
+        <Text style={styles.statsTitle}>Estadísticas</Text>
+        <EmptyState
+          title="No se pudieron calcular las stats"
+          blob="⚠"
+          action={<ClayButton label="Reintentar" onPress={() => void stats.refetch()} />}
+        />
+      </View>
+    );
+  }
+
+  const s = stats.data!;
+
+  return (
+    <View style={styles.statsSection}>
+      <Text style={styles.statsTitle}>Estadísticas</Text>
+      <ChipsTabs
+        options={STAT_SLOTS}
+        value={slot}
+        onChange={setSlot}
+        labels={STAT_SLOT_LABELS}
+      />
+      <View style={styles.statsCard}>
+        <View style={styles.statsHeadRow}>
+          <Text style={styles.statsLabel}>Tasa 30 días</Text>
+          <Text style={styles.statsRate}>{s.rate30}%</Text>
+        </View>
+        <ClayBars
+          data={s.daily30}
+          height={120}
+          barWidth={5}
+          accessibilityLabel="Tasa de cumplimiento de los últimos 30 días"
+        />
+        <Text style={styles.statsLabel}>Distribución por hora</Text>
+        <HourlyChart hourly={s.hourly} emptyLabel="Aún sin registros por hora" />
+        <Text style={styles.statsLabel}>Tendencia (14 días)</Text>
+        <ClaySparkline data={s.trend} height={48} accessibilityLabel="Tendencia de los últimos 14 días" />
+      </View>
     </View>
   );
 }
@@ -327,6 +405,43 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: palette.textMuted,
     marginTop: 2,
+  },
+  statsSection: {
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  statsTitle: {
+    fontFamily: fonts.display,
+    fontWeight: '700',
+    fontSize: 16,
+    color: palette.text,
+    marginLeft: 4,
+  },
+  statsCard: {
+    backgroundColor: palette.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: palette.border,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  statsHeadRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statsLabel: {
+    fontFamily: fonts.body,
+    fontWeight: '600',
+    fontSize: 12,
+    color: palette.textMuted,
+  },
+  statsRate: {
+    fontFamily: fonts.mono,
+    fontWeight: '700',
+    fontSize: 20,
+    color: palette.primary,
+    fontVariant: ['tabular-nums'],
   },
   calendarCard: {
     backgroundColor: palette.surface,

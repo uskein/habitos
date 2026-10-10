@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitectura de Información V2 — App Hábitos</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0; --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3; --success:#22C55E; --error:#DC2626;
+    --r-card:24px; --r-md:16px; --r-pill:999px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14),0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:44px 5vw 90px}
+  h1,h2,h3,.sora{font-family:"Sora";sans-serif}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:clamp(30px,5vw,44px);margin:8px 0 8px}
+  .sub{color:var(--text-muted);font-size:15.5px;max-width:700px;line-height:1.6}
+  h2{font-size:21px;margin:44px 0 14px}
+  .layer{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:22px;margin-bottom:18px}
+  .layer .lt{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .layer .lt b{font-family:"Sora";font-size:16px}
+  .pill{background:var(--surface-alt);color:var(--primary);border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:800}
+  .pill.new{background:var(--secondary);color:#053b36}
+  .nodes{display:flex;gap:12px;flex-wrap:wrap}
+  .node{background:var(--surface-alt);border:2px solid transparent;border-radius:16px;padding:13px 16px;min-width:150px;cursor:pointer;transition:all .22s var(--ease-clay);position:relative}
+  .node:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:var(--sh-clay)}
+  .node.v2{background:#EDE9FE;border-style:dashed;border-color:var(--track)}
+  .node.v2:hover{border-color:var(--secondary);border-style:solid}
+  .node b{display:block;font-size:14px;font-family:"Sora"}
+  .node small{font-size:11px;color:var(--text-muted);font-family:"JetBrains Mono"}
+  .node .tag{position:absolute;top:-9px;right:10px;background:var(--secondary);color:#053b36;font-size:9.5px;font-weight:800;border-radius:999px;padding:2px 8px;letter-spacing:.5px}
+  .tabbar{display:flex;gap:6px;background:var(--surface-alt);border-radius:var(--r-pill);padding:6px;max-width:520px}
+  .tabbar .tb{flex:1;text-align:center;padding:11px 4px;border-radius:var(--r-pill);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s var(--ease-std);color:var(--text-muted)}
+  .tabbar .tb.on{background:var(--primary);color:#fff;box-shadow:var(--sh-clay)}
+  /* panel detalle */
+  #panel{position:fixed;top:0;right:-440px;width:420px;max-width:92vw;height:100vh;background:var(--surface);box-shadow:-12px 0 40px rgba(23,18,43,.18);z-index:50;transition:right .32s var(--ease-std);padding:28px 26px;overflow-y:auto;border-left:1px solid var(--border)}
+  #panel.open{right:0}
+  #panel .close{position:absolute;top:16px;right:18px;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface-alt);font-size:17px;cursor:pointer}
+  #panel h3{font-family:"Sora";font-size:21px;margin:26px 0 4px}
+  #panel .rt{font-family:"JetBrains Mono";font-size:12.5px;color:var(--primary);background:var(--surface-alt);display:inline-block;padding:5px 11px;border-radius:8px;margin:8px 0 16px}
+  #panel .row{margin-bottom:14px}
+  #panel .row b{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);display:block;margin-bottom:6px}
+  #panel .row p,#panel .row li{font-size:14px;line-height:1.65;color:var(--text)}
+  #panel ul{margin-left:18px}
+  #panel .comp{display:flex;gap:7px;flex-wrap:wrap}
+  #panel .comp span{background:#EDE9FE;color:var(--primary);border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:700}
+  #panel .states{display:flex;gap:6px;flex-wrap:wrap}
+  #panel .states i{font-style:normal;font-size:11px;font-weight:800;border-radius:8px;padding:5px 10px;background:var(--surface-alt);color:var(--text-muted)}
+  #panel .states i.ok{background:#DCFCE7;color:#15803D}
+  .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-top:6px}
+  .step{background:var(--surface-alt);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700}
+  .step.v2{background:#EDE9FE;color:var(--primary)}
+  .arr{width:34px;height:3px;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:3px;margin:0 4px}
+  .legend{display:flex;gap:16px;font-size:12.5px;color:var(--text-muted);margin-top:12px;flex-wrap:wrap}
+  .legend i{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:5px;vertical-align:-2px}
+  .rules{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:22px 24px}
+  .rules li{font-size:14px;line-height:1.75;color:var(--text-muted);margin-left:18px}
+  .rules b{color:var(--text)}
+  footer{margin-top:50px;font-size:12.5px;color:var(--text-muted);border-top:1px dashed var(--border);padding-top:18px;line-height:1.7}
+  @media (max-width:640px){body{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<span class="kicker">Skill arquitecto-producto-flujos · Paso 3</span>
+<h1>Mapa del sitio V2</h1>
+<p class="sub">Estructura y navegación. Toca cualquier nodo para ver su ficha de navegación (ruta, componentes, datos y estados). Los nodos punteados son nuevos en V2.</p>
+<div class="legend"><span><i style="background:var(--surface-alt);border:1px solid var(--border)"></i>ruta V1</span><span><i style="background:#EDE9FE;border:1px dashed var(--track)"></i>ruta V2 nueva</span></div>
+
+<div class="flow" style="margin-top:20px">
+  <div class="step">Arranque</div><div class="arr"></div>
+  <div class="step">SessionGate</div><div class="arr"></div>
+  <div class="step v2">ClayLoader</div><div class="arr"></div>
+  <div class="step">App (tabs)</div>
+</div>
+
+<h2>Tab bar (R1 — 4 tabs, sin cambios)</h2>
+<div class="tabbar">
+  <div class="tb on">☀️ Hoy</div><div class="tb">🎯 Plan</div><div class="tb">🏅 Logros</div><div class="tb">👤 Perfil</div>
+</div>
+
+<div class="layer" style="margin-top:18px">
+  <div class="lt"><b>☀️ Hoy</b><span class="pill">R2 · tab</span></div>
+  <div class="nodes">
+    <div class="node" onclick="openP('hoy')"><b>Hoy (home)</b><small>(tabs)/index</small></div>
+    <div class="node v2" onclick="openP('motivaciones')"><span class="tag">NUEVO</span><b>Motivaciones</b><small>SwipeCard en Hoy</small></div>
+    <div class="node" onclick="openP('newHabit')"><b>Crear hábito</b><small>(modals)/new-habit</small></div>
+    <div class="node" onclick="openP('checkin')"><b>Check-in</b><small>(modals)/check-in</small></div>
+  </div>
+</div>
+
+<div class="layer">
+  <div class="lt"><b>🎯 Plan</b><span class="pill">R3 · tab</span><span class="pill new">+stats</span></div>
+  <div class="nodes">
+    <div class="node" onclick="openP('plan')"><b>Plan (hábitos/metas)</b><small>(tabs)/plan</small></div>
+    <div class="node" onclick="openP('goal')"><b>Detalle de meta</b><small>goal/[id]</small></div>
+    <div class="node v2" onclick="openP('notas')"><span class="tag">NUEVO</span><b>Notas + progreso</b><small>goal/[id] §notas</small></div>
+    <div class="node v2" onclick="openP('statsGoal')"><span class="tag">NUEVO</span><b>Stats día/hora meta</b><small>ClayBars+Victory</small></div>
+    <div class="node" onclick="openP('habit')"><b>Detalle hábito</b><small>habit/[id]</small></div>
+    <div class="node v2" onclick="openP('statsHabit')"><span class="tag">NUEVO</span><b>Stats hábito</b><small>tasa 30d + hora</small></div>
+    <div class="node" onclick="openP('newGoal')"><b>Crear meta</b><small>(modals)/new-goal</small></div>
+  </div>
+</div>
+
+<div class="layer">
+  <div class="lt"><b>🏅 Logros</b><span class="pill">R7 · tab</span><span class="pill new">+creador +hitos</span></div>
+  <div class="nodes">
+    <div class="node" onclick="openP('logros')"><b>Logros (nivel/medallas)</b><small>(tabs)/achievements</small></div>
+    <div class="node v2" onclick="openP('misLogros')"><span class="tag">NUEVO</span><b>Mis logros</b><small>pestaña + semillas</small></div>
+    <div class="node v2" onclick="openP('newLogro')"><span class="tag">NUEVO</span><b>Crear medalla</b><small>(modals)/new-logro</small></div>
+    <div class="node v2" onclick="openP('hitos')"><span class="tag">NUEVO</span><b>Hitos (lista)</b><small>hitos/index · stack</small></div>
+    <div class="node v2" onclick="openP('hito')"><span class="tag">NUEVO</span><b>Hito (detalle)</b><small>hito/[id] · stack</small></div>
+    <div class="node v2" onclick="openP('newHito')"><span class="tag">NUEVO</span><b>Crear hito</b><small>(modals)/new-hito</small></div>
+  </div>
+</div>
+
+<div class="layer">
+  <div class="lt"><b>👤 Perfil</b><span class="pill">R8 · tab</span><span class="pill new">+foto +crédito</span></div>
+  <div class="nodes">
+    <div class="node" onclick="openP('perfil')"><b>Perfil</b><small>(tabs)/profile</small></div>
+    <div class="node v2" onclick="openP('foto')"><span class="tag">NUEVO</span><b>Foto de perfil</b><small>ClayAvatarPicker</small></div>
+    <div class="node v2" onclick="openP('credito')"><span class="tag">NUEVO</span><b>Crédito + link git</b><small>uskein/habitos</small></div>
+    <div class="node" onclick="openP('pin')"><b>Cambiar PIN</b><small>(modals)/change-pin</small></div>
+    <div class="node" onclick="openP('edit')"><b>Editar perfil</b><small>(modals)/edit-profile</small></div>
+  </div>
+</div>
+
+<div class="layer">
+  <div class="lt"><b>🔒 Sesión y sheets globales</b><span class="pill">R4 · R6</span></div>
+  <div class="nodes">
+    <div class="node" onclick="openP('lock')"><b>LockScreen</b><small>SessionGate</small></div>
+    <div class="node v2" onclick="openP('loader')"><span class="tag">NUEVO</span><b>ClayLoader (PIN)</b><small>overlay blur</small></div>
+    <div class="node" onclick="openP('onboarding')"><b>Onboarding</b><small>HU-1…HU-3</small></div>
+    <div class="node" onclick="openP('motivacionNew')"><span class="tag">NUEVO</span><b>Crear motivación</b><small>(modals)/new-motivacion</small></div>
+  </div>
+</div>
+
+<h2>Accesos cruzados V2</h2>
+<div class="flow">
+  <div class="step">Detalle hábito</div><div class="arr"></div>
+  <div class="step v2">→ Hitos ligados</div><div class="arr"></div>
+  <div class="step v2">Hito detalle</div><div class="arr"></div>
+  <div class="step v2">→ Stats del hábito</div>
+</div>
+<div class="flow" style="margin-top:10px">
+  <div class="step">Logros</div><div class="arr"></div>
+  <div class="step v2">Sección «Mis hitos»</div><div class="arr"></div>
+  <div class="step v2">Crear hito</div><div class="arr"></div>
+  <div class="step v2">Carrusel</div>
+</div>
+
+<div class="rules" style="margin-top:26px">
+  <h2 style="margin-top:0">Reglas de navegación (V1 heredadas + V2)</h2>
+  <ul>
+    <li><b>R1:</b> tab bar visible solo en las 4 rutas <span class="mono">(tabs)/</span> — hitos y detalles viven en stack.</li>
+    <li>Los sheets usan <span class="mono">presentation: 'formSheet'</span> (new-hito, new-motivacion, new-logro + los V1).</li>
+    <li><b>V2:</b> atrás desde hito → lista de hitos; atrás desde lista → pantalla que originó el acceso (Logros o detalle).</li>
+    <li>Las Motivaciones <b>solo</b> se insertan en el flujo de Hoy cuando <span class="mono">checkinDeHoy</span> está vacío (HU-25) — nunca bloquean el contenido principal.</li>
+    <li>Cada nodo mantiene sus 4 estados (Loading/Empty/Success/Error-R9) y reduced-motion R8.</li>
+  </ul>
+</div>
+
+<div id="panel">
+  <button class="close" onclick="closeP()">✕</button>
+  <h3 id="pT"></h3>
+  <div class="rt" id="pR"></div>
+  <div class="row"><b>Propósito</b><p id="pP"></p></div>
+  <div class="row"><b>Componentes (DS)</b><div class="comp" id="pC"></div></div>
+  <div class="row"><b>Datos</b><p id="pD" class="mono" style="font-size:13px"></p></div>
+  <div class="row"><b>Estados</b><div class="states" id="pS"></div></div>
+  <div class="row"><b>Navegación</b><p id="pN"></p></div>
+</div>
+
+<footer>
+  Trazabilidad: rutas R1–R9 (ARQUITECTURA_INFORMACION V1) · componentes DS V1 §8 · entidades MODELO_DE_DATOS V2 · nodos nuevos = HU-14…HU-26.<br>
+  Archivo: <span class="mono">Artefactos/documentación/ArquitecturaInformacion/ARQUITECTURA_INFORMACION_VISUAL.html</span> · lang es
+</footer>
+
+<script>
+const D={
+ hoy:['Hoy (home)','(tabs)/index — R2','Resumen del día: streak global, progreso, check-in y lista de hábitos con 4 estados.','StreakCard|Progress|HabitCard|CheckInCard|FAB','streakCacheRepository · useGlobalStreak · useHabits','Loading|Empty|Success|Error','Tab raíz; FAB → new-habit; tocar hábito → habit/[id].'],
+ motivaciones:['Motivaciones','(tabs)/index §SwipeCard · HU-24/25','Pila de máx. 5 cards descartables cuando hoy no hay racha; swipe → guardar/descartar + deshacer.','SwipeCard|ClayChip|mini-btn','motivationRepository.listForQueue · motivationQueueService · MOTIVATION_SHOW','Vacío (no aplica)|Cola|Error','Inserta arriba en Hoy; nunca tapa el contenido; botones como alternativa accesible.'],
+ newHabit:['Crear hábito','(modals)/new-habit','Sheet Zod→BD (HU-4, F2); CTA deshabilitado hasta válido.','ClayInput|ClayDaysSelector|ClayButton|ClayToggle','habit.schema · habitRepository.create','Validando|Completo|Error','Sheet formSheet desde FAB de Hoy.'],
+ checkin:['Check-in','(modals)/check-in','Registro de bienestar F3/F9 (upsert).','ClayInput|ClayButton|ClaySheet','wellbeingRepository.upsert · well.schema','Loading|Success|Error','Desde CheckInCard en Hoy.'],
+ plan:['Plan','(tabs)/plan — R3','Chips Hábitos/Metas, archivar con long-press; V2: barras de progreso en metas.','Chips|GoalCard|HabitRow|ClayBars(?)','useGoals · useHabits','Loading|Empty|Success|Error','Tab; tocar meta → goal/[id].'],
+ goal:['Detalle de meta','goal/[id] — R5','Progreso, deltas +1/+5/+10, arquivar.','ClayBars|ClayButton|Progress|ClaySparkline','goalsRepository · getGoalStats','Loading|Empty|Success|Error','Stack fuera de tabs; desde Plan.'],
+ notas:['Notas de meta','goal/[id] §notas · HU-19','Añadir/editar notas del camino de la meta.','ClayInput multiline|ClayButton','GOAL_UPDATE · goalsRepository.addNote','Loading|Success|Error','Sección colapsable dentro de goal/[id].'],
+ statsGoal:['Stats de meta','goal/[id] §stats · HU-20','Cumplimiento por día (7 barras) y hora pico; empty si sin datos.','ClayBars|Victory|ClaySparkline','statsRepository.getGoalStats (stats_cache)','Loading|Empty|Success|Error','Sección de gráficos con toggle día/hora.'],
+ habit:['Detalle de hábito','habit/[id] — R6','Calendario mensual, archivar, hitos ligados (V2).','Calendario|ClayCard|Chips','habitLogsRepository · milestoneLinks','Loading|Empty|Success|Error','Stack; V2 añade sección «Hitos relacionados».'],
+ statsHabit:['Stats de hábito','habit/[id] §stats · HU-26','Tasa 30 días, distribución por hora, tendencia de racha.','ClayBars|Victory|ClaySparkline','statsRepository.getHabitStats','Loading|Empty|Success|Error','Sección nueva dentro de habit/[id].'],
+ newGoal:['Crear meta','(modals)/new-goal','Alta de meta (HU-9/10).','ClayInput|ClayButton','goal.schema · goalsRepository','Loading|Success|Error','Sheet desde Plan.'],
+ logros:['Logros','(tabs)/achievements — R7','Nivel, calendario del mes y medallas con celebración R5.','AchievementCard|ProgressBar|Calendario','useAchievements · useMonthStats','Loading|Empty|Success|Error','Tab; V2 añade pestañas.'],
+ misLogros:['Mis logros','achievements §pestaña · HU-21/23','Semillas + personalizados con progreso, editar/eliminar (custom).','AchievementCard|ClayButton|Chips','achievementRepository.listCustom · evaluateEvent','Loading|Empty|Success|Error','Pestaña 2 en Logros; CTA «Crear medalla».'],
+ newLogro:['Crear medalla','(modals)/new-logro · HU-21/22','Nombre, emoji, criterio (hábito/meta/ambos/racha), vínculos, umbral, progreso.','ClayInput|pick chips|seg control|medalla preview','achievementCustom.schema · createCustom','Validando|Completo|Error','Sheet desde «Mis logros».'],
+ hitos:['Hitos (lista)','hitos/index · HU-17','Cronología de hitos con miniaturas y chips de ligazón.','MilestoneCard|ClayButton','milestoneRepository.list','Loading|Empty|Success|Error','Stack; accesos desde Logros y detalles.'],
+ hito:['Hito (detalle)','hito/[id] · HU-18','Carrusel full-bleed, comentario, ligazones, editar/borrar.','ClayCarousel|MilestoneCard|ClayButton','milestoneRepository · MILESTONE_IMAGE','Loading|Empty|Success|Error','Stack; atrás → lista.'],
+ newHito:['Crear hito','(modals)/new-hito · HU-17','Nombre, fecha, chips hábito/meta, comentario, ≤10 imágenes + preview.','ClayInput|pick chips|up grid|preview card','milestone.schema · create() transaccional','Validando|Completo|Error','Sheet desde lista de hitos.'],
+ perfil:['Perfil','(tabs)/profile — R8','Identidad, ajustes de seguridad y preferencias; V2: foto, crédito y link.','ClayAvatarPicker|rows|ClayToggle','userProfileRepository','Loading|Success|Error','Tab.'],
+ foto:['Foto de perfil','profile §avatar · HU-14','Picker con permiso, recorte circular, preview y quitar foto.','ClayAvatarPicker|ClayButton','imageStore · updatePhoto/clearPhoto','Permiso denegado|Preview|Guardando|Error','Badge 📷 sobre el avatar.'],
+ credito:['Crédito + git','profile §footer · HU-15','«Desarrollado para y por Uskein» + enlace al repositorio.','Link|text','Linking.openURL','Normal|Error de enlace','Pie de Perfil.'],
+ pin:['Cambiar PIN','(modals)/change-pin','Verificación de PIN actual + nuevo (scrypt).','PinPad|ClayLoader|ClayButton','pinStore.changePin','Loading|Success|Error','Sheet desde Perfil.'],
+ edit:['Editar perfil','(modals)/edit-profile','Nombre ≤40 (validación F8).','ClayInput|ClayButton','updateName · editProfile.schema','Validando|Success|Error','Sheet desde Perfil.'],
+ lock:['LockScreen','SessionGate · R4','PIN 6 dígitos + biometría; backoff tras 5 fallos.','PinPad|ClayLock','pinStore · localAuth','Loading|Error(RATE_LIMITED)|Success','Pantalla global.'],
+ loader:['ClayLoader (PIN)','LockScreen · HU-16','Overlay blur 10 + spinner 800 ms mientras valida; pad deshabilitado; ≤1 s.','ClayLoader|PinPad','pinStore.validate','Validando|Éxito|Error','Se monta sobre LockScreen; reduced-motion → frame estático.'],
+ onboarding:['Onboarding','HU-1…HU-3','Nombre + avatar inicial, activación PIN.','OnboardingFlow|ClayInput|PinPad','onboarding.schema','Steps|Error','Primer arranque.'],
+ motivacionNew:['Crear motivación','(modals)/new-motivacion · HU-24','Texto, emoji, meta, disparador + preview swipeable.','ClayInput|pick emoji|seg trigger|preview','motivation.schema · create','Validando|Completo|Error','Sheet desde Hoy (vacío) o Perfil.']
+};
+function openP(k){const d=D[k];if(!d)return;
+ document.getElementById('pT').textContent=d[0];
+ document.getElementById('pR').textContent=d[1];
+ document.getElementById('pP').textContent=d[2];
+ document.getElementById('pC').innerHTML=d[3].split('|').map(x=>'<span>'+x+'</span>').join('');
+ document.getElementById('pD').textContent=d[4];
+ document.getElementById('pS').innerHTML=d[5].split('|').map((x,i)=>'<i class="'+(i===0?'':'')+'">'+x+'</i>').join('');
+ document.getElementById('pN').textContent=d[6];
+ document.getElementById('panel').classList.add('open')}
+function closeP(){document.getElementById('panel').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeP()});
+</script>
+</body>
+</html>

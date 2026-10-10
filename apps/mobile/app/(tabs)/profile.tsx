@@ -1,3 +1,4 @@
+import { Linking } from 'react-native';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -8,9 +9,11 @@ import { fonts, palette, radii, spacing } from '@/core/theme/theme';
 import { useAchievements } from '@/features/achievements/useAchievements';
 import { useGoals } from '@/features/goals/useGoals';
 import { useGlobalStreak, useHabitsToday, useProfile } from '@/features/habits/useHabits';
+import { useAvatarPicker } from '@/features/settings/useAvatarPicker';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
+import { ClayAvatar } from '@/ui/primitives/ClayAvatar';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayCard } from '@/ui/primitives/ClayCard';
 import { ClayToggle } from '@/ui/primitives/ClayToggle';
@@ -23,6 +26,7 @@ export default function ProfileScreen() {
   const achievements = useAchievements();
   const goals = useGoals('active');
   const todayHabits = useHabitsToday();
+  const avatar = useAvatarPicker();
 
   if (profile.isPending || streak.isPending || achievements.isPending) {
     return (
@@ -79,9 +83,13 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeIn.duration(240)}>
           <ClayCard style={styles.identity}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{p.displayName.charAt(0).toUpperCase()}</Text>
-            </View>
+            <ClayAvatar
+              name={p.displayName}
+              size={56}
+              photoUri={p.photoUri}
+              onPressCamera={() => void avatar.pickPhoto()}
+              style={styles.avatar}
+            />
             <View style={styles.identityTexts}>
               <Text style={styles.name} numberOfLines={1}>
                 {p.displayName}
@@ -156,9 +164,28 @@ export default function ProfileScreen() {
             <Stat label="Hábitos hoy" value={`${todayHabits.data?.length ?? 0}`} />
           </View>
           <Row label="Notificaciones" sub="Recordatorios (MMKV)" toggle={{ value: notifications, onChange: () => {} }} />
+          <ClayButton
+            label="Backup y restauración"
+            variant="secondary"
+            onPress={() => router.push('/(modals)/backup')}
+          />
         </Section>
 
-        <Text style={styles.version}>App Hábitos · local-first · v0.1.0</Text>
+        <Section title="Acerca de">
+          <Row label="Créditos" sub="App Hábitos · local-first · v0.2.0 · hecho con ❤ y Expo">
+            <ClayButton
+              label="Repositorio"
+              variant="secondary"
+              onPress={() =>
+                void Linking.openURL('https://github.com/uskein/habitos').catch(() =>
+                  toast.show('No se pudo abrir el enlace', 'error'),
+                )
+              }
+            />
+          </Row>
+        </Section>
+
+        <Text style={styles.version}>App Hábitos · local-first · v0.2.0</Text>
       </ScrollView>
     </View>
   );
@@ -230,18 +257,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 24,
-    color: palette.surface,
+    alignSelf: 'auto',
   },
   identityTexts: {
     flex: 1,

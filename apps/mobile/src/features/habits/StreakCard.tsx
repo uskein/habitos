@@ -8,11 +8,23 @@ export interface StreakCardProps {
   globalStreak: number;
   completedCount: number;
   totalCount: number;
+  /** V2.1 · HU-27 — freezes restantes del mes (0..2). */
+  freezesLeft?: number;
+  /** Hoy está protegido por un freeze. */
+  frozenToday?: boolean;
 }
 
 /** StreakCard — BLUEPRINTS §4: cifra mono + chip Nivel + progreso del día. */
-export function StreakCard({ greeting, globalStreak, completedCount, totalCount }: StreakCardProps) {
+export function StreakCard({
+  greeting,
+  globalStreak,
+  completedCount,
+  totalCount,
+  freezesLeft,
+  frozenToday,
+}: StreakCardProps) {
   const pct = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  const usedFreezes = freezesLeft === undefined ? null : Math.max(0, 2 - freezesLeft);
 
   return (
     <ClayCard style={styles.card}>
@@ -23,7 +35,14 @@ export function StreakCard({ greeting, globalStreak, completedCount, totalCount 
             {completedCount}/{totalCount} completados · {pct}%
           </Text>
         </View>
-        <Badge label={`Nivel ${Math.min(10, Math.floor(globalStreak / 3) + 1)}`} tint="warning" />
+        <View style={styles.headerChips}>
+          {usedFreezes !== null && (
+            <View style={styles.freezeChip}>
+              <Text style={styles.freezeChipText}>❄ {usedFreezes}/2</Text>
+            </View>
+          )}
+          <Badge label={`Nivel ${Math.min(10, Math.floor(globalStreak / 3) + 1)}`} tint="warning" />
+        </View>
       </View>
       <View style={styles.streakRow}>
         <Text style={styles.flame}>🔥</Text>
@@ -32,6 +51,9 @@ export function StreakCard({ greeting, globalStreak, completedCount, totalCount 
           {globalStreak === 1 ? 'día de racha' : 'días de racha'}
         </Text>
       </View>
+      {frozenToday && (
+        <Text style={styles.frozenNote}>❄ Racha congelada hoy — un freeze se usó este mes</Text>
+      )}
     </ClayCard>
   );
 }
@@ -47,6 +69,26 @@ const styles = StyleSheet.create({
   },
   headerText: {
     gap: 2,
+  },
+  headerChips: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  freezeChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: palette.border,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    backgroundColor: palette.surface,
+  },
+  freezeChipText: {
+    fontFamily: fonts.mono,
+    fontWeight: '700',
+    fontSize: 11,
+    color: palette.textMuted,
+    fontVariant: ['tabular-nums'],
   },
   greeting: {
     fontFamily: fonts.display,
@@ -78,5 +120,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontSize: 14,
     color: palette.textMuted,
+  },
+  frozenNote: {
+    fontFamily: fonts.body,
+    fontSize: 12,
+    color: palette.textMuted,
+    textAlign: 'center',
   },
 });

@@ -36,3 +36,36 @@ export function useAddProgress(goalId: string) {
     },
   });
 }
+
+/** V2 · HU-19 — historial de progresos con notas. */
+export function useGoalUpdates(goalId: string) {
+  return useQuery({
+    queryKey: ['goals', 'updates', goalId],
+    queryFn: () => goalRepository.getUpdates(goalId),
+    enabled: !!goalId,
+  });
+}
+
+/** V2 · HU-19 — editar nota (misma tx GOAL_UPDATE). */
+export function useUpdateGoalNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ updateId, note }: { updateId: string; note: string }) =>
+      goalRepository.updateNote(updateId, note),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['goals', 'updates'] });
+      void qc.invalidateQueries({ queryKey: ['goals', 'stats'] });
+      void qc.invalidateQueries({ queryKey: ['goals'] });
+    },
+  });
+}
+
+/** V2 · HU-20 — stats día/hora de meta (4 estados R9). */
+export function useGoalStats(goalId: string) {
+  return useQuery({
+    queryKey: ['goals', 'stats', goalId],
+    queryFn: () => goalRepository.getStats(goalId),
+    enabled: !!goalId,
+    retry: false,
+  });
+}

@@ -1,4 +1,4 @@
-import {
+﻿import {
   addDays,
   computeGlobalStreak,
   computeStreak,
@@ -73,5 +73,44 @@ describe('computeGlobalStreak', () => {
     expect(computeGlobalStreak(dates, '2026-10-10')).toEqual(
       computeStreak(dates, '2026-10-10'),
     );
+  });
+});
+
+describe('computeStreak — freezes (HU-27, V2.1)', () => {
+  const today = '2026-10-10';
+
+  test('sin freezes la racha rota sigue en 0 (comportamiento V1)', () => {
+    const r = computeStreak(['2026-10-07'], today);
+    expect(r.currentStreak).toBe(0);
+  });
+
+  test('1 freeze tapa 1 día perdido — racha viva', () => {
+    // último log 08, hoy 10 → hueco de 1 día (09)
+    const r = computeStreak(['2026-10-08'], today, 1);
+    expect(r.currentStreak).toBe(2);
+    expect(r.bestStreak).toBe(1); // histórico intacto
+  });
+
+  test('freeze insuficiente no congela', () => {
+    // 06 → hoy 10 = 3 días perdidos, sólo 2 freezes
+    const r = computeStreak(['2026-10-06'], today, 2);
+    expect(r.currentStreak).toBe(0);
+  });
+
+  test('2 freezes cubren exactamente 2 días perdidos', () => {
+    const r = computeStreak(['2026-10-07'], today, 2);
+    expect(r.currentStreak).toBe(3);
+  });
+
+  test('hueco interno tapado por freeze restante', () => {
+    // 06,07 + hueco 08 + 09,10 → tapa 1 con 1 freeze
+    const r = computeStreak(['2026-10-06', '2026-10-07', '2026-10-09', '2026-10-10'], today, 1);
+    expect(r.currentStreak).toBe(5);
+  });
+
+  test('default 0 no altera resultados V1', () => {
+    const dates = ['2026-10-08', '2026-10-09', '2026-10-10'];
+    expect(computeStreak(dates, today)).toEqual(computeStreak(dates, today, 0));
+    expect(computeGlobalStreak(dates, today)).toEqual(computeGlobalStreak(dates, today, 0));
   });
 });

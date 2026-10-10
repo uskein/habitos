@@ -1,4 +1,4 @@
-import { AppError, CreateHabitInput, ERROR_CODES, localDateISO } from '@habitos/shared';
+import { AppError, CreateHabitInput, ERROR_CODES, LIMITS, localDateISO } from '@habitos/shared';
 import { randomUUID } from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { getDb } from '../data/database';
@@ -8,7 +8,7 @@ import type {
   HabitWithLog,
 } from '../domain/entities/habit';
 import type { HabitRepository } from '../domain/repositoryInterfaces';
-import { computeGlobalStreak, computeStreak } from '../domain/services/streakCalculator';
+import { addDays, computeGlobalStreak, computeStreak, daysBetween } from '../domain/services/streakCalculator';
 import { evaluateAchievementEvent } from './achievementEvaluation';
 
 interface HabitRow {
@@ -27,6 +27,7 @@ interface HabitRow {
   created_at: string;
   updated_at: string;
   sync_status: string;
+  time_slot: string | null;
 }
 
 interface LogRow {
@@ -70,6 +71,7 @@ function toHabit(r: HabitRow): Habit {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     syncStatus: r.sync_status as Habit['syncStatus'],
+    timeSlot: (r.time_slot as Habit['timeSlot']) ?? null,
   };
 }
 
@@ -88,7 +90,7 @@ function toLog(r: LogRow): HabitLog {
 }
 
 const HABIT_COLS = `id, name, icon, category, color_token, frequency, custom_days,
-  target_value, unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status`;
+  target_value, unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status, time_slot`;
 
 const LOG_COLS = `id, habit_id, log_date, completed, value, completed_at, created_at, updated_at, sync_status`;
 
@@ -121,12 +123,36 @@ async function recomputeStreaks(db: SQLiteDatabase, habitId: string): Promise<vo
   if (!profile) return;
 
   const allDates = await db.getAllAsync<{ log_date: string }>(
-    `SELECT DISTINCT log_date FROM habit_log WHERE completed = 1 ORDER BY log_date`,
+    'SELECT DISTINCT log_date FROM habit_log WHERE completed = 1 ORDER BY log_date',
   );
-  const g = computeGlobalStreak(
-    allDates.map((r) => r.log_date),
-    today,
+
+  /** V2.1 · HU-27 — freezes disponibles del mes (cuota 2). */
+  const month = today.slice(0, 7);
+  const usedRow = await db.getFirstAsync<{ n: number }>(
+    `SELECT COUNT(*) AS n FROM streak_freeze WHERE user_id = ? AND substr(used_date, 1, 7) = ?`,
+    profile.id,
+    month,
   );
+  const available = Math.max(0, LIMITS.FREEZE_MONTHLY_QUOTA - (usedRow?.n ?? 0));
+
+  const dates = allDates.map((r) => r.log_date);
+  const g0 = computeGlobalStreak(dates, today); // sin freeze — ¿se rompería?
+  const g = computeGlobalStreak(dates, today, available);
+
+  // Se rompería pero el freeze la congela → registra el consumo (fechas protegidas).
+  if (g.currentStreak > 0 && g0.currentStreak === 0 && g.lastCompletedDate) {
+    const gap = daysBetween(g.lastCompletedDate, today);
+    const toProtect = Math.min(available, Math.max(0, gap - 1));
+    for (let i = 1; i <= toProtect; i++) {
+      await db.runAsync(
+        `INSERT OR IGNORE INTO streak_freeze (id, user_id, used_date) VALUES (?, ?, ?)`,
+        randomUUID(),
+        profile.id,
+        addDays(g.lastCompletedDate, i),
+      );
+    }
+  }
+
   await db.runAsync(
     `INSERT INTO streak_cache (user_id, global_current_streak, global_best_streak, recomputed_at)
      VALUES (?, ?, ?, datetime('now'))
@@ -146,14 +172,17 @@ export const habitRepository: HabitRepository = {
     const rows = await db.getAllAsync<FeedRow>(
       `SELECT h.id, h.name, h.icon, h.category, h.color_token, h.frequency, h.custom_days,
               h.target_value, h.unit, h.reminder_time, h.sort_order, h.is_archived,
-              h.created_at, h.updated_at, h.sync_status,
+              h.created_at, h.updated_at, h.sync_status, h.time_slot,
               l.id AS l_id, l.habit_id AS l_habit_id, l.log_date AS l_log_date,
               l.completed AS l_completed, l.value AS l_value, l.completed_at AS l_completed_at,
-              l.created_at AS l_created_at, l.updated_at AS l_updated_at, l.sync_status AS l_sync_status
+              l.created_at AS l_created_at, l.updated_at AS l_updated_at, sync_status AS l_sync_status
        FROM habit h
        LEFT JOIN habit_log l ON l.habit_id = h.id AND l.log_date = ?
        WHERE h.is_archived = 0
-       ORDER BY h.sort_order, h.created_at`,
+       ORDER BY CASE h.time_slot
+                  WHEN 'morning' THEN 0 WHEN 'afternoon' THEN 1 WHEN 'evening' THEN 2 ELSE 3
+                END,
+                h.sort_order, h.created_at`,
       date,
     );
 
@@ -175,6 +204,15 @@ export const habitRepository: HabitRepository = {
           : null;
       return { ...habit, log } satisfies HabitWithLog;
     });
+  },
+
+  /** V2 · HU-17 — hábitos no archivados (ligazones de hitos, selector de M15). */
+  async listActive() {
+    const db = await getDb();
+    const rows = await db.getAllAsync<HabitRow>(
+      `SELECT ${HABIT_COLS} FROM habit WHERE is_archived = 0 ORDER BY sort_order, created_at`,
+    );
+    return rows.map(toHabit);
   },
 
   async getById(habitId) {
@@ -199,8 +237,8 @@ export const habitRepository: HabitRepository = {
     await db.withTransactionAsync(async () => {
       await db.runAsync(
         `INSERT INTO habit (id, name, icon, category, color_token, frequency, custom_days,
-           target_value, unit, reminder_time, sort_order)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           target_value, unit, reminder_time, sort_order, time_slot)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         id,
         parsed.name,
         parsed.icon,
@@ -212,6 +250,7 @@ export const habitRepository: HabitRepository = {
         parsed.unit ?? null,
         parsed.reminderTime ?? null,
         sortOrder,
+        parsed.timeSlot ?? null,
       );
       await db.runAsync(
         `INSERT INTO habit_streak_cache (habit_id) VALUES (?) ON CONFLICT DO NOTHING`,
@@ -247,11 +286,13 @@ export const habitRepository: HabitRepository = {
       targetValue: merged.targetValue,
       unit: merged.unit,
       reminderTime: merged.reminderTime,
+      timeSlot: merged.timeSlot ?? undefined,
     });
 
     await db.runAsync(
       `UPDATE habit SET name = ?, icon = ?, category = ?, color_token = ?, frequency = ?,
-         custom_days = ?, target_value = ?, unit = ?, reminder_time = ?, updated_at = datetime('now')
+         custom_days = ?, target_value = ?, unit = ?, reminder_time = ?, time_slot = ?,
+         updated_at = datetime('now')
        WHERE id = ?`,
       parsed.name,
       parsed.icon,
@@ -262,6 +303,7 @@ export const habitRepository: HabitRepository = {
       parsed.targetValue ?? null,
       parsed.unit ?? null,
       parsed.reminderTime ?? null,
+      parsed.timeSlot ?? null,
       habitId,
     );
     return (await this.getById(habitId))!;

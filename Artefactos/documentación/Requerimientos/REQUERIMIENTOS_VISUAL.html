@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requerimientos V2 — App Hábitos (Pulse Clay)</title>
+<style>
+  :root{
+    --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-active:#4F32CC;
+    --secondary:#2EC4B6; --streak:#FF6B6B; --award:#F59E0B;
+    --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF; --track:#DDD5FB;
+    --text:#17122B; --text-muted:#67617E; --border:#E4DFF3;
+    --success:#22C55E; --error:#DC2626;
+    --r-card:24px; --r-md:16px; --r-pill:999px;
+    --sh-clay:0 8px 24px rgba(109,75,245,.14),0 2px 6px rgba(23,18,43,.06);
+    --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:44px 5vw 90px}
+  h1,h2,h3,.sora{font-family:"Sora","Plus Jakarta Sans",sans-serif}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+  h1{font-size:clamp(32px,5vw,46px);margin:8px 0 10px}
+  .sub{color:var(--text-muted);font-size:16px;max-width:720px;line-height:1.6}
+  h2{font-size:24px;margin:52px 0 6px}
+  h2 .n{color:var(--primary);font-family:"JetBrains Mono";font-size:18px;margin-right:8px}
+  .desc{color:var(--text-muted);font-size:14px;margin-bottom:18px}
+  /* personaje */
+  .hero{display:flex;gap:26px;align-items:center;flex-wrap:wrap;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:26px;margin-top:26px}
+  .ava{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Sora";font-size:34px;font-weight:700;border:3px solid var(--surface);box-shadow:var(--sh-clay);flex-shrink:0}
+  .hero h3{font-size:21px}
+  .hero .role{color:var(--primary);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .tag{background:var(--surface-alt);color:var(--primary);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px}
+  .col{background:var(--surface-alt);border-radius:var(--r-md);padding:16px}
+  .col b{font-size:12.5px;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px}
+  .col li{font-size:13.5px;color:var(--text-muted);line-height:1.65;margin-left:17px}
+  /* épicas */
+  .ep{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-clay);padding:22px 24px;margin-bottom:16px;position:relative;overflow:hidden;transition:transform .3s var(--ease-clay)}
+  .ep:hover{transform:translateY(-4px)}
+  .ep::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--primary),var(--secondary))}
+  .ep .en{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ep .badge{background:var(--primary);color:#fff;border-radius:999px;padding:4px 13px;font-size:12px;font-weight:800}
+  .ep.new .badge{background:var(--secondary);color:#053b36}
+  .ep h3{font-size:18px}
+  .ep .hu{font-family:"JetBrains Mono";font-size:11.5px;color:var(--text-muted);background:var(--surface-alt);border-radius:8px;padding:4px 10px}
+  .story{background:var(--surface-alt);border-radius:var(--r-md);padding:14px 16px;margin-top:14px;font-size:14.5px;line-height:1.6}
+  .story b{color:var(--primary)}
+  /* checklist */
+  .checks{margin-top:14px;display:grid;gap:8px}
+  .ck{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;cursor:pointer;transition:all .18s var(--ease-std);font-size:13.5px;line-height:1.55;color:var(--text-muted)}
+  .ck:hover{border-color:var(--primary)}
+  .ck .box{width:20px;height:20px;border-radius:7px;border:2px solid var(--track);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:all .18s var(--ease-clay);margin-top:1px}
+  .ck.on{border-color:var(--success);background:#F0FDF4}
+  .ck.on .box{background:var(--success);border-color:var(--success);transform:scale(1.1)}
+  .ck.on span{color:var(--text)}
+  .gt{font-family:"JetBrains Mono";font-size:11.5px;color:var(--primary);display:block;margin-bottom:4px;font-weight:700}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin:22px 0 6px}
+  .stat{background:var(--surface);border-radius:var(--r-md);box-shadow:var(--sh-clay);padding:16px 22px;text-align:center}
+  .stat b{font-family:"Sora";font-size:26px;display:block;color:var(--primary)}
+  .stat span{font-size:11.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text-muted);margin-top:8px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px}
+  footer{margin-top:56px;padding-top:22px;border-top:1px dashed var(--border);font-size:12.5px;color:var(--text-muted);line-height:1.7}
+  @media (max-width:640px){body{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<span class="kicker">Skill arquitecto-producto-flujos · Paso 2</span>
+<h1>Requerimientos V2 — App Hábitos</h1>
+<p class="sub">Actores, épicas e historias de usuario de la versión 2, con criterios de aceptación interactivos. Tokens idénticos a Pulse Clay V1/V2.</p>
+
+<div class="stats">
+  <div class="stat"><b>7</b><span>épicas nuevas</span></div>
+  <div class="stat"><b>13</b><span>historias V2</span></div>
+  <div class="stat"><b>4</b><span>deps nuevas</span></div>
+  <div class="stat"><b>5</b><span>tablas nuevas</span></div>
+</div>
+<div class="legend"><span><i style="background:var(--primary)"></i>hereda V1</span><span><i style="background:var(--secondary)"></i>nuevo V2</span><span><i style="background:var(--success)"></i>criterio cumplible</span></div>
+
+<h2><span class="n">1</span>Actor</h2>
+<div class="hero">
+  <div class="ava">AR</div>
+  <div style="flex:1;min-width:240px">
+    <span class="role">Persona principal (V1, ampliada)</span>
+    <h3>Alex Rivera</h3>
+    <div class="tags"><span class="tag">34 años</span><span class="tag">nivel: intermedio</span><span class="tag">mobile-first</span><span class="tag">sin red social</span></div>
+    <div class="cols">
+      <div class="col"><b>🎯 Objetivos V2</b><ul><li>Ver fotos de sus logros en un lugar bonito</li><li>Sentir que la app «responde» (nada congelado)</li><li>Crear sus propias medallas y motivaciones</li><li>Entender CUÁNDO rinde mejor (día/hora)</li></ul></div>
+      <div class="col"><b>😤 Frustraciones V2</b><ul><li>Pantallas que se congelan sin feedback</li><li>Listas de logros genéricas que no le dicen nada</li><li>Metas sin detalle de progreso ni notas</li></ul></div>
+      <div class="col"><b>✅ Contexto V1</b><ul><li>Hábitos y metas diarias en uso real</li><li>PIN activo, racha de 14 días</li><li>Ya aprobó F1–F9 en device</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="n">2</span>Épicas e historias de usuario</h2>
+<p class="desc">Épicas 1–5 (V1) ya aprobadas en <span class="mono">REQUERIMIENTOS_FUNCIONALES.md</span>. Aquí las épicas 6–12 de V2. Toca cada criterio para marcarlo.</p>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 6 · NUEVA</span><h3>Perfil personalizado y crédito</h3><span class="hu">HU-14 · HU-15</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>añadir mi foto de perfil</b> y ver el crédito del proyecto con enlace a su repositorio, para sentir la app como propia.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-14 · FOTO</span><span>Given en Perfil, When toco el badge 📷, Then abre galería/cámara con permiso explicado; Given imagen ≤2 MB válida, Then se recorta en círculo, se guarda como UUID en FileSystem y <span class="mono">user_profiles.photo_uri</span>; Given error de permiso, Then estado de error con enlace a ajustes y avatar sin foto intacto.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-14 · FALLBACK</span><span>Given <span class="mono">photo_uri = NULL</span>, Then se muestra el gradiente con iniciales (estado V1) — nunca un hueco roto.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-15 · CRÉDITO</span><span>Given en Perfil, Then aparece «Desarrollado para y por Uskein» y el enlace <span class="mono">github.com/uskein/habitos</span> abre en el navegador nativo (<span class="mono">Linking.openURL</span>).</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 7 · NUEVA</span><h3>Validación visible del PIN</h3><span class="hu">HU-16</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>ver un indicador mientras se valida mi PIN</b>, para que la app nunca parezca congelada.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-16 · LOADER</span><span>Given el 4.º dígito, When se dispara la validación, Then aparece <b>ClayLoader</b> (overlay blur 10 + spinner 800 ms lineal + «Validando…») con el pad visible deshabilitado; Given respuesta &lt; 1 s, Then sale con haptic success/error; Given timeout, Then sale con mensaje de reintento.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-16 · REDUCED MOTION</span><span>Given <span class="mono">useReducedMotion() = true</span>, Then el spinner se congela en un frame estático y el texto permanece.</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 8 · NUEVA</span><h3>Hitos</h3><span class="hu">HU-17 · HU-18</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>registrar hitos con fotos y comentarios ligados a mis hábitos/metas</b>, para conservar la historia de mis logros.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-17 · CREAR</span><span>Given el sheet <b>new-hito</b>, When completo nombre ≤80 + fecha + ≥0 ligazones + ≤10 imágenes, Then <span class="mono">milestoneRepository.create()</span> persiste transaccionalmente hito+imágenes+links; Given nombre vacío, Then CTA deshabilitado (Zod).</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-18 · LIGAR</span><span>Given chips de hábitos y metas, Then el hito guarda <span class="mono">entity_type ∈ {habit, goal}</span> por cada selección y aparece en ambos detalle.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-18 · CARRUSEL</span><span>Given ≥2 imágenes, Then <b>ClayCarousel</b> con snap 320 ms, dots y contador «n/t»; Given 1 imagen, Then sin carrusel (foto única); Given borrado del hito, Then las imágenes se eliminan de FileSystem.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-18 · COMENTARIOS</span><span>Given texto ≤500, When guardo, Then el comentario se muestra en la MilestoneCard con fecha mono.</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 9 · NUEVA</span><h3>Plan enriquecido: progreso, notas y estadísticas</h3><span class="hu">HU-19 · HU-20</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>ver el progreso de cada meta con notas y estadísticas por día/hora</b>, para decidir con datos.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-19 · PROGRESO + NOTAS</span><span>Given una meta en Plan, Then su card muestra barra de progreso (track/fill DS) y cantidad; Given en <span class="mono">goal/[id]</span>, Then puedo añadir/editar notas con guardado en <span class="mono">GOAL_UPDATE</span>.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-20 · STATS DÍA/HORA</span><span>Given la meta, Then <b>ClayBars</b> muestra cumplimiento por día (7 barras) y por hora pico; Given datos vacíos, Then estado empty con CTA; Given error de caché, Then retry in-situ (R9).</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 10 · NUEVA</span><h3>Logros y medallas personalizados</h3><span class="hu">HU-21 · HU-22 · HU-23</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>crear medallas configurables ligadas a uno o más hábitos y metas</b>, para que mi gamificación sea mía.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-21 · CREAR</span><span>Given el sheet <b>new-logro</b>, When nombre + emoji + criterio + ≥1 vínculo + umbral ≥1, Then se crea con <span class="mono">is_custom = 1</span>; Given criterio sin vínculos, Then validación Zod y CTA deshabilitado.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-22 · LIGAZÓN</span><span>Given tipo hábito/meta/ambos, Then <span class="mono">criteria.habit_ids/goal_ids</span> con <span class="mono">mode any|all</span>; Given modo «ambos», Then solo desbloquea al cumplir ambos conjuntos.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-23 · EVALUACIÓN</span><span>Given check-in o cierre de meta, Then <span class="mono">evaluateEvent</span> desbloquea de forma idempotente (nunca 2 veces) y notifica con <b>CelebrationWatcher</b> (R5); Given <span class="mono">progress_style</span>, Then la medalla muestra barra/nivel/oculto; Given seed V1, Then <span class="mono">is_custom=0</span> y jamás editable/borrable.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-23 · GESTIÓN</span><span>Given medalla propia, Then puedo editar o eliminar con confirmación; Given desbloqueada, Then conserva su fecha de obtención al editar el texto.</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 11 · NUEVA</span><h3>Motivaciones descartables</h3><span class="hu">HU-24 · HU-25</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>cards motivacionales creadas por mí, ligadas a una meta, que aparezcan cuando pierdo la racha</b>, para retomar el camino.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-24 · CREAR</span><span>Given texto ≤140 + emoji + meta opcional + disparador (<span class="mono">no_streak|morning|missed_day</span>), Then se persiste y la preview muestra la card swipeable real.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-25 · DISPARO</span><span>Given hoy sin check-in (racha no reportada), When abro Hoy, Then <span class="mono">motivationQueueService</span> encola hasta 5 motivaciones (orden: ligadas a meta sin racha primero); Given ya hay check-in hoy, Then no se muestra ninguna.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-25 · SWIPE</span><span>Given la pila, When arrastro →, Then guardar (★) y avanza; When arrastro ←, Then descartar (✕); Given &lt;90 px, Then vuelve al centro con easing clay; Given reduced-motion, Then sin rotación; Siempre disponible acción por botón (accesibilidad) y «deshacer».</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-25 · NO REPETIR</span><span>Given una motivación ya mostrada hoy, Then <span class="mono">MOTIVATION_SHOW</span> la excluye de la cola del día.</span></div></div>
+  </div>
+</div>
+
+<div class="ep new">
+  <div class="en"><span class="badge">ÉPICA 12 · NUEVA</span><h3>Estadísticas extendidas (hábito e hito)</h3><span class="hu">HU-26</span></div>
+  <div class="story">Como <b>Alex</b>, quiero <b>la misma vista de estadísticas por día/hora en hábitos y hitos</b>, para comparar mi rendimiento en todo.</div>
+  <div class="checks">
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-26 · HÁBITO</span><span>Given un hábito, Then <span class="mono">getHabitStats</span> sirve tasa 30 días (ClayBars), distribución por hora (Victory) y tendencia (ClaySparkline) desde <span class="mono">stats_cache</span>.</span></div></div>
+    <div class="ck" onclick="tg(this)"><div class="box">✓</div><div><span class="gt">HU-26 · HITO</span><span>Given un hito ligado, Then se muestra la actividad de hábito/meta en la semana del hito (antes/después).</span></div></div>
+  </div>
+</div>
+
+<footer>
+  <b>Trazabilidad:</b> componentes citados (ClayLoader, ClayCarousel, CelebrationWatcher, tokens) existen en el manual V1 §8 · entidades (<span class="mono">user_profiles, milestone*, motivation*, achievement, stats_cache</span>) en MODELO_DE_DATOS V2 §2.8–2.12 · contratos en CONTRATOS_API V2 · R9 (errores) y R4 (PIN) heredados de V1.<br>
+  Archivo: <span class="mono">Artefactos/documentación/Requerimientos/REQUERIMIENTOS_VISUAL.html</span> · lang es · WCAG AA heredado.
+</footer>
+
+<script>
+  function tg(el){el.classList.toggle('on')}
+  document.querySelectorAll('.ck').forEach((el,i)=>{if(i<0)el.classList.add('on')});
+</script>
+</body>
+</html>

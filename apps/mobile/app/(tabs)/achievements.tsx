@@ -1,17 +1,32 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { localDateISO } from '@habitos/shared';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
-import { useAchievements } from '@/features/achievements/useAchievements';
+import { useAchievements, useRemoveCustomAchievement } from '@/features/achievements/useAchievements';
 import { AchievementCard } from '@/features/achievements/AchievementCard';
 import { useMonthCompletedDates } from '@/features/achievements/useMonthStats';
 import { useGlobalStreak } from '@/features/habits/useHabits';
+import { useFreezes, useToggleFreeze } from '@/features/habits/useFreezes';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
+import { useToast } from '@/ui/feedback/Toast';
+import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
+import { ClayButton } from '@/ui/primitives/ClayButton';
 
-/** Tab Logros — HU-12/HU-13: racha, nivel, calendario del mes y medallas. */
+const VIEWS = ['all', 'mine'] as const;
+const VIEW_LABELS = { all: 'Todas', mine: 'Mis logros' } as const;
+
+/** Tab Logros — HU-12/HU-13: racha, nivel, calendario del mes y medallas + V2 HU-21/23. */
 export default function AchievementsScreen() {
+  const toast = useToast();
   const streak = useGlobalStreak();
   const achievements = useAchievements();
+  const removeCustom = useRemoveCustomAchievement();
+  const freezes = useFreezes();
+  const toggleFreeze = useToggleFreeze();
+  const [view, setView] = useState<(typeof VIEWS)[number]>('all');
   const now = new Date();
   const month = useMonthCompletedDates(now.getFullYear(), now.getMonth());
 
@@ -52,6 +67,70 @@ export default function AchievementsScreen() {
   const { catalog, unlocked } = achievements.data!;
   const unlockedIds = new Map(unlocked.map((u) => [u.achievementId, u.unlockedAt]));
   const doneCount = unlocked.length;
+  const visible = view === 'mine' ? catalog.filter((a) => a.isCustom) : catalog;
+
+  const confirmDelete = (id: string, title: string) => {
+    Alert.alert('Borrar medalla', `¿Eliminar «${title}»?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Borrar',
+        style: 'destructive',
+        onPress: () =>
+          removeCustom.mutate(id, {
+            onSuccess: () => toast.show('Medalla borrada', 'success'),
+            onError: (e) => toast.show(e instanceof Error ? e.message : 'No se pudo borrar', 'error'),
+          }),
+      },
+    ]);
+  };
+
+  /** HU-27 — activar/desactivar el freeze manual con confirmación. */
+  const confirmFreeze = () => {
+    const today = localDateISO();
+    const frozen = freezes.data?.frozenToday ?? false;
+    if (frozen) {
+      Alert.alert('Desactivar freeze', '¿Quitar la protección de la racha de hoy?', [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Desactivar',
+          style: 'destructive',
+          onPress: () =>
+            toggleFreeze.mutate(
+              { date: today, activate: false },
+              {
+                onSuccess: () => toast.show('Freeze desactivado', 'success'),
+                onError: (e) =>
+                  toast.show(e instanceof Error ? e.message : 'No se pudo desactivar', 'error'),
+              },
+            ),
+        },
+      ]);
+      return;
+    }
+    const remaining = freezes.data?.available ?? 0;
+    Alert.alert(
+      'Congelar racha',
+      `Protege tu racha de hoy con 1 freeze. Quedan ${remaining}/2 este mes.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Congelar',
+          onPress: () =>
+            toggleFreeze.mutate(
+              { date: today, activate: true },
+              {
+                onSuccess: () => toast.show('Racha congelada ❄', 'success'),
+                onError: (e) =>
+                  toast.show(
+                    e instanceof Error ? e.message : 'Cuota de freeze agotada',
+                    'error',
+                  ),
+              },
+            ),
+        },
+      ],
+    );
+  };
 
   if (catalog.length === 0) {
     return (
@@ -78,6 +157,16 @@ export default function AchievementsScreen() {
           </View>
         </Animated.View>
 
+        <ClayButton
+          label={
+            freezes.data?.frozenToday
+              ? '❄ Racha congelada hoy — desactivar'
+              : `❄ Congelar racha · quedan ${freezes.data?.available ?? 0}/2`
+          }
+          variant={freezes.data?.frozenToday ? 'secondary' : 'ghost'}
+          onPress={confirmFreeze}
+        />
+
         <Text style={styles.section}>Calendario del mes</Text>
         <View style={styles.calendar}>
           <Text style={styles.calCaption}>
@@ -99,23 +188,66 @@ export default function AchievementsScreen() {
           </View>
         </View>
 
-        <Text style={styles.section}>Medallas</Text>
-        <View style={styles.grid}>
-          {catalog.map((a) => (
-            <View key={a.id} style={styles.gridCell}>
-              <AchievementCard
-                achievement={{
-                  id: a.id,
-                  icon: a.icon,
-                  title: a.title,
-                  description: a.description,
-                }}
-                unlocked={unlockedIds.has(a.id)}
-                unlockedAt={unlockedIds.get(a.id)}
-              />
-            </View>
-          ))}
+        <View style={styles.medalsHeader}>
+          <Text style={styles.section}>Medallas</Text>
+          <ClayButton
+            label="+ Crear"
+            variant="secondary"
+            onPress={() => router.push('/(modals)/new-logro')}
+          />
         </View>
+        <ChipsTabs options={VIEWS} value={view} onChange={setView} labels={VIEW_LABELS} />
+
+        {view === 'mine' && visible.length === 0 ? (
+          <EmptyState
+            title="Aún no tienes medallas propias"
+            description="Crea una con el criterio que quieras: hábito, meta o ambos."
+            blob="✦"
+            action={
+              <ClayButton
+                label="Crear medalla"
+                onPress={() => router.push('/(modals)/new-logro')}
+              />
+            }
+          />
+        ) : (
+          <View style={styles.grid}>
+            {visible.map((a) => (
+              <View key={a.id} style={styles.gridCell}>
+                <AchievementCard
+                  achievement={{
+                    id: a.id,
+                    icon: a.icon,
+                    title: a.title,
+                    description: a.description,
+                  }}
+                  unlocked={unlockedIds.has(a.id)}
+                  unlockedAt={unlockedIds.get(a.id)}
+                />
+                {a.isCustom ? (
+                  <View style={styles.customActions}>
+                    <ClayButton
+                      label="Editar"
+                      variant="ghost"
+                      onPress={() =>
+                        router.push({
+                          pathname: '/(modals)/new-logro',
+                          params: { achievementId: a.id },
+                        })
+                      }
+                    />
+                    <ClayButton
+                      label="Borrar"
+                      variant="ghost"
+                      disabled={removeCustom.isPending}
+                      onPress={() => confirmDelete(a.id, a.title)}
+                    />
+                  </View>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -278,5 +410,17 @@ const styles = StyleSheet.create({
   },
   gridCell: {
     width: '48.5%',
+  },
+  medalsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+  },
+  customActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
   },
 });

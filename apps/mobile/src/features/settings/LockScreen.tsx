@@ -11,6 +11,7 @@ import Animated, {
 import { authRepository } from '@/core/repositories/authRepository';
 import { getPinLockRemainingMs } from '@/core/storage/pinStore';
 import { fonts, palette, spacing } from '@/core/theme/theme';
+import { ClayLoader } from '@/ui/feedback/ClayLoader';
 import { useToast } from '@/ui/feedback/Toast';
 import { PinPad } from '@/ui/navigation/PinPad';
 
@@ -124,6 +125,11 @@ export function LockScreen({ onUnlocked }: LockScreenProps) {
           Usar biometría
         </Text>
       </View>
+      {/* HU-16 · V2 — overlay blur 10 + spinner 800 ms lineal mientras verifica */}
+      <ClayLoader
+        visible={state === 'verifying' || state === 'unlocking'}
+        label={state === 'unlocking' ? 'Desbloqueando…' : 'Validando…'}
+      />
     </View>
   );
 }

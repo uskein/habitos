@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { CreateCustomAchievementInputType } from '@habitos/shared';
 import { achievementRepository } from '@/core/repositories/achievementRepository';
 
 export function useAchievements() {
@@ -11,5 +12,38 @@ export function useAchievements() {
       ]);
       return { catalog, unlocked };
     },
+  });
+}
+
+/** V2 · HU-21 — crear medalla personalizada (is_custom = 1). */
+export function useCreateCustomAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateCustomAchievementInputType) => achievementRepository.createCustom(input),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['achievements'] }),
+  });
+}
+
+/** V2 · HU-23 — editar medalla propia (semillas → ACHIEVEMENT_SEED_IMMUTABLE). */
+export function useUpdateCustomAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      achievementId,
+      input,
+    }: {
+      achievementId: string;
+      input: Partial<CreateCustomAchievementInputType>;
+    }) => achievementRepository.updateCustom(achievementId, input),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['achievements'] }),
+  });
+}
+
+/** V2 · HU-23 — borrar medalla propia con confirmación en UI. */
+export function useRemoveCustomAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (achievementId: string) => achievementRepository.removeCustom(achievementId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['achievements'] }),
   });
 }

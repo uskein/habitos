@@ -93,3 +93,46 @@ proyecto-app-habitos/
 5. `app/` (rutas) solo importa `features/*` y `ui/navigation` — shells finos.
 6. `apps/server/**` está congelado hasta Fase 2 (solo `.gitkeep`).
 7. Los tokens visuales se importan **solo** desde `core/theme` (nunca hex literales fuera de ese archivo).
+
+---
+
+## V2 — Árbol de directorios (2026-10-10)
+
+Adiciones sobre el árbol V1; las reglas de dependencia (§Reglas) **no cambian**.
+
+```
+apps/mobile/
+├── app/
+│   ├── (modals)/
+│   │   ├── new-hito.tsx            ← crear hito (chips hábitos/metas, galería)
+│   │   ├── new-motivacion.tsx      ← crear motivación (disparador, meta)
+│   │   └── new-logro.tsx           ← crear logro/medalla personalizado
+│   ├── hitos/
+│   │   ├── index.tsx               ← lista de hitos (stack, fuera de tabs)
+│   │   └── [id].tsx                ← detalle + ClayCarousel + comentarios
+│   └── (tabs)/profile.tsx          ← + ClayAvatarPicker, crédito y link git
+├── src/
+│   ├── core/
+│   │   ├── media/imageStore.ts     ← guardar/recortar/borrar fotos (UUID paths)
+│   │   ├── domain/services/
+│   │   │   ├── motivationQueueService.ts  ← regla «sin racha hoy» (puro)
+│   │   │   └── statsAggregator.ts         ← SQL → stats_cache
+│   │   └── repositories/
+│   │       ├── milestoneRepository.ts     ← NUEVO (tx hito+imágenes+links)
+│   │       ├── motivationRepository.ts    ← NUEVO
+│   │       ├── achievementRepository.ts   ← EXTENDIDO (custom CRUD)
+│   │       ├── statsRepository.ts         ← EXTENDIDO (get*Stats)
+│   │       └── userProfileRepository.ts   ← EXTENDIDO (updatePhoto/clearPhoto)
+│   └── features/
+│       ├── milestones/   (MilestoneCard, MilestoneCarousel, useMilestones)
+│       ├── motivations/  (SwipeCard, MotivationStack, useMotivations)
+│       ├── charts/       (ClayBars, ClaySparkline, victory/)
+│       └── profile/      (ClayAvatarPicker, useAvatar)
+packages/shared/src/schemas/
+    milestone.schema.ts | motivation.schema.ts | achievementCustom.schema.ts
+```
+
+Responsabilidades nuevas:
+- `core/media/imageStore.ts` — único módulo con permisos de cámara/galería; valida mime, extensión y ≤2 MB; nombres de archivo solo UUID.
+- `features/charts/` — único lugar que importa `victory-native` y Skia (el resto de la app no los toca).
+- Rutas `hitos/` fuera de `(tabs)` (mismo criterio R1 que `goal/[id]`).

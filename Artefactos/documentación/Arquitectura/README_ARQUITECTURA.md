@@ -157,3 +157,51 @@ Ver `ADR-*.md` dentro de este documento (sección 4). Resumen:
 - `Artefactos/documentación/Arquitectura/MODELO_DE_DATOS.md`
 - `Artefactos/documentación/Arquitectura/CONTRATOS_API.md`
 - `Artefactos/documentación/Arquitectura/GUIA_DEVOPS_SEGURIDAD.md`
+
+---
+
+## V2 — Ampliación (2026-10-10, aprobada por el usuario)
+
+### A. Stack V2 (sobre el V1, sin cambios de paradigma)
+
+| Categoría | Adición V2 | Justificación |
+|---|---|---|
+| Imágenes | `expo-image-picker` + `expo-image-manipulator` | Recorte circular de avatar y thumbnails 400 px con API oficial Expo |
+| Almacenamiento | `FileSystem.documentDirectory` (fotos ≤250 KB) | SQLite guarda solo rutas; sin BLOBs en la BD |
+| Charts | Views+Reanimated (barras) + Skia 2.6.2 (sparklines) + `victory-native` v3 (drill-down) | Combinación aprobada por el usuario; Skia ya estaba en el bundle |
+| Fecha | `@react-native-community/datetimepicker` | Selector nativo para fecha de hito |
+| Gestos | gesture-handler 2.32 (Pan worklet) | SwipeCard de Motivaciones en UI thread |
+
+### B. ADR nuevos
+
+#### ADR-008 — Fotos en FileSystem, nunca en SQLite
+- **Contexto:** avatar, imágenes de hito (≤10) y futuras fotos consumirían RAM/disk si se guardan como BLOB o base64; romperían transaccionalidad y respaldos.
+- **Decisión:** archivos en `FileSystem.documentDirectory/photos/<uuid>.jpg` (nombre **siempre UUID generado**, jamás input del usuario → sin path traversal); SQLite solo persiste `photo_uri`/`uri`.
+- **Alternativas:** BLOB en SQLite (descartada: infla BD, rompe migraciones); MMKV base64 (descartada: corrupción por tamaño).
+- **Consecuencias:** borrar registro ⇒ limpiar archivo (repositorio orquesta); backup futuro debe incluir el directorio de fotos.
+
+#### ADR-009 — Estadísticas precalculadas en `stats_cache`
+- **Contexto:** stats por día/hora de hábitos, metas y hitos sobre `habit_logs`/`goal_updates` en cada render → costo creciente.
+- **Decisión:** tabla `stats_cache(key PK, payload JSON, computed_at)`; `statsAggregator` recalcula transaccionalmente al mutar logs/goals/check-ins (mismo patrón que ADR-006 streaks).
+- **Alternativas:** agregar en memoria (descartada: cálculo repetido), vistas SQL materializadas (SQLite no soporta materialized views).
+- **Consecuencias:** caché descartable → posible recálculo total en runbook.
+
+#### ADR-010 — `evaluateEvent` extensible para logros personalizados
+- **Contexto:** V2 permite crear logros/medallas ligados a hábitos y/o metas con modo any/all.
+- **Decisión:** ampliar `criteria` (`habit_ids[]`, `goal_ids[]`, `mode`) manteniendo intactos los tipos V1; misma función idempotente. Tabla `ACHIEVEMENT` gana `is_custom`, `progress_style`, `unlock_mode`.
+- **Alternativas:** evaluator separado (descartada: duplicaría idempotencia y unlocks).
+- **Consecuencias:** seeds V1 inmutables; custom borrables por el usuario.
+
+#### ADR-011 — Charts en 3 capas
+- **Contexto:** usuario pidió combinación de Views, Skia y victory-native.
+- **Decisión:** `ClayBars` en Views+Reanimated (series de día/hora, 60 fps, tokens DS), `ClaySparkline` en Skia (tendencias), `victory-native` solo en la pantalla de Estadísticas para tooltips/sectores.
+- **Consecuencias:** victory-native es la única dependencia frontend nueva; encapsulada en `features/charts/`.
+
+#### ADR-012 — Icono de app y remoto git
+- **Decisión:** icono «H» generada con la fuente Sora sobre `primary` (#6D4BF5): `icon.png` 1024, adaptive foreground (H blanca) + background `#6D4BF5`, `favicon` y `splash-icon`; registrados en `app.json`. Repositorio remoto único: `https://github.com/uskein/habitos` (privado, branch `main`).
+- **Consecuencias:** todo push pasa por el remoto; CI (GitHub Actions) ejecuta typecheck + tests en `main`/PRs.
+
+### C. Presupuestos V2 (binding)
+- Fotos: recorte ≤250 KB (avatar) / ≤2 MB (hitos), thumbnails 400 px decodificados bajo demanda.
+- Overlay de validación PIN ≤1 s con salida haptica; nunca bloquear el hilo JS.
+- Queries de stats sobre índices nuevos < 5 ms; si superan, revisar índice antes que cachear más.
