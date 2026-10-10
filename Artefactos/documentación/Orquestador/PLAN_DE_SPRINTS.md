@@ -124,4 +124,5 @@ decisiones:
 | `expo export --platform android` | ✔ bundle hbc 5.6 MB |
 | README + CONTRIBUTING + CI workflow | ✔ raíz del monorepo (typecheck ×2 + jest en CI) |
 | **EAS build production (AAB)** | ✔ FINISHED (2026-10-10) — `unfXweBKdIYXIQyweFWg4AaahcK4j3cHSP43UB8_VMc.aab` (versionCode 2) |
+| **EAS build preview (APK instalable)** | ✔ FINISHED (2026-10-10) — `REr7f6OpnEdQeB323-fnQ-M9qLPevzhnH19LNgi_95s.apk` |
 | **M10 + M11 (S6)** | ✅ COMPLETADOS — **Paso 10 (Entrega)** = espera activa final |
