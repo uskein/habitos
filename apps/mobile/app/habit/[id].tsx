@@ -242,7 +242,8 @@ const styles = StyleSheet.create({
     backgroundColor: palette.bg,
   },
   body: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
     gap: spacing.md,
     paddingBottom: 48,
   },

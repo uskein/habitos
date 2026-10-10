@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { type ColorValue, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { components, palette } from '@/core/theme/theme';
 
 function TabIcon({ glyph, color }: { glyph: string; color: ColorValue }) {
@@ -9,6 +10,8 @@ function TabIcon({ glyph, color }: { glyph: string; color: ColorValue }) {
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -16,9 +19,15 @@ export default function TabsLayout() {
         tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.textMuted,
         tabBarStyle: {
-          height: components.tabBarHeight,
+          height: components.tabBarHeight + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: 8,
           backgroundColor: palette.surface,
           borderTopColor: palette.border,
+        },
+        sceneStyle: {
+          paddingTop: insets.top,
+          backgroundColor: palette.bg,
         },
       }}
     >

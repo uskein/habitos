@@ -2,6 +2,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   withTiming,
 } from 'react-native-reanimated';
 import { components, durations, easings, palette } from '@/core/theme/theme';
@@ -20,22 +21,33 @@ const TRAVEL = components.toggleWidth - THUMB - 6;
 /** Toggle 52×32 — thumb blanco, track primary/off con transición clay. */
 export function ClayToggle({ value, onValueChange, disabled = false, testID }: ClayToggleProps) {
   const haptics = useHaptics();
+  const reduceMotion = useReducedMotion() ?? false;
 
-  const progress = useAnimatedStyle(() => ({
-    transform: [{
-      translateX: withTiming(value ? TRAVEL : 0, {
-        duration: durations.d3,
-        easing: Easing.bezier(...(easings.clay as [number, number, number, number])),
+  const progress = useAnimatedStyle(() => {
+    const x = value ? TRAVEL : 0;
+    if (reduceMotion) return { transform: [{ translateX: x }] };
+    return {
+      transform: [
+        {
+          translateX: withTiming(x, {
+            duration: durations.d3,
+            easing: Easing.bezier(...(easings.clay as [number, number, number, number])),
+          }),
+        },
+      ],
+    };
+  });
+
+  const trackStyle = useAnimatedStyle(() => {
+    const bg = value ? palette.primary : palette.track;
+    if (reduceMotion) return { backgroundColor: bg };
+    return {
+      backgroundColor: withTiming(bg, {
+        duration: durations.d2,
+        easing: Easing.bezier(...(easings.std as [number, number, number, number])),
       }),
-    }],
-  }));
-
-  const trackStyle = useAnimatedStyle(() => ({
-    backgroundColor: withTiming(value ? palette.primary : palette.track, {
-      duration: durations.d2,
-      easing: Easing.bezier(...(easings.std as [number, number, number, number])),
-    }),
-  }));
+    };
+  });
 
   return (
     <Pressable

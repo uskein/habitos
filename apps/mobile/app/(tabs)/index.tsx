@@ -153,7 +153,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   body: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
     gap: spacing.md,
     paddingBottom: 96,
   },

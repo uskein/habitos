@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { components, fonts, palette, spacing } from '@/core/theme/theme';
 
 export interface AppBarProps {
@@ -8,10 +9,11 @@ export interface AppBarProps {
   rightAction?: React.ReactNode;
 }
 
-/** Top App Bar — back icono 44×44, título display. */
+/** Top App Bar — back icono 44×44, título display, safe-area superior. */
 export function AppBar({ title, onBack, rightAction }: AppBarProps) {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingTop: insets.top }]}>
       {onBack ? (
         <Pressable
           onPress={onBack}
@@ -35,7 +37,7 @@ export function AppBar({ title, onBack, rightAction }: AppBarProps) {
 
 const styles = StyleSheet.create({
   bar: {
-    height: 56,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.sm,

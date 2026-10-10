@@ -156,6 +156,7 @@ export default function NewHabitSheet() {
 const styles = StyleSheet.create({
   body: {
     gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
     paddingBottom: 48,
     paddingTop: spacing.sm,
   },

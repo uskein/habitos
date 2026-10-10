@@ -10,6 +10,7 @@ import {
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -65,6 +66,7 @@ export function ClayButton({
 }: ClayButtonProps) {
   const haptics = useHaptics();
   const scale = useSharedValue(1);
+  const reduceMotion = useReducedMotion() ?? false;
   const inactive = disabled || loading;
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -79,12 +81,14 @@ export function ClayButton({
         accessibilityState={{ disabled: inactive, busy: loading }}
         disabled={inactive}
         onPressIn={() => {
+          if (reduceMotion) return;
           scale.value = withTiming(0.97, {
             duration: durations.d1,
             easing: Easing.bezier(...(easings.std as [number, number, number, number])),
           });
         }}
         onPressOut={() => {
+          if (reduceMotion) return;
           scale.value = withTiming(1, {
             duration: durations.d2,
             easing: Easing.bezier(...(easings.std as [number, number, number, number])),

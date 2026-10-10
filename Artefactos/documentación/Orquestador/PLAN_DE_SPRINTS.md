@@ -47,9 +47,9 @@
 ## 4. Estado del orquestador
 
 ```
-faseActual: "Paso 4 → 5" → S5 completado (M1–M9 con sus 4 estados + F1–F9)
-progreso: 78%
-esperaActiva: PASO 5 (Aprobación de Flujos) — F1–F9 verificables, pendiente prueba manual en device
+faseActual: "Paso 6" → S6 COMPLETADO (M10 pulido + M11 entrega) — Paso 5 (Flujos) APROBADO 2026-10-10
+progreso: 97%
+esperaActiva: Paso 10 (Entrega) — la última
 errores: []
 decisiones:
   - Skills 1–3 previas aceptadas (nombres reales: identidad-visual-expressiva.html, manual-identidad-visual.md)
@@ -77,6 +77,22 @@ decisiones:
     sin tocar contratos — invalidación de ['achievements'] en toggle/create/upsert
   - S5: CheckInCard mini-card en Hoy (F3/F9 precarga el sheet); CTA disabled con Zod (F7)
   - S5: rutas goal/[id] e habit/[id] declaradas en Stack; modals change-pin/edit-profile como formSheet
+  - EAS build falló ×1: sin git en la raíz EAS subía solo apps/mobile → 404 @habitos/shared;
+    solución = git init en la raíz del monorepo (commit f9d6647) + eliminar .git anidado en apps/mobile
+  - eas.json creado (development: devClient + apk interno); expo-dev-client ~57.0.19 instalado
+  - BUG runtime en device: `UpdateHabitInput = CreateHabitInput.partial()` → Zod v4 prohíbe
+    .partial() sobre schemas con .refine() (rompía el import de @habitos/shared y TODAS las
+    rutas de expo-router); fix = separar HabitInputShape base + refines propios (smoke 4/4)
+  - UI device: safe-area en tab bar (insets.bottom, RN v7 usa sceneStyle no sceneContainerStyle),
+    safe top en AppBar, gutters 16→24 en 6 pantallas + 5 sheets (feedback del usuario en F1–F9)
+  - S6/M10: reduce-motion (R8) con useReducedMotion en HabitCard (+1🔥/check pop),
+    ClayButton (scale), ClayToggle (thumb/track), ClayCheckbox (pop) — valores directos sin timing
+  - S6/M10: 3 fallos WCAG AA corregidos con tokens DS: textLocked→textMuted (sin opacity),
+    kicker celebración→badgeTints.warning.text, +1🔥→badgeTints.danger.text
+  - S6/M11: Jest con preset jest-expo (typecheck solo pasa con types:["jest","react","react-native"]
+    en tsconfig — TS 6.0 no autoincluye @types del monorepo); 14 tests de dominio
+  - S6/M11: @types/jest bajado a 29.5.14 (Expo SDK 57 lo exige; 30.0.0 rompe doctor)
+  - S6/M11: README.md (raíz), CONTRIBUTING.md, .github/workflows/ci.yml (typecheck×2 + test)
 ```
 
 ## 5. Bitácora de validación
@@ -96,3 +112,15 @@ decisiones:
 | Guard hex literales (solo `theme.ts`) | ✔ sin hex fuera del SSOT (tokens dangerSoft/awardSoft/secondarySoft/textFaded añadidos) |
 | S5 criterio: F1–F9 + celebración R5 | ✔ código completo (C5 tablas F1; F2 FAB+sheet+toggle; F3 mini-card+sheet; F4 delta meta; F5 R4; F6 backoff; F7 CTA disabled; F8 transacción+toast; F9 upsert) |
 | Checklist F1–F9 en device | ⏳ PENDIENTE — prueba manual al inicio del Paso 5 |
+| EAS build development (Android APK) | ✔ FINISHED — `Bw91xtSHzfo0yuAoa3Xk6vsE0Znd3JXszMOa24vKBfU.apk` (2026-10-10) |
+| Bug Zod v4 `.partial()+.refine()` en device | ✔ fix HabitInputShape + smoke 4/4; usuario: app funciona |
+| UI device: safe-area tab bar + gutters 24 | ✔ usuario: «quedó perfecto» (F1–F9 parcial: onboarding, crear/marcar hábito OK) |
+| **PASO 5 — Flujos** | ✅ **APROBADO por el usuario (2026-10-10)** — F1–F9 en device |
+| M10: reduce-motion R8 (4 componentes) | ✔ HabitCard, ClayButton, ClayToggle, ClayCheckbox con useReducedMotion |
+| M10: WCAG AA contrastes | ✔ 3 fixes (textLocked, kicker celebración, +1🔥) — solo tokens del DS |
+| `tsc --noEmit` post-M10/M11 | ✔ limpio (mobile + shared) |
+| Jest (jest-expo) | ✔ 2 suites, 14/14 tests (streakCalculator, evaluateEvent idempotente) |
+| `expo-doctor` | ✔ 21/21 (@types/jest @29.5.14) |
+| `expo export --platform android` | ✔ bundle hbc 5.6 MB |
+| README + CONTRIBUTING + CI workflow | ✔ raíz del monorepo (typecheck ×2 + jest en CI) |
+| **M10 + M11 (S6)** | ✅ COMPLETADOS — pendiente: build EAS producción + **Paso 10** |

@@ -83,8 +83,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   textLocked: {
-    color: palette.textFaded,
-    opacity: 0.7,
+    color: palette.textMuted,
   },
   date: {
     fontFamily: fonts.mono,

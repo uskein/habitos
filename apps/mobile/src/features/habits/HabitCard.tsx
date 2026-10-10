@@ -4,13 +4,14 @@ import Animated, {
   Easing,
   FadeInUp,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import type { HabitWithLog } from '@/core/domain/entities/habit';
-import { components, durations, easings, fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { badgeTints, components, durations, easings, fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
 import { useHaptics } from '@/hooks/useHaptics';
 
 export interface HabitCardProps {
@@ -19,9 +20,10 @@ export interface HabitCardProps {
   disabled?: boolean;
 }
 
-/** HabitCard — icono clay + check 32 px, pop ease-clay y «+1 🔥» flotante. */
+/** HabitCard — icono clay + check 32 px, pop ease-clay y «+1 🔥» flotante (R8: sin motion si reduce-motion). */
 export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps) {
   const haptics = useHaptics();
+  const reduceMotion = useReducedMotion() ?? false;
   const [showPlusOne, setShowPlusOne] = useState(false);
   const plusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -45,6 +47,17 @@ export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps)
     haptics.success();
 
     const next = !done;
+
+    if (reduceMotion) {
+      // R8: estados inmediatos, sin «+1 🔥» animado
+      checkPop.value = next ? 1 : 0;
+      scale.value = 1;
+      floatY.value = 0;
+      setShowPlusOne(false);
+      onToggle();
+      return;
+    }
+
     scale.value = withSequence(
       withTiming(0.97, { duration: durations.d1 }),
       withSpring(1, { damping: 14, stiffness: 260 }),
@@ -199,6 +212,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontWeight: '700',
     fontSize: 14,
-    color: palette.streak,
+    color: badgeTints.danger.text,
   },
 });

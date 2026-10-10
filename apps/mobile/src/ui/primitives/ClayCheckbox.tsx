@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion, withSpring } from 'react-native-reanimated';
 import { components, durations, easings, palette, radii } from '@/core/theme/theme';
 import { useHaptics } from '@/hooks/useHaptics';
 
@@ -16,13 +16,16 @@ const SIZE = components.checkbox;
 /** Checkbox 24×24 r8 — check pop con spring clay. */
 export function ClayCheckbox({ checked, onCheckedChange, disabled, label }: ClayCheckboxProps) {
   const haptics = useHaptics();
+  const reduceMotion = useReducedMotion() ?? false;
 
-  const pop = useAnimatedStyle(() => ({
-    transform: [
-      { scale: withSpring(checked ? 1 : 0, { damping: 12, stiffness: 220 }) },
-    ],
-    opacity: withSpring(checked ? 1 : 0),
-  }));
+  const pop = useAnimatedStyle(() => {
+    const v = checked ? 1 : 0;
+    if (reduceMotion) return { transform: [{ scale: v }], opacity: v };
+    return {
+      transform: [{ scale: withSpring(v, { damping: 12, stiffness: 220 }) }],
+      opacity: withSpring(v),
+    };
+  });
 
   return (
     <Pressable

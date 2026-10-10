@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
-import { fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { badgeTints, fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
 import { useAchievements } from './useAchievements';
 
 interface FreshUnlock {
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontWeight: '600',
     fontSize: 12,
-    color: palette.award,
+    color: badgeTints.warning.text,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

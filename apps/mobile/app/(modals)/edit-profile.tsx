@@ -59,6 +59,7 @@ export default function EditProfileSheet() {
 const styles = StyleSheet.create({
   body: {
     gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
     paddingBottom: 48,
     paddingTop: spacing.sm,
   },
