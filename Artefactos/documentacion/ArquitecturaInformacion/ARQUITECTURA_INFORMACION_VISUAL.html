@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitectura de la Información — App Hábitos · Pulse Clay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-soft:#EDE9FE;
+  --secondary:#2EC4B6; --secondary-soft:#D7F5F1;
+  --streak:#FF6B6B; --streak-soft:#FFE3E3;
+  --award:#F59E0B; --award-soft:#FEF3C7;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --error:#DC2626;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95);
+  --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.4;pointer-events:none;z-index:-1}
+.b1{width:460px;height:460px;background:#C9BEFD;top:-140px;left:-120px;animation:f1 18s ease-in-out infinite alternate}
+.b2{width:380px;height:380px;background:#A8ECE5;bottom:8%;right:-140px;animation:f2 21s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate(50px,40px) scale(1.08)}}
+@keyframes f2{to{transform:translate(-40px,-30px) scale(.94)}}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 110px}
+.hero{text-align:center;padding:64px 0 10px}
+.kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(30px,5.5vw,48px);letter-spacing:-.02em;margin:22px 0 12px}
+.hero h1 .o{color:var(--primary)}
+.hero p{color:var(--muted);max-width:640px;margin:0 auto}
+.hero .meta{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hero .meta span{font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-pill);color:var(--muted);box-shadow:var(--shadow-clay)}
+section{margin-top:84px}
+.sec-head{text-align:center;margin-bottom:36px}
+.sec-head .n{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:5px 12px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.sec-head h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,4vw,34px);letter-spacing:-.02em;margin:14px 0 8px}
+.sec-head p{color:var(--muted);max-width:620px;margin:0 auto}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease-std),transform .7s var(--ease-std)}
+.reveal.in{opacity:1;transform:none}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.legend span{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;background:var(--surface);border:1px solid var(--border);padding:8px 15px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.li-tab i{background:var(--primary)} .li-stack i{background:var(--secondary)}
+.li-sheet i{background:var(--award)} .li-over i{background:var(--streak)}
+
+.sitemap{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:start}
+.layer{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:20px 16px}
+.layer h3{font-family:'Sora',sans-serif;font-size:14px;text-align:center;margin-bottom:4px}
+.layer .sub{font-size:11.5px;color:var(--muted);text-align:center;margin-bottom:16px}
+.node{width:100%;text-align:left;background:var(--surface-alt);border:2px solid transparent;border-radius:var(--r-md);padding:12px 13px;margin-bottom:10px;cursor:pointer;font-family:inherit;transition:all .22s var(--ease-std);display:block}
+.node:last-child{margin-bottom:0}
+.node:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+.node .nname{font-family:'Sora',sans-serif;font-size:13.5px;display:block;margin-bottom:3px}
+.node .nroute{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);display:block}
+.node .ntype{display:inline-block;margin-top:7px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:var(--r-pill)}
+.t-onboard .ntype{background:var(--primary-soft);color:var(--primary)}
+.t-tab .ntype{background:var(--primary-soft);color:var(--primary)}
+.t-stack .ntype{background:var(--secondary-soft);color:#0B2E2B}
+.t-sheet .ntype{background:var(--award-soft);color:#B45309}
+.t-over .ntype{background:var(--streak-soft);color:#B91C1C}
+.node.sel{border-color:var(--primary);background:#F3EFFF;box-shadow:0 0 0 4px rgba(109,75,245,.15),var(--shadow-clay)}
+.node.lit{border-color:var(--secondary);background:#EDFAF8}
+.node.dim{opacity:.38}
+
+.panel{margin-top:22px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:28px 30px;min-height:200px}
+.panel .p-empty{color:var(--muted);text-align:center;padding:28px 0;font-size:14.5px}
+.panel h3{font-family:'Sora',sans-serif;font-size:21px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel .proute{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--primary);background:var(--surface-alt);border-radius:8px;padding:3px 9px;display:inline-block;margin:10px 0 16px}
+.panel .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.panel .pcard{background:var(--surface-alt);border-radius:var(--r-md);padding:14px 16px}
+.panel .pcard h4{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:7px}
+.panel .pcard li,.panel .pcard p{font-size:13px;color:var(--text);list-style:none}
+.panel .pcard ul{display:flex;flex-direction:column;gap:4px}
+.panel .pcard code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+.panel .edge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:5px 12px;margin:3px 4px 3px 0}
+.panel .edge i{font-style:normal;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.rule{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:20px 22px;transition:transform .25s var(--ease-clay)}
+.rule:hover{transform:translateY(-4px)}
+.rule .rid{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--primary);background:var(--surface-alt);border-radius:var(--r-pill);padding:3px 10px;margin-bottom:10px}
+.rule h3{font-family:'Sora',sans-serif;font-size:15.5px;margin-bottom:6px}
+.rule p{font-size:13.5px;color:var(--muted)}
+.rule p b{color:var(--text)}
+
+.path{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:26px}
+.step{flex:1;min-width:130px;position:relative;padding:0 12px;text-align:center}
+.step .dot{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6D4BF5,#8B70FF);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 6px 14px rgba(109,75,245,.35);position:relative;z-index:2}
+.step::before{content:"";position:absolute;top:22px;left:calc(50% + 30px);right:calc(-50% + 30px);height:3px;background:var(--border);z-index:1}
+.step:last-child::before{display:none}
+.step .sname{font-family:'Sora',sans-serif;font-size:13px;display:block;margin-bottom:3px}
+.step .sdesc{font-size:11.5px;color:var(--muted)}
+.step .stag{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:var(--surface-alt);color:var(--primary)}
+footer{margin-top:90px;text-align:center;color:var(--muted);font-size:13px;padding-top:36px;border-top:1px solid var(--border)}
+footer b{color:var(--text)}
+@media (max-width:900px){.sitemap{grid-template-columns:repeat(2,1fr)}.step::before{display:none}}
+@media (max-width:560px){.sitemap{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <span class="kicker">Paso 3 · Producto y Flujos</span>
+  <h1>Mapa de la <span class="o">Información</span></h1>
+  <p>Sitemap de 16 puntos de navegación y reglas de movimiento de la app. Toca cualquier nodo para inspeccionar sus entradas, salidas y datos que lo sostienen.</p>
+  <div class="meta">
+    <span>🗺 4 capas · 16 nodos</span>
+    <span>🧭 9 reglas de navegación</span>
+    <span>⚡ Tabs · Stack · Sheets · Overlay</span>
+  </div>
+</header>
+
+<section id="mapa">
+  <div class="sec-head reveal">
+    <span class="n">01 — SITEMAP</span>
+    <h2>Estructura de pantallas</h2>
+    <p>Cada nodo es una ruta real de <code style="font-family:'JetBrains Mono',monospace;font-size:13px">expo-router</code>. Los colores indican el tipo de transición.</p>
+  </div>
+
+  <div class="legend reveal">
+    <span class="li-tab"><i></i> Tab bar</span>
+    <span class="li-stack"><i></i> Stack</span>
+    <span class="li-sheet"><i></i> Bottom sheet</span>
+    <span class="li-over"><i></i> Overlay global</span>
+  </div>
+
+  <div class="sitemap reveal" id="sitemap">
+    <div class="layer">
+      <h3>🛫 Arranque</h3>
+      <p class="sub">Primer uso · sin tab bar</p>
+      <button class="node t-onboard" data-id="ob-welcome"><span class="nname">Bienvenida</span><span class="nroute">onboarding/welcome</span><span class="ntype">Onboarding</span></button>
+      <button class="node t-onboard" data-id="ob-security"><span class="nname">PIN + Biometría</span><span class="nroute">onboarding/security</span><span class="ntype">Onboarding</span></button>
+      <button class="node t-onboard" data-id="ob-notif"><span class="nname">Notificaciones</span><span class="nroute">onboarding/notifications</span><span class="ntype">Onboarding</span></button>
+      <button class="node t-over" data-id="lock"><span class="nname">Lock screen</span><span class="nroute">lock</span><span class="ntype">Overlay</span></button>
+    </div>
+    <div class="layer">
+      <h3>📱 Tabs principales</h3>
+      <p class="sub">Tab bar persistente de 4 destinos</p>
+      <button class="node t-tab" data-id="tab-hoy"><span class="nname">Hoy</span><span class="nroute">(tabs)/hoy</span><span class="ntype">Tab</span></button>
+      <button class="node t-tab" data-id="tab-plan"><span class="nname">Plan</span><span class="nroute">(tabs)/plan</span><span class="ntype">Tab</span></button>
+      <button class="node t-tab" data-id="tab-logros"><span class="nname">Logros</span><span class="nroute">(tabs)/logros</span><span class="ntype">Tab</span></button>
+      <button class="node t-tab" data-id="tab-perfil"><span class="nname">Perfil</span><span class="nroute">(tabs)/perfil</span><span class="ntype">Tab</span></button>
+    </div>
+    <div class="layer">
+      <h3>🔎 Detalles (stack)</h3>
+      <p class="sub">Se abren sobre la tab · con back</p>
+      <button class="node t-stack" data-id="det-habit"><span class="nname">Detalle de hábito</span><span class="nroute">habit/[id]</span><span class="ntype">Stack</span></button>
+      <button class="node t-stack" data-id="det-goal"><span class="nname">Detalle de meta</span><span class="nroute">goal/[id]</span><span class="ntype">Stack</span></button>
+      <button class="node t-stack" data-id="set-security"><span class="nname">Seguridad</span><span class="nroute">settings/security</span><span class="ntype">Stack</span></button>
+      <button class="node t-stack" data-id="set-data"><span class="nname">Datos y respaldo</span><span class="nroute">settings/data</span><span class="ntype">Stack</span></button>
+    </div>
+    <div class="layer">
+      <h3>✨ Sheets y modales</h3>
+      <p class="sub">Creación y celebración</p>
+      <button class="node t-sheet" data-id="sh-habit"><span class="nname">Nuevo hábito</span><span class="nroute">modal/new-habit</span><span class="ntype">Sheet</span></button>
+      <button class="node t-sheet" data-id="sh-goal"><span class="nname">Nueva meta</span><span class="nroute">modal/new-goal</span><span class="ntype">Sheet</span></button>
+      <button class="node t-sheet" data-id="sh-checkin"><span class="nname">Check-in bienestar</span><span class="nroute">modal/check-in</span><span class="ntype">Sheet</span></button>
+      <button class="node t-sheet" data-id="sh-celebrate"><span class="nname">Celebración 🏅</span><span class="nroute">modal/celebration</span><span class="ntype">Modal</span></button>
+    </div>
+  </div>
+
+  <div class="panel reveal" id="panel">
+    <div class="p-empty">👆 Toca un nodo del mapa para ver su ficha de navegación.</div>
+  </div>
+</section>
+
+<section id="reglas">
+  <div class="sec-head reveal">
+    <span class="n">02 — REGLAS</span>
+    <h2>Reglas de navegación</h2>
+    <p>Contratos de movimiento que la implementación debe respetar al pie de la letra.</p>
+  </div>
+  <div class="rules">
+    <div class="rule reveal"><span class="rid">R1</span><h3>Tab bar visible solo en tabs</h3><p>La barra de 4 destinos se renderiza únicamente en <b>Hoy, Plan, Logros y Perfil</b>. Onboarding, lock, detalles y sheets la ocultan.</p></div>
+    <div class="rule reveal"><span class="rid">R2</span><h3>Detalles = stack con back</h3><p><b>habit/[id]</b>, <b>goal/[id]</b> y ajustes se apilan sobre la tab activa. El back conserva <b>scroll y estado de la tab</b> de origen (expo-router stack).</p></div>
+    <div class="rule reveal"><span class="rid">R3</span><h3>Crear = bottom sheet</h3><p>Nunca hay pantalla dedicada de creación: <b>new-habit</b>, <b>new-goal</b> y <b>check-in</b> son sheets con handle. Deslizar hacia abajo = cancelar (sin pérdida silenciosa: si hay datos, se confirma).</p></div>
+    <div class="rule reveal"><span class="rid">R4</span><h3>Lock global por AppState</h3><p>App a background → <b>lock</b> se superpone al árbol raíz. Al volver, solo <code>AuthRepository.unlock()</code> (PIN o biometría) lo retira. 5 fallos → <b>RATE_LIMITED</b>.</p></div>
+    <div class="rule reveal"><span class="rid">R5</span><h3>Celebración no bloqueante</h3><p>Desbloquear una medalla abre <b>modal/celebration</b> 4 s con CTA «Ver mis medallas» → tab Logros. Nunca interrumpe un <code>toggleLog</code> en curso.</p></div>
+    <div class="rule reveal"><span class="rid">R6</span><h3>FAB contextual</h3><p>El FAB 56px aparece solo en <b>Hoy</b> (nuevo hábito) y <b>Plan</b> (nueva meta). En Logros y Perfil no existe. Tres toques o menos para registrar cualquier cosa.</p></div>
+    <div class="rule reveal"><span class="rid">R7</span><h3>Onboarding es ida</h3><p>Tras guardar el PIN no se puede volver atrás al setup (el perfil ya está protegido). Solo <b>Perfil → Seguridad</b> permite cambiarlo después.</p></div>
+    <div class="rule reveal"><span class="rid">R8</span><h3>Reduce-motion respetado</h3><p>Con <code>prefers-reduced-motion</code>: sheets aparecen con fade 120ms, el «+1 🔥» no se anima y el swipe-down se sustituye por botón cerrar visible.</p></div>
+    <div class="rule reveal"><span class="rid">R9</span><h3>El error no navega</h3><p>Fallo de BD o validación: se permanece en la pantalla actual con <b>Toast</b> de error y retry in-situ. Jamás se empuja una ruta de error nueva.</p></div>
+  </div>
+</section>
+
+<section id="trayectoria">
+  <div class="sec-head reveal">
+    <span class="n">03 — TRAYECTORIA FELIZ</span>
+    <h2>Camino principal del usuario</h2>
+    <p>El recorrido que la app debe hacer impecable desde el primer arranque.</p>
+  </div>
+  <div class="path reveal">
+    <div class="step"><div class="dot">1</div><span class="sname">Llega</span><span class="sdesc">Onboarding: nombre + PIN</span><span class="stag">2 sheets</span></div>
+    <div class="step"><div class="dot">2</div><span class="sname">Hoy</span><span class="sdesc">Feed con hábitos del día</span><span class="stag">tab</span></div>
+    <div class="step"><div class="dot">3</div><span class="sname">Crea</span><span class="sdesc">FAB → sheet «Nuevo hábito»</span><span class="stag">sheet</span></div>
+    <div class="step"><div class="dot">4</div><span class="sname">Marca</span><span class="sdesc">Check → racha +1 🔥</span><span class="stag">toggleLog</span></div>
+    <div class="step"><div class="dot">5</div><span class="sname">Celebra</span><span class="sdesc">Primera medalla desbloqueada</span><span class="stag">modal</span></div>
+    <div class="step"><div class="dot">6</div><span class="sname">Repite</span><span class="sdesc">Mañana: lock → hoy → check</span><span class="stag">loop</span></div>
+  </div>
+</section>
+
+<footer>
+  <p><b>Arquitectura de la Información — App Hábitos</b> · Paso 3 de Producto y Flujos · Pulse Clay v1.0</p>
+  <p style="margin-top:6px">Trazabilidad: rutas de <code>ESTRUCTURA_DIRECTORIOS.md</code> · componentes DS del <code>manual-identidad-visual.md</code> · contratos de <code>CONTRATOS_API.md</code></p>
+</footer>
+
+</div>
+
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>
+const NODES={
+"ob-welcome":{name:"Bienvenida",route:"onboarding/welcome",type:"Onboarding · one-way",purpose:"Primer contacto: pedir nombre, ofrecer avatar con gradiente y explicar la promesa de la app (offline, sin cuentas).",in:["Primer arranque (sin USER_PROFILE)"],out:["ob-security"],ds:["ClayInput","Avatar gradiente","Botón primario"],data:["USER_PROFILE (insert)"]},
+"ob-security":{name:"PIN + Biometría",route:"onboarding/security",type:"Onboarding · one-way",purpose:"Establecer PIN de 6 dígitos y activar biometría del dispositivo. El PIN nunca toca SQLite.",in:["ob-welcome"],out:["ob-notif"],ds:["Teclado numérico clay","Toggle","Botón primario"],data:["SecureStore (hash scrypt)","AuthRepository.setPin()"]},
+"ob-notif":{name:"Notificaciones",route:"onboarding/notifications",type:"Onboarding · opcional",purpose:"Pedir permiso de notificaciones con copy honesto. Denegar no bloquea nada.",in:["ob-security"],out:["tab-hoy"],ds:["Empty-state icon","Botón primario + ghost"],data:["MMKV (preferencia)","Expo Notifications"]},
+"lock":{name:"Lock screen",route:"lock",type:"Overlay global",purpose:"Superpuesto al árbol raíz cada vez que la app vuelve de background. Bloquea todo hasta autenticar.",in:["AppState → background"],out:["tab-hoy"],ds:["ClayInput numérico","Avatar","Toast error"],data:["AuthRepository.unlockWithPin/WithBiometrics","RATE_LIMITED tras 5 fallos"]},
+"tab-hoy":{name:"Hoy",route:"(tabs)/hoy",type:"Tab · raíz",purpose:"Feed del día: racha global, progreso diario y tarjetas de hábitos con check táctil. El corazón de la app.",in:["ob-notif","lock","sh-habit","sh-celebrate"],out:["det-habit","sh-habit","sh-checkin"],ds:["Top App Bar","StreakCard","HabitCard","Progress","FAB","Skeleton","EmptyState"],data:["HabitRepository.listByDate","HABIT_LOG","STREAK_CACHE"]},
+"tab-plan":{name:"Plan",route:"(tabs)/plan",type:"Tab",purpose:"Vista semanal de hábitos + lista de metas con barras de progreso.",in:["tab-hoy"],out:["det-goal","sh-goal","det-habit"],ds:["Chips-tabs (Hábitos|Metas)","Card clay","Progress","FAB"],data:["HABIT (is_archived=false)","GOAL","GoalRepository.list()"]},
+"tab-logros":{name:"Logros",route:"(tabs)/logros",type:"Tab",purpose:"Nivel, racha máxima, calendario de constancia y vitrina de medallas.",in:["tab-hoy","sh-celebrate"],out:[],ds:["StreakCard","Badge tint","Card clay","Progress"],data:["ACHIEVEMENT","ACHIEVEMENT_UNLOCK","AchievementRepository"]},
+"tab-perfil":{name:"Perfil",route:"(tabs)/perfil",type:"Tab",purpose:"Identidad del usuario, seguridad, ajustes de datos y créditos.",in:["tab-hoy"],out:["set-security","set-data"],ds:["Avatar gradiente","row-user","Botón secundario","Toggle"],data:["USER_PROFILE","MMKV","SecureStore"]},
+"det-habit":{name:"Detalle de hábito",route:"habit/[id]",type:"Stack",purpose:"Ficha completa: historial en calendario, racha del hábito, editar/archivar/eliminar.",in:["tab-hoy","tab-plan"],out:["sh-habit"],ds:["Top App Bar back","Calendario clay","Botón peligro","Bottom sheet"],data:["HabitRepository.getHistory/update/archive/delete","HABIT_LOG"]},
+"det-goal":{name:"Detalle de meta",route:"goal/[id]",type:"Stack",purpose:"Progreso grande, historial de aportes y formulario rápido de delta.",in:["tab-plan"],out:["sh-goal"],ds:["Progress XL","Stepper","Card clay"],data:["GOAL","GOAL_UPDATE","GoalRepository.addProgress"]},
+"set-security":{name:"Seguridad",route:"settings/security",type:"Stack",purpose:"Cambiar PIN, activar/desactivar biometría, bloquear ahora.",in:["tab-perfil"],out:["lock"],ds:["Toggle","Botón secundario","ClayInput"],data:["AuthRepository","SecureStore"]},
+"set-data":{name:"Datos y respaldo",route:"settings/data",type:"Stack",purpose:"Exportar JSON cifrado, importar y limpiar la base local con confirmación explícita.",in:["tab-perfil"],out:[],ds:["Botón peligro","row-user","Toast"],data:["expo-sqlite (backup)","Outbox (pendientes)"]},
+"sh-habit":{name:"Nuevo hábito",route:"modal/new-habit",type:"Bottom sheet",purpose:"Crear hábito en ≤1 min: nombre, icono, categoría, frecuencia y recordatorio.",in:["tab-hoy","det-habit"],out:["tab-hoy"],ds:["Bottom Sheet + handle","ClayInput","Chips-tabs","Stepper","Botón primario"],data:["CreateHabitInput (Zod)","HabitRepository.create()"]},
+"sh-goal":{name:"Nueva meta",route:"modal/new-goal",type:"Bottom sheet",purpose:"Crear meta con objetivo numérico, unidad y fecha límite.",in:["tab-plan","det-goal"],out:["tab-plan"],ds:["Bottom Sheet","Stepper","ClayInput","Chips de unidad"],data:["GOAL (insert)","GoalRepository.create()"]},
+"sh-checkin":{name:"Check-in bienestar",route:"modal/check-in",type:"Bottom sheet",purpose:"Registrar ánimo y energía (1–5) del día. Máximo una entrada diaria con upsert.",in:["tab-hoy"],out:["tab-hoy"],ds:["Bottom Sheet","Emojis clay 1–5","Progress","Botón primario"],data:["WellbeingRepository.upsertEntry","WELL_ENTRY (UNIQUE entry_date)"]},
+"sh-celebrate":{name:"Celebración",route:"modal/celebration",type:"Modal central",purpose:"Animación de medalla desbloqueada con confeti clay y acceso directo a Logros.",in:["tab-hoy","tab-plan"],out:["tab-logros"],ds:["Card clay XL","Badge tint success","Confetti Reanimated"],data:["ACHIEVEMENT_UNLOCK (idempotente)"]}
+};
+const EDGES=[
+["ob-welcome","ob-security","stack"],["ob-security","ob-notif","stack"],["ob-notif","tab-hoy","tab"],
+["lock","tab-hoy","tab"],["tab-hoy","det-habit","stack"],["tab-plan","det-goal","stack"],
+["tab-perfil","set-security","stack"],["tab-perfil","set-data","stack"],
+["tab-hoy","sh-habit","sheet"],["det-habit","sh-habit","sheet"],["tab-plan","sh-goal","sheet"],
+["det-goal","sh-goal","sheet"],["tab-hoy","sh-checkin","sheet"],["tab-hoy","sh-celebrate","sheet"],
+["sh-celebrate","tab-logros","tab"],["tab-plan","det-habit","stack"]
+];
+const panel=document.getElementById('panel');
+const nodes=document.querySelectorAll('.node');
+function relations(id){
+  return EDGES.filter(e=>e[0]===id||e[1]===id);
+}
+function select(id){
+  nodes.forEach(n=>{n.classList.remove('sel','lit','dim')});
+  const n=document.querySelector('.node[data-id="'+id+'"]');
+  if(!n)return;
+  n.classList.add('sel');
+  const rel=relations(id);
+  const litIds=new Set(rel.map(e=>e[0]===id?e[1]:e[0]));
+  nodes.forEach(x=>{const oid=x.dataset.id;if(oid!==id){x.classList.add(litIds.has(oid)?'lit':'dim')}});
+  const d=NODES[id];
+  const ins=rel.filter(e=>e[1]===id).map(e=>NODES[e[0]].name+' <i>('+e[2]+')</i>').join('')||'— origen raíz';
+  const outs=rel.filter(e=>e[0]===id).map(e=>NODES[e[1]].name+' <i>('+e[2]+')</i>').join('')||'— hoja';
+  panel.innerHTML=`
+    <h3>${d.name} <span style="font-size:12px;font-weight:700;background:var(--primary-soft);color:var(--primary);padding:4px 12px;border-radius:999px">${d.type}</span></h3>
+    <span class="proute">${d.route}</span>
+    <p style="font-size:14.5px;margin-bottom:16px">${d.purpose}</p>
+    <div class="pgrid">
+      <div class="pcard"><h4>Desde dónde se llega</h4><ul>${rel.filter(e=>e[1]===id).map(e=>'<li>→ <b>'+NODES[e[0]].name+'</b> <span style="color:var(--muted)">('+e[2]+')</span></li>').join('')||'<li>Origen raíz / AppState</li>'}</ul></div>
+      <div class="pcard"><h4>Hacia dónde sale</h4><ul>${rel.filter(e=>e[0]===id).map(e=>'<li>→ <b>'+NODES[e[1]].name+'</b> <span style="color:var(--muted)">('+e[2]+')</span></li>').join('')||'<li>Hoja · sin navegación saliente</li>'}</ul></div>
+      <div class="pcard"><h4>Componentes DS usados</h4><ul>${d.ds.map(x=>'<li><code>'+x+'</code></li>').join('')}</ul></div>
+      <div class="pcard"><h4>Datos y contratos</h4><ul>${d.data.map(x=>'<li><code>'+x+'</code></li>').join('')}</ul></div>
+    </div>`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+nodes.forEach(n=>n.addEventListener('click',()=>select(n.dataset.id)));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%5)*55+'ms';io.observe(el);});
+</script>
+</body>
+</html>

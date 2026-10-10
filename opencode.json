@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "identidad-visual": {
+      "path": "Artefactos/documentación/Diseño Visual/manual-identidad-visual.md",
+      "description": "Single Source of Truth de la identidad visual del proyecto. Usar para mantener coherencia de diseño en toda UI."
+    },
+    "arquitectura": {
+      "path": "Artefactos/documentación/Arquitectura/README_ARQUITECTURA.md",
+      "description": "Arquitectura técnica aprobada del proyecto: stack, patrones, ADR y decisiones de diseño. Usar como fuente de verdad en toda implementación."
+    },
+    "producto-flujos": {
+      "path": "Artefactos/documentación/Producto y Flujos/REQUERIMIENTOS_FUNCIONALES.md",
+      "description": "Producto y flujos aprobados: requerimientos funcionales (persona, épicas, HU con criterios), arquitectura de la información (sitemap, R1–R9), blueprints de pantallas (8 pantallas × 4 estados) y flujos de usuario (9 recorridos jugables). Fuente de verdad del dominio de producto."
+    }
+  }
+}

@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Expo
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/web-build/
+expo-env.d.ts
+
+# Native (generados — nunca editar a mano; ADR: Continuous Native Generation)
+apps/mobile/ios/
+apps/mobile/android/
+
+# Builds
+*.apk
+*.aab
+*.ipa
+*.xcarchive
+apps/mobile/*.jsbundle
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identidad Visual Expressiva — Pulse Clay | App Hábitos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-active:#4F32CC;
+  --primary-disabled:#C9BEFD; --primary-soft:#EDE9FE;
+  --secondary:#2EC4B6; --ink-2:#0B2E2B;
+  --streak:#FF6B6B; --award:#F59E0B;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --error:#DC2626;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95), inset 0 -4px 8px rgba(109,75,245,.08);
+  --shadow-press:inset 0 4px 10px rgba(23,18,43,.14), inset 0 2px 0 rgba(255,255,255,.6);
+  --ease-std:cubic-bezier(.2,.8,.2,1);
+  --ease-clay:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.5;pointer-events:none;z-index:-1}
+.b1{width:520px;height:520px;background:#C9BEFD;top:-160px;left:-140px;animation:float1 18s ease-in-out infinite alternate}
+.b2{width:420px;height:420px;background:#A8ECE5;top:40%;right:-160px;animation:float2 22s ease-in-out infinite alternate}
+.b3{width:360px;height:360px;background:#FFD1D1;bottom:-140px;left:24%;opacity:.4;animation:float3 20s ease-in-out infinite alternate}
+@keyframes float1{to{transform:translate(70px,60px) scale(1.12)}}
+@keyframes float2{to{transform:translate(-60px,-50px) scale(.92)}}
+@keyframes float3{to{transform:translate(50px,-60px) scale(1.08)}}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px 120px}
+
+.hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
+.hero .kicker{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.wordmark{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(56px,11vw,120px);letter-spacing:-.03em;margin:34px 0 6px;display:flex;align-items:flex-start;gap:4px}
+.wordmark .dot{width:.16em;height:.16em;background:var(--streak);border-radius:50%;margin-top:.12em;box-shadow:0 6px 16px rgba(255,107,107,.5);animation:beat 2.2s var(--ease-clay) infinite}
+@keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.45)}24%{transform:scale(1)}36%{transform:scale(1.3)}48%{transform:scale(1)}}
+.wordmark .accent{color:var(--primary)}
+.hero .tagline{font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:620px;font-weight:500}
+.hero .meta{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hero .meta span{font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-pill);color:var(--muted);box-shadow:var(--shadow-clay)}
+.scroll-hint{position:absolute;bottom:26px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(8px)}}
+
+section{margin-top:110px}
+.sec-head{text-align:center;margin-bottom:44px}
+.sec-head .n{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:5px 12px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.sec-head h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(28px,4.5vw,40px);letter-spacing:-.02em;margin:16px 0 10px}
+.sec-head p{color:var(--muted);max-width:640px;margin:0 auto;font-size:16px}
+
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .7s var(--ease-std),transform .7s var(--ease-std)}
+.reveal.in{opacity:1;transform:none}
+
+/* flow nodes */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;position:relative}
+.node{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 16px;text-align:center;box-shadow:var(--shadow-clay);position:relative;z-index:2;transition:transform .25s var(--ease-clay),box-shadow .25s var(--ease-std);cursor:default}
+.node:hover{transform:translateY(-8px);box-shadow:var(--shadow-clay-hover)}
+.node .ico{width:52px;height:52px;border-radius:18px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.9)}
+.node b{font-family:'Sora',sans-serif;font-size:15px;display:block;margin-bottom:4px}
+.node span{font-size:12.5px;color:var(--muted)}
+.connector{position:absolute;top:50%;left:0;right:0;height:2px;z-index:1;pointer-events:none}
+.connector line{stroke:var(--primary);stroke-width:2;stroke-dasharray:8 8;opacity:.45;animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.flow-wrap{position:relative}
+.flow-labels{display:grid;grid-template-columns:repeat(5,1fr);margin-top:14px}
+.flow-labels span{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+
+/* psychology cards */
+.psy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.psy{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow-clay);position:relative;overflow:hidden;transition:transform .25s var(--ease-clay)}
+.psy:hover{transform:translateY(-6px)}
+.psy .halo{position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;opacity:.16;filter:blur(6px)}
+.psy .chip{display:inline-block;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:var(--r-pill);margin-bottom:14px}
+.psy h4{font-family:'Sora',sans-serif;font-size:18px;margin-bottom:8px}
+.psy p{font-size:14px;color:var(--muted)}
+.psy .emo{margin-top:14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+
+/* palette */
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.sw{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-clay);cursor:pointer;transition:transform .2s var(--ease-clay),box-shadow .2s var(--ease-std)}
+.sw:hover{transform:translateY(-6px);box-shadow:var(--shadow-clay-hover)}
+.sw:active{transform:scale(.97);box-shadow:var(--shadow-press)}
+.sw .col{height:96px;position:relative;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
+.sw .col::after{content:"COPIAR";font-size:10px;font-weight:700;letter-spacing:.1em;background:rgba(255,255,255,.85);color:#17122B;padding:4px 9px;border-radius:var(--r-pill);opacity:0;transform:translateY(6px);transition:all .2s var(--ease-std)}
+.sw:hover .col::after{opacity:1;transform:none}
+.sw .info{padding:14px 16px}
+.sw .info b{font-size:14.5px;display:block}
+.sw .info code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--primary);display:block;margin-top:3px;font-weight:700}
+.sw .info span{font-size:12px;color:var(--muted);display:block;margin-top:5px}
+
+/* type specimen */
+.spec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:36px;overflow:hidden}
+.spec-row{display:flex;align-items:baseline;gap:24px;padding:18px 0;border-bottom:1px dashed var(--border)}
+.spec-row:last-child{border-bottom:none}
+.spec-row .lab{width:130px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.s34{font-family:'Sora',sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em}
+.s26{font-family:'Sora',sans-serif;font-weight:700;font-size:26px}
+.s20{font-family:'Sora',sans-serif;font-weight:700;font-size:20px}
+.s16{font-size:16px}
+.s14{font-size:14px;color:var(--muted)}
+.s12{font-size:12px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.08em}
+.smono{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:var(--primary);font-variant-numeric:tabular-nums}
+.counter{display:inline-block;min-width:3ch;text-align:right}
+
+/* components */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.demo{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;box-shadow:var(--shadow-clay)}
+.demo h4{font-family:'Sora',sans-serif;font-size:15px;margin-bottom:4px}
+.demo .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.btn{font-family:inherit;font-weight:600;font-size:16px;border-radius:var(--r-pill);padding:0 26px;height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;border:none;transition:all .12s var(--ease-std)}
+.btn-p{background:var(--primary);color:#fff;box-shadow:var(--shadow-clay)}
+.btn-p:hover{background:var(--primary-hover);box-shadow:var(--shadow-clay-hover);transform:translateY(-2px)}
+.btn-p:active{background:var(--primary-active);box-shadow:var(--shadow-press);transform:scale(.97)}
+.btn-p:focus-visible{outline:none;box-shadow:var(--shadow-clay),0 0 0 2px #FFF,0 0 0 5px var(--primary)}
+.btn-s{background:var(--surface);color:var(--primary);border:1.5px solid var(--border);box-shadow:var(--shadow-clay)}
+.btn-s:hover{border-color:var(--primary);transform:translateY(-2px)}
+.btn-s:active{box-shadow:var(--shadow-press);transform:scale(.97)}
+.btn-g{background:transparent;color:var(--primary)}
+.btn-g:hover{background:var(--primary-soft)}
+.btn[disabled]{background:var(--primary-disabled);color:#8B84A6;box-shadow:none;cursor:not-allowed;transform:none}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.mini-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.mini-label:first-child{margin-top:0}
+
+.habit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;box-shadow:var(--shadow-clay);display:flex;gap:14px;align-items:center;cursor:pointer;transition:transform .12s var(--ease-std),box-shadow .12s var(--ease-std);user-select:none}
+.habit-card:active{transform:scale(.985);box-shadow:var(--shadow-press)}
+.habit-card .ico{width:44px;height:44px;border-radius:var(--r-sm);background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:21px}
+.habit-card .t{flex:1}
+.habit-card .t b{display:block;font-size:15px}
+.habit-card .t span{font-size:12.5px;color:var(--muted)}
+.habit-card .ck{width:30px;height:30px;border-radius:10px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-clay)}
+.habit-card .ck svg{opacity:0;transform:scale(.3);transition:all .18s var(--ease-clay);stroke:#fff}
+.habit-card.done .ck{background:var(--primary);border-color:var(--primary);box-shadow:0 5px 12px rgba(109,75,245,.4)}
+.habit-card.done .ck svg{opacity:1;transform:scale(1)}
+
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.bdg{height:26px;padding:0 12px;border-radius:var(--r-pill);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.b1c{background:#FEE2E2;color:#B91C1C}
+.b2c{background:#DCFCE7;color:#15803D}
+.b3c{background:#FEF3C7;color:#B45309}
+.b4c{background:#EDE9FE;color:#6D28D9}
+
+.track{height:10px;background:#DDD5FB;border-radius:var(--r-pill);overflow:hidden;margin-top:6px}
+.fill{height:100%;width:30%;background:linear-gradient(90deg,#6D4BF5,#8B70FF);border-radius:var(--r-pill);transition:width .5s var(--ease-clay);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.switch{width:52px;height:32px;border-radius:var(--r-pill);background:#D8D2EE;position:relative;cursor:pointer;transition:background .18s var(--ease-std);border:none;flex-shrink:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(23,18,43,.25);transition:transform .18s var(--ease-clay)}
+.switch.on{background:var(--primary)}
+.switch.on::after{transform:translateX(20px)}
+.inp{height:52px;border-radius:var(--r-md);background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;padding:0 16px;font-size:15px;color:var(--muted);margin-bottom:12px;transition:all .18s var(--ease-std);cursor:text}
+.inp.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(109,75,245,.18);color:var(--text)}
+.inp.err{border-color:#EF4444;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+.err-msg{font-size:12px;color:var(--error);font-weight:600;margin:-6px 0 12px}
+
+/* wordmark rules */
+.wm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.wm{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-clay);overflow:hidden}
+.wm .preview{height:130px;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;font-family:'Sora',sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em}
+.wm .preview .dot{width:8px;height:8px;background:var(--streak);border-radius:50%;margin-left:3px;margin-top:-14px}
+.wm .cap{padding:13px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;border-top:1px solid var(--border)}
+.ok{color:#15803D}.no{color:#DC2626}
+.wm.bad .preview{opacity:.45}
+.wm.bad .preview span{transform:rotate(-8deg);color:var(--award)}
+.stretch-wm{transform:scaleX(1.5)}
+.squish{transform:scaleY(.6)}
+.shadow-wm{text-shadow:4px 4px 0 rgba(109,75,245,.6)}
+
+/* motion lab */
+.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.lab-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;box-shadow:var(--shadow-clay)}
+.lab-card h4{font-family:'Sora',sans-serif;font-size:15px;margin-bottom:4px}
+.lab-card .sub{font-size:12.5px;color:var(--muted);margin-bottom:20px;font-family:'JetBrains Mono',monospace}
+.track-line{height:6px;background:var(--surface-alt);border-radius:var(--r-pill);position:relative;margin:34px 0 10px}
+.rail{position:absolute;top:50%;left:0;transform:translateY(-50%);width:34px;height:34px;border-radius:12px;box-shadow:var(--shadow-clay),inset 0 2px 0 rgba(255,255,255,.9)}
+.rail.std{background:var(--primary);animation:railStd 2.4s var(--ease-std) infinite alternate}
+.rail.clay{background:var(--secondary);animation:railClay 2.4s var(--ease-clay) infinite alternate}
+@keyframes railStd{from{left:0}to{left:calc(100% - 34px)}}
+@keyframes railClay{from{left:0}to{left:calc(100% - 34px)}}
+.dur{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(24px);background:#17122B;color:#F7F5FF;border-radius:var(--r-md);padding:14px 22px;font-size:14.5px;font-weight:600;box-shadow:0 20px 48px rgba(23,18,43,.4);opacity:0;pointer-events:none;transition:all .3s var(--ease-std);z-index:90}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{margin-top:120px;text-align:center;padding-top:40px;border-top:1px solid var(--border);color:var(--muted);font-size:13.5px}
+footer b{color:var(--text)}
+
+@media (max-width:820px){
+  .flow{grid-template-columns:1fr;gap:14px}
+  .connector{display:none}
+  .flow-labels{display:none}
+  .spec-row{flex-direction:column;gap:4px}
+  .spec-row .lab{width:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <span class="kicker">Brand Book · Identidad Visual v1.0</span>
+  <div class="wordmark">Hábit<span class="accent">o</span>s<span class="dot"></span></div>
+  <p class="tagline">Claymorfismo lúdico: una identidad que se toca, se presiona y se siente. Arcilla moldeada para la constancia, el bienestar y la diversión.</p>
+  <div class="meta">
+    <span>📱 Móvil · iOS / Android</span>
+    <span>🎯 Jóvenes digitales 18–35</span>
+    <span>💜 Primary #6D4BF5</span>
+    <span>✨ Estilo: Pulse Clay</span>
+  </div>
+  <div class="scroll-hint">Desliza ↓</div>
+</header>
+
+<section id="flujo">
+  <div class="sec-head reveal">
+    <span class="n">01 — SISTEMA</span>
+    <h2>Del concepto al componente</h2>
+    <p>Cada decisión visual nace del concepto de arcilla y fluye hasta el último detalle. Estos son los nodos del sistema y cómo se conectan.</p>
+  </div>
+  <div class="flow-wrap reveal">
+    <div class="flow">
+      <svg class="connector" viewBox="0 0 1000 2" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="100" y1="1" x2="900" y2="1"/>
+      </svg>
+      <div class="node"><div class="ico" style="background:#EDE9FE">🫧</div><b>Concepto</b><span>Arcilla moldeada, táctil y prensable</span></div>
+      <div class="node"><div class="ico" style="background:linear-gradient(135deg,#C9BEFD,#8B70FF)">🎨</div><b>Color</b><span>Violeta energía + aqua calma + coral racha</span></div>
+      <div class="node"><div class="ico" style="background:#EFEBFF">🔤</div><b>Tipografía</b><span>Sora display · Jakarta cuerpo · Mono datos</span></div>
+      <div class="node"><div class="ico" style="background:#FFE9E9">🧩</div><b>Componentes</b><span>Sombra dual, radius generoso, pressed físico</span></div>
+      <div class="node"><div class="ico" style="background:#DCFCE7">🎬</div><b>Movimiento</b><span>Spring clay 120–240ms, respeta reduced-motion</span></div>
+    </div>
+    <div class="flow-labels">
+      <span>metáfora</span><span>rol semántico</span><span>jerarquía</span><span>interacción</span><span>microinteracción</span>
+    </div>
+  </div>
+</section>
+
+<section id="psicologia">
+  <div class="sec-head reveal">
+    <span class="n">02 — PSICOLOGÍA</span>
+    <h2>Psicología del color</h2>
+    <p>El sistema cromático no decora: comunica. Cada color tiene un rol emocional estricto dentro de la app de hábitos.</p>
+  </div>
+  <div class="psy-grid">
+    <div class="psy reveal"><div class="halo" style="background:#6D4BF5"></div><span class="chip" style="background:#EDE9FE;color:#6D28D9">#6D4BF5</span><h4>Violeta — Acción</h4><p>El violeta combina la estabilidad del azul con la energía del rojo: impulsa la acción sin agredir. Es el color del CTA, del "hazlo ahora".</p><div class="emo" style="color:#6D28D9">⚡ Motivación · Enfoque</div></div>
+    <div class="psy reveal"><div class="halo" style="background:#2EC4B6"></div><span class="chip" style="background:#E0F8F5;color:#0B6B63">#2EC4B6</span><h4>Aqua — Calma</h4><p>Verde-azul en equilibrio: reduce la ansiedad del rendimiento. Identifica bienestar, meditación y progreso sereno.</p><div class="emo" style="color:#0B6B63">🧘 Claridad · Tranquilidad</div></div>
+    <div class="psy reveal"><div class="halo" style="background:#FF6B6B"></div><span class="chip" style="background:#FEE2E2;color:#B91C1C">#FF6B6B</span><h4>Coral — Fuego</h4><p>Calidez y urgencia positiva: la racha, el reto, la llama que no debe apagarse. Siempre como acento, nunca como fondo dominante.</p><div class="emo" style="color:#B91C1C">🔥 Diversión · Urgencia</div></div>
+    <div class="psy reveal"><div class="halo" style="background:#F59E0B"></div><span class="chip" style="background:#FEF3C7;color:#B45309">#F59E0B</span><h4>Ámbar — Logro</h4><p>El oro de las medallas: refuerza la recompensa y la autoeficacia al completar metas y subir de nivel.</p><div class="emo" style="color:#B45309">🏆 Recompensa · Orgullo</div></div>
+    <div class="psy reveal"><div class="halo" style="background:#F7F5FF;border:1px solid #E4DFF3"></div><span class="chip" style="background:#EFEBFF;color:#67617E">#F7F5FF</span><h4>Lila nieve — Pausa</h4><p>Blanco con alma: el fondo lila da respiro visual y hace que la arcilla de los componentes flote con suavidad.</p><div class="emo" style="color:#67617E">🕊️ Espacio · Limpieza</div></div>
+    <div class="psy reveal"><div class="halo" style="background:#17122B"></div><span class="chip" style="background:#17122B;color:#F7F5FF">#17122B</span><h4>Tinta — Voz</h4><p>Casi-negro con violeta latent: seriedad contenida que aterriza la luz del sistema. 16.8:1 de contraste — máxima legibilidad.</p><div class="emo" style="color:#17122B">✍️ Confianza · Claridad</div></div>
+  </div>
+</section>
+
+<section id="paleta">
+  <div class="sec-head reveal">
+    <span class="n">03 — PALETA</span>
+    <h2>Paleta cromática</h2>
+    <p>Toca cualquier color para copiar su código HEX. Roles semánticos canónicos — la fuente de verdad vive en el manual.</p>
+  </div>
+  <div class="pal reveal">
+    <div class="sw" data-hex="#6D4BF5"><div class="col" style="background:#6D4BF5"></div><div class="info"><b>Primary</b><code>#6D4BF5</code><span>CTA · activo · foco · progreso</span></div></div>
+    <div class="sw" data-hex="#5B3AE0"><div class="col" style="background:#5B3AE0"></div><div class="info"><b>Primary hover</b><code>#5B3AE0</code><span>Hover de CTA</span></div></div>
+    <div class="sw" data-hex="#4F32CC"><div class="col" style="background:#4F32CC"></div><div class="info"><b>Primary active</b><code>#4F32CC</code><span>Estado presionado</span></div></div>
+    <div class="sw" data-hex="#2EC4B6"><div class="col" style="background:#2EC4B6"></div><div class="info"><b>Secondary</b><code>#2EC4B6</code><span>Bienestar · texto ink #0B2E2B</span></div></div>
+    <div class="sw" data-hex="#FF6B6B"><div class="col" style="background:#FF6B6B"></div><div class="info"><b>Accent racha</b><code>#FF6B6B</code><span>Streaks y retos (gráfico)</span></div></div>
+    <div class="sw" data-hex="#F59E0B"><div class="col" style="background:#F59E0B"></div><div class="info"><b>Accent logro</b><code>#F59E0B</code><span>Medallas (gráfico)</span></div></div>
+    <div class="sw" data-hex="#F7F5FF"><div class="col" style="background:#F7F5FF;border-bottom:1px solid #E4DFF3"></div><div class="info"><b>Background</b><code>#F7F5FF</code><span>Fondo de app (lila nieve)</span></div></div>
+    <div class="sw" data-hex="#FFFFFF"><div class="col" style="background:#FFFFFF;border-bottom:1px solid #E4DFF3"></div><div class="info"><b>Surface</b><code>#FFFFFF</code><span>Cards · sheets · inputs</span></div></div>
+    <div class="sw" data-hex="#EFEBFF"><div class="col" style="background:#EFEBFF"></div><div class="info"><b>Surface alt</b><code>#EFEBFF</code><span>Skeletons · chips · ghost hover</span></div></div>
+    <div class="sw" data-hex="#17122B"><div class="col" style="background:#17122B"></div><div class="info"><b>Text</b><code>#17122B</code><span>16.8:1 AAA · voz principal</span></div></div>
+    <div class="sw" data-hex="#67617E"><div class="col" style="background:#67617E"></div><div class="info"><b>Text muted</b><code>#67617E</code><span>5.4:1 AA · texto secundario</span></div></div>
+    <div class="sw" data-hex="#E4DFF3"><div class="col" style="background:#E4DFF3"></div><div class="info"><b>Border</b><code>#E4DFF3</code><span>Bordes y separadores</span></div></div>
+    <div class="sw" data-hex="#22C55E"><div class="col" style="background:#22C55E"></div><div class="info"><b>Success</b><code>#22C55E</code><span>Check · éxito</span></div></div>
+    <div class="sw" data-hex="#DC2626"><div class="col" style="background:#DC2626"></div><div class="info"><b>Error</b><code>#DC2626</code><span>Destructivo sólido · 5.0:1 AA</span></div></div>
+    <div class="sw" data-hex="#C9BEFD"><div class="col" style="background:#C9BEFD"></div><div class="info"><b>Disabled</b><code>#C9BEFD</code><span>Fondo deshabilitado · texto #8B84A6</span></div></div>
+  </div>
+</section>
+
+<section id="tipografia">
+  <div class="sec-head reveal">
+    <span class="n">04 — TIPOGRAFÍA</span>
+    <h2>Escala tipográfica</h2>
+    <p>Sora para el impacto, Plus Jakarta Sans para la conversación, JetBrains Mono para los datos que cambian.</p>
+  </div>
+  <div class="spec reveal">
+    <div class="spec-row"><span class="lab">display 34 / 800</span><span class="s34">Constancia diaria</span></div>
+    <div class="spec-row"><span class="lab">title 26 / 700</span><span class="s26">Tus metas de la semana</span></div>
+    <div class="spec-row"><span class="lab">heading 20 / 700</span><span class="s20">Progreso de bienestar</span></div>
+    <div class="spec-row"><span class="lab">body 16 / 400</span><span class="s16">Completa tus hábitos y mantén la racha viva cada día. El cuerpo se lee en 16px con interlínea 1.5.</span></div>
+    <div class="spec-row"><span class="lab">body-sm 14 / 500</span><span class="s14">Los recordatorios se envían a la hora que elijas.</span></div>
+    <div class="spec-row"><span class="lab">label 12 / 600</span><span class="s12">Racha · Nivel · Serie · Meta</span></div>
+    <div class="spec-row"><span class="lab">mono 20 / 700</span><span class="smono"><span class="counter" id="liveCounter">128</span> días · 94% · 06:30</span></div>
+  </div>
+</section>
+
+<section id="componentes">
+  <div class="sec-head reveal">
+    <span class="n">05 — COMPONENTES</span>
+    <h2>Galería de componentes</h2>
+    <p>La identidad en acción: presiona, alterna y marca — todos los elementos responden con el lenguaje clay.</p>
+  </div>
+  <div class="comp-grid">
+    <div class="demo reveal">
+      <h4>Botones</h4><p class="sub">Jerarquía: 1 primario · resto secundario/ghost</p>
+      <div class="mini-label">Estados</div>
+      <div class="row">
+        <button class="btn btn-p">Completar hábito</button>
+        <button class="btn btn-p" disabled>Deshabilitado</button>
+      </div>
+      <div class="mini-label">Variantes</div>
+      <div class="row">
+        <button class="btn btn-s">Ver progreso</button>
+        <button class="btn btn-g">Más tarde</button>
+      </div>
+      <div class="mini-label">Focus ring (dos tonos)</div>
+      <div class="row"><button class="btn btn-p" style="box-shadow:var(--shadow-clay),0 0 0 2px #FFF,0 0 0 5px #6D4BF5">Foco visible</button></div>
+    </div>
+    <div class="demo reveal">
+      <h4>Hábito interactivo</h4><p class="sub">Check con pop spring · pressed físico</p>
+      <div class="habit-card" data-habit>
+        <div class="ico">🧘</div>
+        <div class="t"><b>Meditar 10 min</b><span>Bienestar · 7:00 AM</span></div>
+        <div class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      </div>
+      <div class="habit-card" data-habit style="margin-top:12px">
+        <div class="ico" style="background:#DCFCE7">🏃</div>
+        <div class="t"><b>Correr 3 km</b><span>Meta · 6:30 PM</span></div>
+        <div class="ck"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      </div>
+      <div class="mini-label">Progreso del día</div>
+      <div class="row" style="justify-content:space-between;font-size:13px;font-weight:600"><span>Completados</span><span id="hCount" style="font-family:'JetBrains Mono',monospace;color:var(--primary)">0 / 2</span></div>
+      <div class="track"><div class="fill" id="hFill"></div></div>
+    </div>
+    <div class="demo reveal">
+      <h4>Badges y feedback</h4><p class="sub">Patrón tint + texto oscuro → AA garantizado</p>
+      <div class="badges" style="margin-bottom:18px">
+        <span class="bdg b1c">🔥 12 días</span>
+        <span class="bdg b2c">✓ Completado</span>
+        <span class="bdg b3c">🏆 Nivel 4</span>
+        <span class="bdg b4c">◈ Meta</span>
+      </div>
+      <div class="mini-label">Toggle · 180ms clay</div>
+      <div class="row"><button class="switch on" data-switch></button><span style="font-size:14px;font-weight:500">Notificaciones push</span></div>
+      <div class="mini-label">Progress animado</div>
+      <div class="track"><div class="fill" style="width:72%"></div></div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px"><b style="font-family:'JetBrains Mono',monospace;color:var(--primary)">72%</b> · meta semanal</p>
+    </div>
+    <div class="demo reveal">
+      <h4>Formularios</h4><p class="sub">Inputs 52px · validación con color + texto</p>
+      <div class="mini-label">Default</div>
+      <div class="inp" id="demoInput">Toca para enfocar…</div>
+      <div class="mini-label">Error</div>
+      <div class="inp err">alex@mail</div>
+      <div class="err-msg">⚠ Introduce un correo válido.</div>
+      <div class="mini-label">Ayuda</div>
+      <div class="inp" style="cursor:default;color:var(--text)">Cada día</div>
+      <p style="font-size:12px;color:var(--muted)">Se verá en tu pantalla de hoy.</p>
+    </div>
+    <div class="demo reveal">
+      <h4>Tarjeta de racha</h4><p class="sub">Gradiente primario · sombra con tinte violeta</p>
+      <div style="background:linear-gradient(135deg,#6D4BF5,#8B70FF);color:#fff;border-radius:var(--r-lg);padding:20px 22px;box-shadow:0 12px 26px rgba(109,75,245,.35),inset 0 2px 0 rgba(255,255,255,.28);position:relative;overflow:hidden">
+        <div style="position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12)"></div>
+        <div style="font-size:12px;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.1em">Racha actual</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:44px;line-height:1.1">12 <small style="font-size:15px;font-weight:500;opacity:.85">días</small></div>
+        <div style="font-size:13px;opacity:.9;margin-top:4px">🔥 Tu mejor registro: 30 días</div>
+      </div>
+      <div class="mini-label">Presión en acción</div>
+      <div class="row"><button class="btn btn-p" style="height:44px;font-size:14px">Mantén presionado</button></div>
+    </div>
+    <div class="demo reveal">
+      <h4>Empty state</h4><p class="sub">Blob orgánico + CTA secundario</p>
+      <div style="text-align:center;padding:20px 8px;background:var(--surface-alt);border-radius:var(--r-md);border:1px dashed var(--border)">
+        <div style="width:80px;height:80px;margin:0 auto 14px;border-radius:42% 58% 55% 45%/48% 42% 58% 52%;background:linear-gradient(135deg,#C9BEFD,#2EC4B6);animation:blobo 7s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:32px">🌱</div>
+        <b style="font-family:'Sora',sans-serif;display:block;font-size:16px;margin-bottom:5px">Sin hábitos aún</b>
+        <p style="font-size:13.5px;color:var(--muted);margin-bottom:16px">Crea tu primer hábito y empieza una racha hoy.</p>
+        <button class="btn btn-s" style="height:44px;font-size:14px">Crear hábito</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="wordmark">
+  <div class="sec-head reveal">
+    <span class="n">06 — WORDMARK</span>
+    <h2>Uso correcto del wordmark</h2>
+    <p>Aún no existe logo oficial: el wordmark tipográfico «Hábitos» (Sora 800 con punto coral) es el identificador de marca.</p>
+  </div>
+  <div class="wm-grid reveal">
+    <div class="wm">
+      <div class="preview">Hábitos<span class="dot"></span></div>
+      <div class="cap"><span class="ok">✓</span> Original — Sora 800, tracking -0.03em, punto coral</div>
+    </div>
+    <div class="wm">
+      <div class="preview" style="background:#17122B;color:#F7F5FF">Hábitos<span class="dot"></span></div>
+      <div class="cap"><span class="ok">✓</span> Sobre fondo oscuro — texto claro preservado</div>
+    </div>
+    <div class="wm bad">
+      <div class="preview"><span class="stretch-wm">Hábitos</span></div>
+      <div class="cap"><span class="no">✗</span> Prohibido estirar o deformar proporciones</div>
+    </div>
+    <div class="wm bad">
+      <div class="preview"><span class="squish" style="color:#FF6B6B">Hábitos</span></div>
+      <div class="cap"><span class="no">✗</span> Prohibido cambiar el color de la palabra</div>
+    </div>
+    <div class="wm bad">
+      <div class="preview"><span class="shadow-wm">Hábitos</span></div>
+      <div class="cap"><span class="no">✗</span> Prohibido añadir sombras/gráficos ajenos</div>
+    </div>
+    <div class="wm bad">
+      <div class="preview" style="font-family:'Georgia',serif">Hábitos<span class="dot"></span></div>
+      <div class="cap"><span class="no">✗</span> Prohibido sustituir la familia Sora</div>
+    </div>
+  </div>
+</section>
+
+<section id="movimiento">
+  <div class="sec-head reveal">
+    <span class="n">07 — MOVIMIENTO</span>
+    <h2>Curvas de animación</h2>
+    <p>Dos easings definen la personalidad: std para desplazarse con elegancia, clay para rebotar como arcilla.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-card reveal">
+      <h4>Easing estándar</h4><p class="sub">cubic-bezier(.2,.8,.2,1) · 240ms</p>
+      <div class="track-line"><div class="rail std"></div></div>
+      <div class="dur"><span>0ms</span><span>entradas · salidas · sheets</span></div>
+    </div>
+    <div class="lab-card reveal">
+      <h4>Easing clay (rebote)</h4><p class="sub">cubic-bezier(.34,1.56,.64,1) · 180ms</p>
+      <div class="track-line"><div class="rail clay"></div></div>
+      <div class="dur"><span>0ms</span><span>press · check · badge · stepper</span></div>
+    </div>
+    <div class="lab-card reveal">
+      <h4>Duraciones del sistema</h4><p class="sub">press 120 · fast 180 · base 240 · sheet 320 · slow 400</p>
+      <div class="dur" style="flex-direction:column;gap:10px">
+        <div class="row" style="justify-content:space-between"><span style="font-size:13.5px">Presión de botón</span><b style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--primary)">120ms</b></div>
+        <div class="row" style="justify-content:space-between"><span style="font-size:13.5px">Toggle / check</span><b style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--primary)">180ms</b></div>
+        <div class="row" style="justify-content:space-between"><span style="font-size:13.5px">Bottom sheet</span><b style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--primary)">320ms</b></div>
+        <div class="row" style="justify-content:space-between"><span style="font-size:13.5px">Stagger reveal</span><b style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--primary)">400ms</b></div>
+        <div class="row" style="justify-content:space-between"><span style="font-size:13.5px">prefers-reduced-motion</span><b style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#15803D">respetado ✓</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b>Identidad Visual Expressiva — Pulse Clay</b> · App Hábitos · v1.0 · 2026</p>
+  <p style="margin-top:6px">Fuente de verdad: <code style="font-family:'JetBrains Mono',monospace">Artefactos/documentación/Diseño Visual/manual-identidad-visual.md</code></p>
+</footer>
+
+</div>
+
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<div class="toast" id="toast">Copiado</div>
+
+<script>
+const toast=document.getElementById('toast');let tTimer;
+function ping(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>toast.classList.remove('show'),1800);}
+document.querySelectorAll('.sw').forEach(sw=>{
+  sw.addEventListener('click',async()=>{
+    const hex=sw.dataset.hex;
+    try{await navigator.clipboard.writeText(hex);}catch(e){
+      const ta=document.createElement('textarea');ta.value=hex;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    }
+    ping(hex+' copiado al portapapeles');
+  });
+});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%6)*60+'ms';io.observe(el);});
+document.querySelectorAll('[data-habit]').forEach(h=>{
+  h.addEventListener('click',()=>{h.classList.toggle('done');syncHabits();});
+});
+function syncHabits(){
+  const all=document.querySelectorAll('[data-habit]');
+  const done=document.querySelectorAll('[data-habit].done').length;
+  document.getElementById('hCount').textContent=done+' / '+all.length;
+  document.getElementById('hFill').style.width=(done/all.length*100)+'%';
+}
+document.querySelectorAll('[data-switch]').forEach(s=>s.addEventListener('click',()=>s.classList.toggle('on')));
+const di=document.getElementById('demoInput');
+di.addEventListener('click',()=>{di.classList.add('focus');di.textContent='Meditar 10 minutos';di.style.color='var(--text)';});
+di.addEventListener('blur',()=>di.classList.remove('focus'));
+di.setAttribute('tabindex','0');
+di.addEventListener('blur',()=>{});
+const lc=document.getElementById('liveCounter');
+let lcV=128;
+setInterval(()=>{lcV++;lc.textContent=lcV;lc.animate([{transform:'translateY(-6px)',opacity:.4},{transform:'none',opacity:1}],{duration:240,easing:'cubic-bezier(.34,1.56,.64,1)'});},6000);
+</script>
+<style>
+@keyframes blobo{50%{border-radius:56% 44% 42% 58%/52% 56% 44% 48%}}
+</style>
+</body>
+</html>

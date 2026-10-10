@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requerimientos Funcionales — App Hábitos · Pulse Clay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-active:#4F32CC;
+  --primary-disabled:#C9BEFD; --primary-soft:#EDE9FE; --primary-disabled-text:#8B84A6;
+  --secondary:#2EC4B6; --ink-2:#0B2E2B;
+  --streak:#FF6B6B; --award:#F59E0B;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --warning:#F59E0B; --error:#DC2626; --error-bright:#EF4444;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95), inset 0 -4px 8px rgba(109,75,245,.08);
+  --shadow-press:inset 0 4px 10px rgba(23,18,43,.14), inset 0 2px 0 rgba(255,255,255,.6);
+  --ease-std:cubic-bezier(.2,.8,.2,1);
+  --ease-clay:cubic-bezier(.34,1.56,.64,1);
+  --dur-press:120ms; --dur-fast:180ms; --dur-base:240ms; --dur-slow:400ms;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;pointer-events:none;z-index:-1}
+.b1{width:480px;height:480px;background:#C9BEFD;top:-150px;left:-130px;animation:f1 18s ease-in-out infinite alternate}
+.b2{width:400px;height:400px;background:#A8ECE5;top:45%;right:-150px;animation:f2 22s ease-in-out infinite alternate}
+.b3{width:340px;height:340px;background:#FFD1D1;bottom:-130px;left:26%;opacity:.35;animation:f3 20s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate(60px,50px) scale(1.1)}}
+@keyframes f2{to{transform:translate(-50px,-40px) scale(.92)}}
+@keyframes f3{to{transform:translate(40px,-50px) scale(1.06)}}
+.wrap{max-width:1020px;margin:0 auto;padding:0 24px 110px}
+.hero{text-align:center;padding:64px 0 20px}
+.kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(32px,6vw,52px);letter-spacing:-.02em;margin:22px 0 12px}
+.hero h1 .o{color:var(--primary)}
+.hero p{color:var(--muted);max-width:620px;margin:0 auto;font-size:16.5px}
+.hero .meta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hero .meta span{font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-pill);color:var(--muted);box-shadow:var(--shadow-clay)}
+section{margin-top:88px}
+.sec-head{text-align:center;margin-bottom:40px}
+.sec-head .n{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:5px 12px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.sec-head h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(26px,4vw,36px);letter-spacing:-.02em;margin:14px 0 8px}
+.sec-head p{color:var(--muted);max-width:600px;margin:0 auto}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s var(--ease-std),transform .7s var(--ease-std)}
+.reveal.in{opacity:1;transform:none}
+
+.persona{display:grid;grid-template-columns:280px 1fr;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);overflow:hidden}
+.persona .side{background:linear-gradient(160deg,#6D4BF5,#8B70FF);color:#fff;padding:34px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+.persona .side::after{content:"";position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12)}
+.avatar-lg{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#FFD1D1,#5EEAD4);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:34px;color:#17122B;box-shadow:inset 0 3px 0 rgba(255,255,255,.6),0 10px 24px rgba(0,0,0,.22);margin-bottom:16px;position:relative;z-index:1}
+.persona .side h3{font-family:'Sora',sans-serif;font-size:22px;margin-bottom:4px}
+.persona .side .role{font-size:13px;opacity:.9;font-weight:600}
+.persona .side .tags{margin-top:18px;display:flex;flex-direction:column;gap:8px;width:100%;position:relative;z-index:1}
+.persona .side .tags span{background:rgba(255,255,255,.16);backdrop-filter:blur(4px);border-radius:var(--r-pill);padding:7px 12px;font-size:12.5px;font-weight:600}
+.persona .body{padding:30px 32px}
+.persona .body h4{font-family:'Sora',sans-serif;font-size:15px;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.persona .body h4:first-child{margin-top:0}
+.persona .body p,.persona .body li{font-size:14.5px;color:var(--muted)}
+.persona .body ul{padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.quote{margin-top:20px;background:var(--surface-alt);border-left:4px solid var(--primary);border-radius:0 var(--r-md) var(--r-md) 0;padding:14px 18px;font-size:15px;font-weight:500;font-style:italic}
+.actor-note{margin-top:18px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--r-md);padding:16px 20px;font-size:13.5px;color:var(--muted)}
+.actor-note b{color:var(--text)}
+
+.epics{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
+.epic{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:24px;position:relative;overflow:hidden;transition:transform .25s var(--ease-clay),box-shadow .25s var(--ease-std)}
+.epic:hover{transform:translateY(-6px);box-shadow:var(--shadow-clay-hover)}
+.epic .halo{position:absolute;top:-44px;right:-44px;width:130px;height:130px;border-radius:50%;opacity:.15;filter:blur(4px)}
+.epic .id{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:var(--surface-alt);border:1px solid var(--border);padding:3px 9px;border-radius:var(--r-pill);color:var(--primary);margin-bottom:12px}
+.epic h3{font-family:'Sora',sans-serif;font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.epic p{font-size:14px;color:var(--muted);margin-bottom:14px}
+.epic .hu-list{display:flex;flex-direction:column;gap:6px}
+.epic .hu{font-size:12.5px;font-weight:600;background:var(--surface-alt);border-radius:var(--r-pill);padding:6px 12px;color:var(--text);display:flex;gap:7px;align-items:center}
+.epic .hu i{font-style:normal;font-family:'JetBrains Mono',monospace;color:var(--primary);font-size:11px}
+
+.stories{display:flex;flex-direction:column;gap:22px}
+.story{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);overflow:hidden}
+.story-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.story-head .code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#6D28D9;background:#EDE9FE;border-radius:var(--r-pill);padding:5px 11px}
+.story-head h3{font-family:'Sora',sans-serif;font-size:16.5px;flex:1;min-width:220px}
+.bdg{height:26px;padding:0 12px;border-radius:var(--r-pill);font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.b-prio{background:#FEE2E2;color:#B91C1C}
+.b-epic{background:#EDE9FE;color:#6D28D9}
+.b-must{background:#DCFCE7;color:#15803D}
+.story-body{padding:18px 22px}
+.as-todo{font-size:15px;font-weight:500;margin-bottom:16px}
+.as-todo b{color:var(--primary)}
+.ca-title{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.checklist{display:flex;flex-direction:column;gap:9px}
+.ck{display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none;padding:10px 12px;border-radius:var(--r-md);transition:background .18s var(--ease-std)}
+.ck:hover{background:var(--surface-alt)}
+.ck .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--dur-fast) var(--ease-clay);margin-top:1px}
+.ck .box svg{opacity:0;transform:scale(.3);transition:all var(--dur-fast) var(--ease-clay);stroke:#fff}
+.ck.on .box{background:var(--primary);border-color:var(--primary);box-shadow:0 4px 10px rgba(109,75,245,.4)}
+.ck.on .box svg{opacity:1;transform:scale(1)}
+.ck .txt{font-size:14px}
+.ck .txt code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:var(--surface-alt);border-radius:6px;padding:1px 6px;color:var(--primary)}
+.given{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+.given div{background:var(--surface-alt);border-radius:var(--r-sm);padding:11px 14px;font-size:13px}
+.given b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:3px}
+.progress-strip{position:sticky;bottom:16px;margin:40px auto 0;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);box-shadow:var(--shadow-clay);padding:12px 18px;display:flex;align-items:center;gap:14px;z-index:50}
+.progress-strip .track{flex:1;height:10px;background:#DDD5FB;border-radius:var(--r-pill);overflow:hidden}
+.progress-strip .fill{height:100%;width:0;background:linear-gradient(90deg,#6D4BF5,#8B70FF);border-radius:var(--r-pill);transition:width var(--dur-slow) var(--ease-clay);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.progress-strip .cnt{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--primary);min-width:56px;text-align:right}
+footer{margin-top:90px;text-align:center;color:var(--muted);font-size:13px;padding-top:36px;border-top:1px solid var(--border)}
+footer b{color:var(--text)}
+@media (max-width:760px){.persona{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <span class="kicker">Paso 2 · Producto y Flujos</span>
+  <h1>Háb<span class="o">o</span>s — Requerimientos</h1>
+  <p>Actores, épicas e historias de usuario de la app móvil de hábitos, metas y bienestar. Cada criterio es una regla de negocio inquebrantable heredada de la arquitectura aprobada.</p>
+  <div class="meta">
+    <span>📱 Móvil · offline-first</span>
+    <span>🎨 Pulse Clay</span>
+    <span>🗂 5 épicas · 13 historias</span>
+    <span>✅ Checklists interactivas</span>
+  </div>
+</header>
+
+<section id="actores">
+  <div class="sec-head reveal">
+    <span class="n">01 — ACTORES</span>
+    <h2>Tarjeta de personaje</h2>
+    <p>El MVP local-first tiene un único rol: el usuario del dispositivo. Se manifiesta en tres estados vitales.</p>
+  </div>
+
+  <div class="persona reveal">
+    <div class="side">
+      <div class="avatar-lg">AL</div>
+      <h3>Alex Rivera</h3>
+      <div class="role">Usuario principal · 24 años</div>
+      <div class="tags">
+        <span>🎯 Objetivo: constar sin fricción</span>
+        <span>⚡ Nivel: digital nativo</span>
+        <span>📍 Contexto: móvil, en trayecto</span>
+      </div>
+    </div>
+    <div class="body">
+      <h4>👤 Perfil</h4>
+      <p>Joven profesional que ya probó 3 apps de hábitos y abandonó todas por exceso de notificaciones y fricción al registrar avances. Vive en el móvil, valora lo táctil y lo visual.</p>
+      <h4>🎯 Objetivos</h4>
+      <ul>
+        <li>Completar sus 3–5 hábitos diarios en menos de 30 segundos.</li>
+        <li>Ver su racha y progreso sin navegar (todo en «Hoy»).</li>
+        <li>Registrar ánimo y energía en un gesto rápido antes de dormir.</li>
+      </ul>
+      <h4>😖 Frustraciones</h4>
+      <ul>
+        <li>Apps que exigen cuenta y conexión para marcar un check.</li>
+        <li>Interfaces frías que no celebran el progreso.</li>
+        <li>Perder la racha por un bug de registro duplicado.</li>
+      </ul>
+      <div class="quote">«Solo quiero abrir la app, tocar una vez y sentir que avanzo. Sin cuentas, sin esperar a que cargue.»</div>
+    </div>
+  </div>
+
+  <div class="actor-note reveal">
+    <b>Estados vitales del actor (sin RBAC en MVP):</b> ① <b>Nuevo</b> — sin perfil, ve onboarding (HU-1…HU-3).
+    ② <b>Activo</b> — con sesión local desbloqueada; usa las 4 tabs. ③ <b>Protegido</b> — app en background → lock PIN/biometría (AuthRepository). La sync multiusuario es Fase 2 (ADR-001); hoy no existen roles administrativos.
+  </div>
+</section>
+
+<section id="epicas">
+  <div class="sec-head reveal">
+    <span class="n">02 — ÉPICAS</span>
+    <h2>Épicas funcionales</h2>
+    <p>Cinco bloques de valor que encapsulan el producto completo del MVP.</p>
+  </div>
+  <div class="epics">
+    <div class="epic reveal"><div class="halo" style="background:#6D4BF5"></div><span class="id">ÉPICA 1</span><h3>🛫 Onboarding y protección</h3><p>Primer arranque: nombre, recordatorio del propósito y bloqueo local con PIN/biometría.</p><div class="hu-list"><span class="hu"><i>HU-1</i> Crear perfil local</span><span class="hu"><i>HU-2</i> Configurar PIN + biometría</span><span class="hu"><i>HU-3</i> Recibir permiso de notificaciones</span></div></div>
+    <div class="epic reveal"><div class="halo" style="background:#2EC4B6"></div><span class="id">ÉPICA 2</span><h3>✅ Gestión de hábitos</h3><p>Crear, ordenar, marcar y revisar hábitos — el corazón transaccional de la app.</p><div class="hu-list"><span class="hu"><i>HU-4</i> Crear hábito</span><span class="hu"><i>HU-5</i> Ver feed «Hoy»</span><span class="hu"><i>HU-6</i> Marcar/desmarcar check</span><span class="hu"><i>HU-7</i> Editar y archivar</span><span class="hu"><i>HU-8</i> Ver historial</span></div></div>
+    <div class="epic reveal"><div class="halo" style="background:#F59E0B"></div><span class="id">ÉPICA 3</span><h3>🏆 Metas personales</h3><p>Objetivos con cifra y aportes incrementales hasta completarlos.</p><div class="hu-list"><span class="hu"><i>HU-9</i> Crear meta</span><span class="hu"><i>HU-10</i> Registrar progreso</span></div></div>
+    <div class="epic reveal"><div class="halo" style="background:#FF6B6B"></div><span class="id">ÉPICA 4</span><h3>🧘 Bienestar diario</h3><p>Check-in de ánimo y energía, un por día, para el calendario emocional.</p><div class="hu-list"><span class="hu"><i>HU-11</i> Registrar check-in</span></div></div>
+    <div class="epic reveal"><div class="halo" style="background:#22C55E"></div><span class="id">ÉPICA 5</span><h3>🔥 Gamificación</h3><p>Rachas, niveles y medallas que celebran la constancia sin infantilizar.</p><div class="hu-list"><span class="hu"><i>HU-12</i> Ver racha y progreso</span><span class="hu"><i>HU-13</i> Desbloquear medallas</span></div></div>
+  </div>
+</section>
+
+<section id="historias">
+  <div class="sec-head reveal">
+    <span class="n">03 — HISTORIAS Y CRITERIOS</span>
+    <h2>Historias de usuario</h2>
+    <p>Formato ágil con criterios de aceptación interactivos. Marca cada criterio conforme lo valides.</p>
+  </div>
+
+  <div class="stories">
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-1</span><h3>Crear perfil local</h3><span class="bdg b-epic">Épica 1</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario nuevo</b>, quiero <b>ingresar mi nombre y elegir mi avatar</b> para <b>personalizar la app sin crear una cuenta</b>.</p>
+        <div class="ca-title">Criterios de aceptación</div>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given sin perfil, When abro la app, Then veo el sheet de bienvenida con <code>HABIT/USER_PROFILE</code> vacío</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given nombre de 1–40 caracteres válido, When confirmo, Then se inserta <code>USER_PROFILE</code> con <code>avatar_seed</code> aleatorio y entro a «Hoy»</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given nombre vacío o &gt;40, When intento avanzar, Then el botón primario permanece <code>disabled</code> (C9BEFD)</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-2</span><h3>Configurar PIN y biometría</h3><span class="bdg b-epic">Épica 1</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>proteger la app con PIN 6 dígitos y desbloqueo biométrico</b> para <b>que nadie más vea mi progreso en el dispositivo</b>.</p>
+        <div class="ca-title">Criterios de aceptación</div>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given setup inicial, When defino el PIN, Then se guarda solo como hash <code>scrypt</code> en <code>SecureStore</code> — nunca en SQLite</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given 5 fallos consecutivos de PIN, When reintento, Then <code>RATE_LIMITED</code> con backoff exponencial y toast de error</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given biometría disponible, When toco «Desbloquear», Then <code>AuthRepository.unlockWithBiometrics()</code> y transición <code>ease-clay</code> 320ms a «Hoy»</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-3</span><h3>Permitir notificaciones opcionales</h3><span class="bdg b-epic">Épica 1</span><span class="bdg">Should</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>elegir si activo recordatorios</b> para <b>recibir avisos sin ser presionado</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given final del onboarding, When elijo «Activar», Then solicito permiso del sistema (único permiso de la app)</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given permiso denegado, Then la app continúa sin bloquearse y guarda la preferencia en <code>MMKV</code></span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-4</span><h3>Crear un hábito</h3><span class="bdg b-epic">Épica 2</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>crear un hábito con nombre, icono, categoría, frecuencia y recordatorio</b> para <b>empezar a practicarlo</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given el FAB «+» de «Hoy», When toco, Then abre el bottom sheet <code>new-habit</code> con <code>ClayInput</code> y chips de categoría</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given datos válidos según <code>CreateHabitInput</code> (Zod), When guardo, Then <code>HabitRepository.create()</code> inserta y el sheet cierra con toast «Hábito creado»</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given nombre vacío, Then <code>VALIDATION_ERROR</code> → <code>ClayInput</code> estado error + helper «Mínimo 1 carácter»</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given frecuencia «Personalizada», Then selector de días con chips L–D y validación de ≥1 día</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-5</span><h3>Ver el feed «Hoy»</h3><span class="bdg b-epic">Épica 2</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>ver de un vistazo mis hábitos de hoy, la racha y el progreso del día</b> para <b>saber qué me falta</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given sesión desbloqueada, When cargo «Hoy», Then <code>HabitRepository.listByDate(hoy)</code> pinta <code>StreakCard</code> + <code>HabitCard</code> + <code>Progress</code></span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given 0 hábitos, Then <code>EmptyState</code> con blob y CTA secundario «Crear hábito»</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given lectura en curso, Then 3 <code>Skeleton</code> con shimmer — nunca pantalla en blanco</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-6</span><h3>Marcar o desmarcar un hábito del día</h3><span class="bdg b-epic">Épica 2</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>marcar un hábito con un toque</b> para <b>registrar avance al instante y sumar racha</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given tarjeta táctil, When toco el check, Then <code>toggleLog</code> en transacción: upsert <code>HABIT_LOG</code> + recalc caché + outbox + evaluación de logros</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given el check se activa, Then pop <code>ease-clay</code> + «+1 🔥» flotante + incremento mono de racha + toast 4s</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given toque accidental, When toco de nuevo, Then se desmarca (toggle) y la racha se recalcula — la BD prohíbe doble log por <code>UNIQUE(habit_id, log_date)</code></span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given fallo de BD, Then rollback completo + <code>Toast</code> error «No se pudo guardar, reintenta»</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-7</span><h3>Editar o archivar un hábito</h3><span class="bdg b-epic">Épica 2</span><span class="bdg">Should</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>editar los datos o archivar un hábito</b> para <b>mantener mi lista limpia sin borrar historial</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given sheet de detalle, When elijo «Archivar», Then <code>is_archived=true</code> (soft) — los <code>HABIT_LOG</code> permanecen</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given «Eliminar», Then confirmación en sheet con <code>Botón peligro</code> y copy explícito de consecuencias</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-8</span><h3>Ver historial de un hábito</h3><span class="bdg b-epic">Épica 2</span><span class="bdg">Could</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>ver un calendario de mis últimos días</b> para <b>reconocer patrones de constancia</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given detalle del hábito, When pido historial, Then <code>getHistory(from,to)</code> renderiza calendario con día activo pill primary</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-9</span><h3>Crear una meta</h3><span class="bdg b-epic">Épica 3</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>crear una meta con objetivo numérico y fecha límite</b> para <b>comprometer un resultado medible</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given tab «Plan», When toco «Nueva meta», Then sheet <code>new-goal</code> con <code>Stepper</code> para objetivo y fecha</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given objetivo ≤ 0, Then <code>VALIDATION_ERROR</code> y CTA deshabilitado</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-10</span><h3>Registrar progreso en una meta</h3><span class="bdg b-epic">Épica 3</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>sumar o restar avance a una meta</b> para <b>verla acercarse al 100%</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given meta activa, When registro un delta, Then <code>GoalRepository.addProgress</code> actualiza <code>current_value</code> + <code>GOAL_UPDATE</code> en la misma transacción</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given <code>current_value ≥ target_value</code>, Then estado <code>completed</code> + animación de <code>Progress</code> al 100% + badge «Completada»</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-11</span><h3>Registrar check-in de bienestar</h3><span class="bdg b-epic">Épica 4</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>registrar mi ánimo y energía del día en dos toques</b> para <b>conocer mi tendencia emocional</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given sheet <code>check-in</code>, When elijo mood y energía (1–5), Then <code>WellbeingRepository.upsertEntry</code> — máx. 1 entrada por día (<code>UNIQUE entry_date</code>)</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given ya existe entrada hoy, When guardo de nuevo, Then actualiza la existente (upsert) sin error</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-12</span><h3>Ver racha y progreso global</h3><span class="bdg b-epic">Épica 5</span><span class="bdg b-must">Must</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>ver mi racha actual y el progreso del día en la pantalla principal</b> para <b>sentir constancia tangible</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given cachés de racha, Then <code>STREAK_CACHE</code>/<code>HABIT_STREAK_CACHE</code> se leen O(1) — nunca se recalculan en la UI</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given racha incremental, Then cifra con <code>font-mono tabular-nums</code> y pop <code>ease-clay</code></span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="story reveal">
+      <div class="story-head"><span class="code">HU-13</span><h3>Desbloquear medallas</h3><span class="bdg b-epic">Épica 5</span><span class="bdg">Should</span></div>
+      <div class="story-body">
+        <p class="as-todo">Como <b>usuario</b>, quiero <b>recibir medallas cuando alcanzo hitos</b> para <b>celebrar el esfuerzo</b>.</p>
+        <div class="checklist" data-group>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given criterio cumplido en <code>toggleLog</code>, Then <code>AchievementRepository.evaluateAndUnlock</code> inserta idempotente (<code>UNIQUE</code>) y dispara sheet de celebración</span></div>
+          <div class="ck"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span class="txt">Given medalla ya desbloqueada, Then no se duplica ni vuelve a celebrar</span></div>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="progress-strip">
+    <span style="font-size:13px;font-weight:700">Validación</span>
+    <div class="track"><div class="fill" id="caFill"></div></div>
+    <span class="cnt" id="caCount">0 / 0</span>
+  </div>
+</section>
+
+<footer>
+  <p><b>Requerimientos Funcionales — App Hábitos</b> · Paso 2 de Producto y Flujos · Pulse Clay v1.0</p>
+  <p style="margin-top:6px">Trazabilidad: componentes citados del <code>manual-identidad-visual.md</code> · datos citados de <code>MODELO_DE_DATOS.md</code> y <code>CONTRATOS_API.md</code></p>
+</footer>
+
+</div>
+
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%5)*60+'ms';io.observe(el);});
+const allCks=document.querySelectorAll('.ck');
+const fill=document.getElementById('caFill');
+const cnt=document.getElementById('caCount');
+function sync(){
+  const on=document.querySelectorAll('.ck.on').length;
+  cnt.textContent=on+' / '+allCks.length;
+  fill.style.width=(on/allCks.length*100)+'%';
+}
+allCks.forEach(c=>c.addEventListener('click',()=>{c.classList.toggle('on');sync();}));
+sync();
+</script>
+</body>
+</html>

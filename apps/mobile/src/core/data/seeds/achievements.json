@@ -1,0 +1,58 @@
+[
+  {
+    "key": "first_habit",
+    "title": "Primer paso",
+    "description": "Creaste tu primer hábito",
+    "icon": "🌱",
+    "criteria": { "type": "habit_created", "threshold": 1 }
+  },
+  {
+    "key": "habit_5",
+    "title": "Coleccionista",
+    "description": "Tienes 5 hábitos activos",
+    "icon": "🗂️",
+    "criteria": { "type": "habit_created", "threshold": 5 }
+  },
+  {
+    "key": "streak_3",
+    "title": "En racha",
+    "description": "3 días seguidos completando",
+    "icon": "🔥",
+    "criteria": { "type": "streak_reached", "threshold": 3 }
+  },
+  {
+    "key": "streak_7",
+    "title": "Semana perfecta",
+    "description": "7 días seguidos completando",
+    "icon": "⚡",
+    "criteria": { "type": "streak_reached", "threshold": 7 }
+  },
+  {
+    "key": "streak_30",
+    "title": "Imparable",
+    "description": "30 días seguidos completando",
+    "icon": "🏆",
+    "criteria": { "type": "streak_reached", "threshold": 30 }
+  },
+  {
+    "key": "streak_100",
+    "title": "Leyenda",
+    "description": "100 días seguidos completando",
+    "icon": "👑",
+    "criteria": { "type": "streak_reached", "threshold": 100 }
+  },
+  {
+    "key": "goal_first",
+    "title": "Meta cumplida",
+    "description": "Completaste tu primera meta",
+    "icon": "🎯",
+    "criteria": { "type": "goal_completed", "threshold": 1 }
+  },
+  {
+    "key": "checkin_7",
+    "title": "Autoconocimiento",
+    "description": "7 check-ins de bienestar",
+    "icon": "🧘",
+    "criteria": { "type": "checkin_count", "threshold": 7 }
+  }
+]

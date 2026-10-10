@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo A — Pulse Clay | Identidad Visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-active:#4F32CC;
+  --primary-disabled:#C9BEFD; --primary-disabled-text:#8B84A6;
+  --primary-soft:#EDE9FE;
+  --secondary:#2EC4B6; --secondary-ink:#0B2E2B;
+  --accent:#FF6B6B; --accent-alt:#F59E0B;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --warning:#F59E0B; --error:#DC2626; --error-bright:#EF4444;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95), inset 0 -4px 8px rgba(109,75,245,.08);
+  --shadow-press:inset 0 4px 10px rgba(23,18,43,.14), inset 0 2px 0 rgba(255,255,255,.6);
+  --ring:0 0 0 3px rgba(109,75,245,.40);
+  --ease-std:cubic-bezier(.2,.8,.2,1);
+  --ease-clay:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.page{max-width:960px;margin:0 auto;padding:48px 24px 96px}
+.hero{text-align:center;padding:40px 0 48px}
+.hero .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);background:var(--primary-soft);padding:6px 14px;border-radius:var(--r-pill)}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:40px;line-height:1.1;margin:20px 0 12px;letter-spacing:-.02em}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto;font-size:16px}
+.section{margin-top:64px}
+.section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px}
+.section-head .num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:var(--r-pill)}
+.section-head h2{font-family:'Sora',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.01em}
+.section-head span{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:24px}
+.grid{display:grid;gap:16px}
+
+/* ===== PHONE PREVIEW ===== */
+.phone-wrap{display:flex;justify-content:center}
+.phone{
+  width:375px;max-width:100%;background:var(--surface);
+  border-radius:var(--r-xl);box-shadow:var(--shadow-clay), 0 40px 80px rgba(23,18,43,.14);
+  overflow:hidden;border:1px solid var(--border);position:relative;
+}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 6px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.phone-body{padding:8px 20px 96px;position:relative;min-height:560px;background:
+  radial-gradient(circle at 90% 0%, rgba(46,196,182,.14), transparent 42%),
+  radial-gradient(circle at 0% 30%, rgba(109,75,245,.10), transparent 45%),
+  var(--surface);}
+.app-top{display:flex;justify-content:space-between;align-items:center;margin:10px 0 20px}
+.app-top h3{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em}
+.app-top .sub{font-size:13px;color:var(--muted);font-weight:500}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#6D4BF5,#2EC4B6);box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 4px 10px rgba(109,75,245,.3);position:relative}
+.avatar .dot{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:var(--success);border:2px solid var(--surface)}
+.streak-card{background:linear-gradient(135deg,#6D4BF5,#8B70FF);color:#fff;border-radius:var(--r-lg);padding:18px 20px;box-shadow:0 12px 26px rgba(109,75,245,.35), inset 0 2px 0 rgba(255,255,255,.28);display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+.streak-card::after{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12)}
+.streak-card .label{font-size:12px;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.1em}
+.streak-card .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;line-height:1.1}
+.streak-card .value small{font-size:14px;font-weight:500;opacity:.85}
+.flame{font-size:38px;position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+.habits-title{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}
+.habits-title h4{font-family:'Sora',sans-serif;font-weight:700;font-size:17px}
+.habits-title a{font-size:13px;font-weight:600;color:var(--primary);text-decoration:none}
+.habit{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 12px rgba(23,18,43,.05), inset 0 1px 0 rgba(255,255,255,.9);transition:transform .12s var(--ease-std), box-shadow .12s var(--ease-std);cursor:pointer;user-select:none}
+.habit:active{transform:scale(.985);box-shadow:var(--shadow-press)}
+.habit .ico{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.habit .info{flex:1;min-width:0}
+.habit .info b{display:block;font-size:15px;font-weight:600}
+.habit .info span{font-size:12px;color:var(--muted);font-weight:500}
+.habit .check{width:28px;height:28px;border-radius:9px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-clay);flex-shrink:0}
+.habit .check svg{opacity:0;transform:scale(.4);transition:all .18s var(--ease-clay);stroke:#fff}
+.habit.done .check{background:var(--primary);border-color:var(--primary);box-shadow:0 4px 10px rgba(109,75,245,.4)}
+.habit.done .check svg{opacity:1;transform:scale(1)}
+.habit.done .info b{text-decoration:line-through;color:var(--muted)}
+.plus-one{position:absolute;right:18px;top:10px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;color:var(--primary);opacity:0;pointer-events:none}
+.plus-one.fly{animation:fly 1s var(--ease-std) forwards}
+@keyframes fly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-34px)}}
+.progress-block{margin-top:18px;background:var(--surface-alt);border-radius:var(--r-md);padding:16px;border:1px solid var(--border)}
+.progress-block .row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px}
+.progress-block .row span:last-child{font-family:'JetBrains Mono',monospace;color:var(--primary)}
+.track{height:10px;background:#DDD5FB;border-radius:var(--r-pill);overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#6D4BF5,#8B70FF);border-radius:var(--r-pill);transition:width .5s var(--ease-clay);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding-bottom:6px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:var(--r-md);transition:color .18s var(--ease-std);background:none;border:none;font-family:inherit}
+.tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s var(--ease-clay)}
+.tab.active{color:var(--primary)}
+.tab.active svg{transform:translateY(-2px) scale(1.06)}
+.tab .ind{width:34px;height:4px;border-radius:var(--r-pill);background:transparent;transition:background .18s var(--ease-std)}
+.tab.active .ind{background:var(--primary-soft)}
+.fab{position:absolute;right:20px;bottom:88px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 10px 24px rgba(109,75,245,.45), inset 0 2px 0 rgba(255,255,255,.35);transition:transform .12s var(--ease-clay);display:flex;align-items:center;justify-content:center;z-index:5}
+.fab:active{transform:scale(.94);box-shadow:var(--shadow-press)}
+
+/* ===== PALETTE ===== */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.swatch{border-radius:var(--r-md);overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 12px rgba(23,18,43,.05)}
+.swatch .color{height:74px;position:relative}
+.swatch .meta{padding:10px 12px}
+.swatch .meta b{display:block;font-size:13px;font-weight:700}
+.swatch .meta code{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+.swatch .meta i{font-style:normal;font-size:11px;color:var(--primary);font-weight:600}
+.dark-strip{margin-top:22px;background:#12101C;border-radius:var(--r-lg);padding:22px;color:#F2EFFF}
+.dark-strip h4{font-family:'Sora',sans-serif;font-size:15px;margin-bottom:4px}
+.dark-strip p{font-size:13px;color:#9B95B5;margin-bottom:16px}
+.dark-strip .swatches .swatch{background:#1C1930;border-color:#2E2947;box-shadow:none}
+.dark-strip .swatch .meta b{color:#F2EFFF}
+.dark-strip .swatch .meta code{color:#9B95B5}
+
+/* ===== TYPOGRAPHY ===== */
+.type-row{display:flex;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px dashed var(--border)}
+.type-row:last-child{border-bottom:none}
+.type-row .tag{width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:500}
+.t-d34{font-family:'Sora',sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em}
+.t-d26{font-family:'Sora',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.01em}
+.t-d20{font-family:'Sora',sans-serif;font-weight:700;font-size:20px}
+.t-b16{font-size:16px}
+.t-b14{font-size:14px;color:var(--muted)}
+.t-s12{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.t-mono{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--primary)}
+
+/* ===== BUTTONS ===== */
+.btn-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.btn{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:16px;border-radius:var(--r-pill);padding:0 26px;height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;border:none;transition:transform .12s var(--ease-std),box-shadow .12s var(--ease-std),background .18s var(--ease-std)}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:var(--shadow-clay)}
+.btn-primary:hover{background:var(--primary-hover);box-shadow:var(--shadow-clay-hover);transform:translateY(-2px)}
+.btn-primary:active{background:var(--primary-active);box-shadow:var(--shadow-press);transform:scale(.97)}
+.btn:focus-visible{outline:none;box-shadow:var(--shadow-clay),var(--ring)}
+.btn-sec{background:var(--surface);color:var(--primary);border:1.5px solid var(--border);box-shadow:var(--shadow-clay)}
+.btn-sec:hover{border-color:var(--primary);transform:translateY(-2px)}
+.btn-sec:active{box-shadow:var(--shadow-press);transform:scale(.97)}
+.btn-ghost{background:transparent;color:var(--primary);box-shadow:none}
+.btn-ghost:hover{background:var(--primary-soft)}
+.btn-danger{background:var(--error);color:#fff;box-shadow:0 8px 20px rgba(220,38,38,.22), inset 0 2px 0 rgba(255,255,255,.25)}
+.btn-danger:active{background:#B91C1C;box-shadow:var(--shadow-press);transform:scale(.97)}
+.btn[disabled]{background:var(--primary-disabled)!important;color:var(--primary-disabled-text)!important;box-shadow:none!important;cursor:not-allowed;transform:none!important;border-color:transparent!important}
+.btn-icon{width:44px;height:44px;padding:0;border-radius:14px;background:var(--surface);border:1.5px solid var(--border);box-shadow:var(--shadow-clay);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .12s var(--ease-std)}
+.btn-icon:hover{border-color:var(--primary);color:var(--primary)}
+.btn-icon:active{box-shadow:var(--shadow-press);transform:scale(.94)}
+.state-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip-state{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;background:var(--surface-alt);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--r-pill)}
+.demo-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:26px 0 12px}
+.demo-label:first-child{margin-top:0}
+
+/* ===== NAV DEMO ===== */
+.chips{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.chip{flex-shrink:0;height:38px;padding:0 18px;border-radius:var(--r-pill);background:var(--surface-alt);border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:all .18s var(--ease-std)}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 6px 14px rgba(109,75,245,.3)}
+
+/* ===== FORMS ===== */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.field .inp{height:52px;border-radius:var(--r-md);background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;font-size:15px;color:var(--muted);transition:all .18s var(--ease-std);cursor:text}
+.field .inp:hover{border-color:#CFC6F2}
+.field .inp.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(109,75,245,.18);color:var(--text)}
+.field .inp.err{border-color:var(--error-bright);box-shadow:0 0 0 3px rgba(239,68,68,.15);color:var(--text)}
+.field .inp.ok{border-color:var(--success);box-shadow:0 0 0 3px rgba(34,197,94,.15);color:var(--text)}
+.field .help{font-size:12px;margin-top:6px;color:var(--muted);display:flex;gap:5px;align-items:center}
+.field .help.error{color:var(--error)}
+.field .help.ok{color:#15803D}
+.opt-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:4px}
+.opt{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:500;cursor:pointer;user-select:none}
+.cbx{width:24px;height:24px;border-radius:8px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-clay);box-shadow:inset 0 2px 0 rgba(255,255,255,.9)}
+.cbx svg{opacity:0;transform:scale(.3);transition:all .18s var(--ease-clay);stroke:#fff}
+.opt.on .cbx{background:var(--primary);border-color:var(--primary);box-shadow:0 4px 10px rgba(109,75,245,.35)}
+.opt.on .cbx svg{opacity:1;transform:scale(1)}
+.radio{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-std)}
+.radio i{width:10px;height:10px;border-radius:50%;background:var(--primary);transform:scale(0);transition:transform .18s var(--ease-clay)}
+.opt.on .radio{border-color:var(--primary)}
+.opt.on .radio i{transform:scale(1)}
+.toggle{width:52px;height:32px;border-radius:var(--r-pill);background:#D8D2EE;position:relative;cursor:pointer;transition:background .18s var(--ease-std);flex-shrink:0;border:none}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(23,18,43,.25), inset 0 1px 0 rgba(255,255,255,.9);transition:transform .18s var(--ease-clay)}
+.toggle.on{background:var(--primary)}
+.toggle.on::after{transform:translateX(20px)}
+.stepper{display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-pill);padding:5px;box-shadow:var(--shadow-clay)}
+.stepper button{width:44px;height:44px;border-radius:50%;border:none;background:var(--surface-alt);color:var(--primary);font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s var(--ease-std)}
+.stepper button:hover{background:var(--primary-soft)}
+.stepper button:active{transform:scale(.9);box-shadow:var(--shadow-press)}
+.stepper .val{min-width:56px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+
+/* ===== CARDS / OVERLAYS ===== */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+.mini-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:18px;box-shadow:var(--shadow-clay);transition:transform .12s var(--ease-std),box-shadow .12s var(--ease-std);cursor:pointer}
+.mini-card:active{transform:scale(.985);box-shadow:var(--shadow-press)}
+.mini-card h5{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px}
+.mini-card p{font-size:13.5px;color:var(--muted)}
+.tag-badge{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:11.5px;font-weight:700}
+.b-streak{background:#FEE2E2;color:#B91C1C}
+.b-done{background:#DCFCE7;color:#15803D}
+.b-level{background:#FEF3C7;color:#B45309}
+.b-info{background:#EDE9FE;color:#6D28D9}
+.tooltip-demo{position:relative;display:inline-block}
+.tooltip-demo .tip{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);background:#17122B;color:#F7F5FF;font-size:12.5px;font-weight:500;padding:8px 13px;border-radius:12px;width:max-content;max-width:240px;opacity:0;pointer-events:none;transition:all .18s var(--ease-std);box-shadow:0 10px 24px rgba(23,18,43,.3)}
+.tooltip-demo .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#17122B}
+.tooltip-demo:hover .tip,.tooltip-demo.show .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(24px);background:#17122B;color:#F7F5FF;border-radius:var(--r-md);padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:600;box-shadow:0 20px 48px rgba(23,18,43,.4);opacity:0;pointer-events:none;transition:all .3s var(--ease-std);z-index:60;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast .tico{width:26px;height:26px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sheet-backdrop{position:fixed;inset:0;background:rgba(18,16,28,.55);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease-std);z-index:70}
+.sheet-backdrop.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(110%);width:420px;max-width:100%;background:var(--surface);border-radius:24px 24px 0 0;padding:12px 24px 36px;transition:transform .32s var(--ease-std);z-index:80;box-shadow:0 -16px 40px rgba(23,18,43,.24)}
+.sheet.show{transform:translateX(-50%) translateY(0)}
+.handle{width:36px;height:4px;border-radius:var(--r-pill);background:#D8D2EE;margin:0 auto 18px}
+.sheet h4{font-family:'Sora',sans-serif;font-size:19px;margin-bottom:8px}
+.sheet p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.sheet .btn{width:100%;margin-bottom:10px}
+.spinner{width:28px;height:28px;border-radius:50%;border:3.5px solid var(--primary-soft);border-top-color:var(--primary);animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:34px 18px;background:var(--surface-alt);border-radius:var(--r-lg);border:1px dashed var(--border)}
+.empty .blob{width:84px;height:84px;margin:0 auto 14px;border-radius:42% 58% 55% 45%/48% 42% 58% 52%;background:linear-gradient(135deg,#C9BEFD,#2EC4B6);animation:blob 7s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:34px}
+@keyframes blob{50%{border-radius:56% 44% 42% 58%/52% 56% 44% 48%}}
+.empty b{font-family:'Sora',sans-serif;display:block;font-size:16px;margin-bottom:5px}
+.empty p{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.row-user{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 16px;min-height:64px;box-shadow:0 4px 12px rgba(23,18,43,.05)}
+.row-user .u-name{flex:1}
+.row-user .u-name b{display:block;font-size:15px;font-weight:600}
+.row-user .u-name span{font-size:13px;color:var(--muted)}
+.row-user .chev{color:#D8D2EE;font-size:20px}
+.avatar-sm{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;box-shadow:inset 0 2px 0 rgba(255,255,255,.45)}
+.av-1{background:linear-gradient(135deg,#6D4BF5,#8B70FF)}
+.av-2{background:linear-gradient(135deg,#2EC4B6,#6D4BF5)}
+.av-3{background:linear-gradient(135deg,#F59E0B,#FF6B6B)}
+.accent-demo{display:flex;gap:18px;flex-wrap:wrap}
+.accent-demo .sw{width:120px}
+.accent-demo .sw .color{height:64px;border-radius:14px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4), 0 6px 14px rgba(23,18,43,.12)}
+.foot{margin-top:72px;text-align:center;color:var(--muted);font-size:13px}
+@media (max-width:560px){
+  .hero h1{font-size:30px}
+  .type-row{flex-direction:column;gap:6px}
+  .type-row .tag{width:auto}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <span class="tag">Prototipo A · Estilo Principal</span>
+  <h1>Pulse Clay</h1>
+  <p>Claymorfismo lúdico para una app móvil de hábitos, metas y bienestar. Arcilla moldeada, tacto prensible y gamificación visible para jóvenes digitales.</p>
+</header>
+
+<section class="section">
+  <div class="section-head"><span class="num">01</span><h2>Vista previa en contexto</h2><span>Home · 375px</span></div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>▲ ▮ 100%</span></div>
+      <div class="phone-body">
+        <div class="app-top">
+          <div>
+            <div class="sub">Viernes, 9 de octubre</div>
+            <h3>Hola, Alex</h3>
+          </div>
+          <div class="avatar">AL<span class="dot"></span></div>
+        </div>
+
+        <div class="streak-card">
+          <div>
+            <div class="label">Racha actual</div>
+            <div class="value"><span id="streakNum">12</span> <small>días</small></div>
+          </div>
+          <div class="flame">🔥</div>
+        </div>
+
+        <div class="habits-title"><h4>Hoy</h4><a href="#">Ver todos</a></div>
+
+        <div class="habit" data-habit>
+          <div class="ico" style="background:#EDE9FE">🧘</div>
+          <div class="info"><b>Meditar 10 min</b><span>Bienestar · 7:00 AM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+        <div class="habit" data-habit>
+          <div class="ico" style="background:#DCFCE7">🏃</div>
+          <div class="info"><b>Correr 3 km</b><span>Meta · 6:30 PM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+        <div class="habit" data-habit>
+          <div class="ico" style="background:#FEF3C7">📚</div>
+          <div class="info"><b>Leer 20 páginas</b><span>Hábito · 9:00 PM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+
+        <div class="progress-block">
+          <div class="row"><span>Progreso del día</span><span id="progressLabel">0 / 3</span></div>
+          <div class="track"><div class="fill" id="dayFill"></div></div>
+        </div>
+
+        <div class="plus-one" id="plusOne">+1 🔥</div>
+
+        <button class="fab" id="fabBtn" aria-label="Nuevo hábito">+</button>
+
+        <nav class="tabbar">
+          <button class="tab active"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Inicio<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Plan<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></svg>Logros<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>Perfil<span class="ind"></span></button>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:13.5px;margin-top:16px">Interacción real: toca los hábitos para completarlos, las pestañas, el FAB o los chips.</p>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">02</span><h2>Paleta cromática</h2><span>Roles semánticos</span></div>
+  <div class="card">
+    <div class="swatches">
+      <div class="swatch"><div class="color" style="background:#6D4BF5"></div><div class="meta"><b>Primary</b><code>#6D4BF5</code><i>CTA, activo, foco</i></div></div>
+      <div class="swatch"><div class="color" style="background:#5B3AE0"></div><div class="meta"><b>Primary hover</b><code>#5B3AE0</code><i>hover de CTA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#4F32CC"></div><div class="meta"><b>Primary active</b><code>#4F32CC</code><i>press</i></div></div>
+      <div class="swatch"><div class="color" style="background:#2EC4B6"></div><div class="meta"><b>Secondary</b><code>#2EC4B6</code><i>bienestar, texto ink</i></div></div>
+      <div class="swatch"><div class="color" style="background:#FF6B6B"></div><div class="meta"><b>Accent racha</b><code>#FF6B6B</code><i>streaks, retos</i></div></div>
+      <div class="swatch"><div class="color" style="background:#F59E0B"></div><div class="meta"><b>Accent logro</b><code>#F59E0B</code><i>medallas</i></div></div>
+      <div class="swatch"><div class="color" style="background:#F7F5FF;border-bottom:1px solid #E4DFF3"></div><div class="meta"><b>Background</b><code>#F7F5FF</code><i>blanco lila</i></div></div>
+      <div class="swatch"><div class="color" style="background:#FFFFFF;border-bottom:1px solid #E4DFF3"></div><div class="meta"><b>Surface</b><code>#FFFFFF</code><i>cards, sheets</i></div></div>
+      <div class="swatch"><div class="color" style="background:#EFEBFF"></div><div class="meta"><b>Surface alt</b><code>#EFEBFF</code><i>skeletons, chips</i></div></div>
+      <div class="swatch"><div class="color" style="background:#17122B"></div><div class="meta"><b>Text</b><code>#17122B</code><i>16.8:1 AAA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#67617E"></div><div class="meta"><b>Text muted</b><code>#67617E</code><i>5.6:1 AA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#E4DFF3"></div><div class="meta"><b>Border</b><code>#E4DFF3</code><i>separadores</i></div></div>
+      <div class="swatch"><div class="color" style="background:#22C55E"></div><div class="meta"><b>Success</b><code>#22C55E</code><i>check, progreso</i></div></div>
+      <div class="swatch"><div class="color" style="background:#DC2626"></div><div class="meta"><b>Error</b><code>#DC2626</code><i>solido 4.99:1 AA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#C9BEFD"></div><div class="meta"><b>Disabled</b><code>#C9BEFD</code><i>texto #8B84A6</i></div></div>
+    </div>
+    <div class="dark-strip">
+      <h4>Modo oscuro sugerido</h4>
+      <p>Inversión de superficies manteniendo el violeta con variante clara.</p>
+      <div class="swatches">
+        <div class="swatch"><div class="color" style="background:#12101C"></div><div class="meta"><b>Dark bg</b><code>#12101C</code></div></div>
+        <div class="swatch"><div class="color" style="background:#1C1930"></div><div class="meta"><b>Dark surface</b><code>#1C1930</code></div></div>
+        <div class="swatch"><div class="color" style="background:#2E2947"></div><div class="meta"><b>Dark border</b><code>#2E2947</code></div></div>
+        <div class="swatch"><div class="color" style="background:#F2EFFF"></div><div class="meta"><b>Dark text</b><code>#F2EFFF</code></div></div>
+        <div class="swatch"><div class="color" style="background:#9B95B5"></div><div class="meta"><b>Dark muted</b><code>#9B95B5</code></div></div>
+        <div class="swatch"><div class="color" style="background:#8B78FF"></div><div class="meta"><b>Primary dark</b><code>#8B78FF</code></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">03</span><h2>Tipografía</h2><span>Sora · Plus Jakarta Sans · JetBrains Mono</span></div>
+  <div class="card">
+    <div class="type-row"><span class="tag">display 34/800</span><span class="t-d34">Constancia diaria</span></div>
+    <div class="type-row"><span class="tag">title 26/700</span><span class="t-d26">Tus metas de la semana</span></div>
+    <div class="type-row"><span class="tag">heading 20/700</span><span class="t-d20">Progreso de bienestar</span></div>
+    <div class="type-row"><span class="tag">body 16/400</span><span class="t-b16">Completa tus hábitos y mantén la racha viva cada día.</span></div>
+    <div class="type-row"><span class="tag">body-sm 14/500</span><span class="t-b14">Los recordatorios se envían a la hora que elijas.</span></div>
+    <div class="type-row"><span class="tag">label 12/600</span><span class="t-s12">Racha · Nivel · Serie</span></div>
+    <div class="type-row"><span class="tag">mono 20/700</span><span class="t-mono">128 días · 94% · 06:30</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">04</span><h2>Botones y acciones</h2><span>Estados completos</span></div>
+  <div class="card">
+    <div class="demo-label">Primario</div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Completar hábito</button>
+      <button class="btn btn-primary" disabled>Completar hábito</button>
+    </div>
+    <div class="state-legend"><span class="chip-state">default #6D4BF5</span><span class="chip-state">hover #5B3AE0</span><span class="chip-state">active #4F32CC + inset</span><span class="chip-state">disabled #C9BEFD</span></div>
+
+    <div class="demo-label">Secundario / Ghost / Peligro</div>
+    <div class="btn-row">
+      <button class="btn btn-sec">Ver progreso</button>
+      <button class="btn btn-ghost">Más tarde</button>
+      <button class="btn btn-danger">Eliminar meta</button>
+      <button class="btn-icon" aria-label="Compartir">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17122B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      </button>
+      <button class="btn-icon" aria-label="Favorito" style="color:var(--accent)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-9.5-9C.9 8.4 3 4.5 6.8 4.5c2 0 3.6 1.1 4.2 2.5h2c.6-1.4 2.2-2.5 4.2-2.5 3.8 0 5.9 3.9 4.3 7.5-2 4.3-9.5 9-9.5 9z"/></svg>
+      </button>
+    </div>
+    <div class="state-legend"><span class="chip-state">focus-visible: ring 3px rgba(109,75,245,.4)</span><span class="chip-state">press: scale .97</span><span class="chip-state">min-height 52px</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">05</span><h2>Navegación</h2><span>Bottom tabs · chips</span></div>
+  <div class="card">
+    <div class="demo-label">Chips-tabs (scroll horizontal)</div>
+    <div class="chips" id="chipRow">
+      <button class="chip active">Todos</button>
+      <button class="chip">Bienestar</button>
+      <button class="chip">Metas</button>
+      <button class="chip">Hábitos</button>
+      <button class="chip">Retos</button>
+    </div>
+    <div class="demo-label">Bottom tab bar</div>
+    <div style="background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--r-md);display:flex;justify-content:space-around;padding:12px 8px 8px;box-shadow:var(--shadow-clay)">
+      <button class="tab active" data-tabdemo><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Inicio<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Plan<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></svg>Logros<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>Perfil<span class="ind"></span></button>
+    </div>
+    <div class="state-legend"><span class="chip-state">activo: #6D4BF5 + indicador #EDE9FE</span><span class="chip-state">inactivo: #67617E</span><span class="chip-state">alto bar 64 + safe-area</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">06</span><h2>Entrada de datos</h2><span>Estados de validación</span></div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="field">
+        <label>Nombre del hábito</label>
+        <div class="inp focus">Meditar 10 minutos</div>
+        <div class="help">Se verá en tu pantalla de hoy.</div>
+      </div>
+      <div class="field">
+        <label>Correo</label>
+        <div class="inp err">alex@mail<span style="color:var(--error-bright)"></span></div>
+        <div class="help error">⚠ Introduce un correo válido.</div>
+      </div>
+      <div class="field">
+        <label>Objetivo semanal</label>
+        <div class="inp ok">5 entrenamientos</div>
+        <div class="help ok">✓ Perfecto para tu nivel.</div>
+      </div>
+      <div class="field">
+        <label>Selector (patrón nativo → sheet)</label>
+        <div class="inp" style="justify-content:space-between;cursor:pointer">Cada día <span style="color:var(--primary)">▾</span></div>
+      </div>
+    </div>
+
+    <div class="demo-label">Checkbox · Radio · Toggle</div>
+    <div class="opt-row">
+      <div class="opt on" data-check><span class="cbx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>Recordatorios</div>
+      <div class="opt" data-check><span class="cbx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>Modo privado</div>
+      <div class="opt on" data-radio><span class="radio"><i></i></span>Diario</div>
+      <div class="opt" data-radio><span class="radio"><i></i></span>Personalizado</div>
+      <div class="opt" style="gap:12px"><button class="toggle on" data-toggle></button>Notificaciones push</div>
+      <div class="opt" style="gap:12px"><button class="toggle" data-toggle></button>Modo bienestar</div>
+    </div>
+
+    <div class="demo-label">Stepper numérico (mono tabular)</div>
+    <div class="stepper">
+      <button data-step="-1">−</button>
+      <span class="val" id="stepVal">3</span>
+      <button data-step="1">+</button>
+    </div>
+    <span style="font-size:13px;color:var(--muted);margin-left:12px">veces por semana</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">07</span><h2>Contenedores y superposiciones</h2><span>Cards · sheet · tooltip</span></div>
+  <div class="comp-grid">
+    <div class="mini-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <span class="tag-badge b-streak">🔥 12 días</span>
+        <span class="tag-badge b-level">Nivel 4</span>
+      </div>
+      <h5>Card clay</h5>
+      <p>Radius 24, sombra dual con inner highlight. Presiona para ver el estado active.</p>
+    </div>
+    <div class="mini-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <span class="tag-badge b-done">✓ Completado</span>
+        <span class="tag-badge b-info">Meta</span>
+      </div>
+      <h5>Badges de estado</h5>
+      <p>Patrón tint + texto oscuro garantiza contraste AA en tamaños pequeños.</p>
+    </div>
+    <div class="mini-card">
+      <h5>Tooltip / bottom sheet</h5>
+      <p style="margin-bottom:14px">Pasa el cursor o toca el botón:</p>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span class="tooltip-demo" id="tipDemo">
+          <button class="btn-icon" aria-label="Información">?</button>
+          <span class="tip">Los hábitos se ordenan por hora programada.</span>
+        </span>
+        <button class="btn btn-sec" style="height:44px;font-size:14px" id="openSheet">Abrir sheet</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">08</span><h2>Feedback del sistema</h2><span>Toast · progress · empty</span></div>
+  <div class="comp-grid">
+    <div class="mini-card">
+      <h5>Toast</h5>
+      <p style="margin-bottom:14px">Elevado sobre la tab bar, auto-dismiss 4s.</p>
+      <button class="btn btn-primary" style="height:44px;font-size:14px" id="toastBtn">Disparar toast</button>
+    </div>
+    <div class="mini-card">
+      <h5>Progress bar</h5>
+      <div class="track" style="margin:14px 0 8px"><div class="fill" style="width:72%"></div></div>
+      <p><b style="font-family:'JetBrains Mono',monospace;color:var(--primary)">72%</b> · meta semanal completada</p>
+    </div>
+    <div class="mini-card" style="display:flex;align-items:center;gap:16px">
+      <span class="spinner"></span>
+      <div><h5>Spinner</h5><p>800ms lineal · anillo #6D4BF5</p></div>
+    </div>
+    <div class="empty">
+      <div class="blob">🌱</div>
+      <b>Sin hábitos aún</b>
+      <p>Crea tu primer hábito y empieza una racha hoy.</p>
+      <button class="btn btn-sec" style="height:44px;font-size:14px">Crear hábito</button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">09</span><h2>Elementos de usuario</h2><span>Avatares · listas</span></div>
+  <div class="comp-grid">
+    <div class="mini-card" style="display:flex;gap:14px;align-items:center">
+      <div class="avatar-sm av-1">AL</div>
+      <div class="avatar-sm av-2">MR</div>
+      <div class="avatar-sm av-3">JP</div>
+      <div style="font-size:13px;color:var(--muted)">Gradiente + fallback de iniciales</div>
+    </div>
+    <div class="row-user">
+      <div class="avatar-sm av-2" style="position:relative">MR<span style="position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:var(--success);border:2px solid #fff"></span></div>
+      <div class="u-name"><b>María Rodríguez</b><span>Nivel 7 · racha de 48 días</span></div>
+      <span class="chev">›</span>
+    </div>
+    <div class="row-user">
+      <div class="avatar-sm av-3">JP</div>
+      <div class="u-name"><b>Jorge Peña</b><span>Completó «Correr 5 km»</span></div>
+      <span class="tag-badge b-done">hace 2 h</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">10</span><h2>Movimiento</h2><span>Microinteracciones clay</span></div>
+  <div class="card">
+    <div class="type-row"><span class="tag">press 120ms</span><span class="t-b16" style="font-weight:600">scale(.97) + sombra inset profunda al presionar</span></div>
+    <div class="type-row"><span class="tag">toggle 180ms</span><span class="t-b16" style="font-weight:600">easing clay <code style="font-family:'JetBrains Mono',monospace;font-size:13px">cubic-bezier(.34,1.56,.64,1)</code></span></div>
+    <div class="type-row"><span class="tag">sheet 320ms</span><span class="t-b16" style="font-weight:600">entrada desde abajo con backdrop blur 4px</span></div>
+    <div class="type-row"><span class="tag">streak +1</span><span class="t-b16" style="font-weight:600">“+1 🔥” flotante al completar un hábito (pruébalo arriba)</span></div>
+    <div class="type-row"><span class="tag">accesibilidad</span><span class="t-b16" style="font-weight:600">respeta <code style="font-family:'JetBrains Mono',monospace;font-size:13px">prefers-reduced-motion</code></span></div>
+  </div>
+</section>
+
+<footer class="foot">Prototipo A — Pulse Clay · App de Hábitos · Móvil (iOS/Android) · Solo validación visual</footer>
+</div>
+
+<div class="toast" id="toast">
+  <span class="tico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
+  Hábito completado · +1 🔥 a tu racha
+</div>
+
+<div class="sheet-backdrop" id="sheetBd"></div>
+<div class="sheet" id="sheet">
+  <div class="handle"></div>
+  <h4>¿Eliminar «Correr 3 km»?</h4>
+  <p>Se borrarán 30 días de progreso y la racha asociada a esta meta.</p>
+  <button class="btn btn-danger" id="sheetDel">Eliminar definitivamente</button>
+  <button class="btn btn-sec" id="sheetCancel">Cancelar</button>
+</div>
+
+<script>
+const habits=document.querySelectorAll('[data-habit]');
+const fill=document.getElementById('dayFill');
+const label=document.getElementById('progressLabel');
+const streak=document.getElementById('streakNum');
+const plusOne=document.getElementById('plusOne');
+function updateProgress(){
+  const done=document.querySelectorAll('[data-habit].done').length;
+  label.textContent=done+' / 3';
+  fill.style.width=(done/3*100)+'%';
+}
+habits.forEach(h=>{
+  h.addEventListener('click',()=>{
+    h.classList.toggle('done');
+    if(h.classList.contains('done')){
+      streak.textContent=Number(streak.textContent)+1;
+      plusOne.style.top=(h.offsetTop+4)+'px';
+      plusOne.classList.remove('fly');void plusOne.offsetWidth;plusOne.classList.add('fly');
+      showToast();
+    }else{
+      streak.textContent=Number(streak.textContent)-1;
+    }
+    updateProgress();
+  });
+});
+document.querySelectorAll('.tabbar .tab,[data-tabdemo]').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const scope=t.closest('.tabbar')||t.parentElement;
+    scope.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+document.querySelectorAll('#chipRow .chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#chipRow .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+document.querySelectorAll('[data-check]').forEach(o=>o.addEventListener('click',()=>o.classList.toggle('on')));
+document.querySelectorAll('[data-radio]').forEach(o=>o.addEventListener('click',()=>{
+  document.querySelectorAll('[data-radio]').forEach(x=>x.classList.remove('on'));o.classList.add('on');
+}));
+document.querySelectorAll('[data-toggle]').forEach(o=>o.addEventListener('click',()=>o.classList.toggle('on')));
+const stepVal=document.getElementById('stepVal');
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+  let v=Number(stepVal.textContent)+Number(b.dataset.step);
+  v=Math.max(1,Math.min(7,v));stepVal.textContent=v;
+}));
+const toast=document.getElementById('toast');let toastTimer;
+function showToast(){toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),4000);}
+document.getElementById('toastBtn').addEventListener('click',showToast);
+toast.addEventListener('click',()=>toast.classList.remove('show'));
+const sheet=document.getElementById('sheet'),bd=document.getElementById('sheetBd');
+function openSheet(){sheet.classList.add('show');bd.classList.add('show');}
+function closeSheet(){sheet.classList.remove('show');bd.classList.remove('show');}
+document.getElementById('openSheet').addEventListener('click',openSheet);
+document.getElementById('fabBtn').addEventListener('click',openSheet);
+document.getElementById('sheetCancel').addEventListener('click',closeSheet);
+document.getElementById('sheetDel').addEventListener('click',()=>{closeSheet();showToast();});
+bd.addEventListener('click',closeSheet);
+const tipDemo=document.getElementById('tipDemo');
+tipDemo.addEventListener('click',()=>tipDemo.classList.toggle('show'));
+</script>
+</body>
+</html>

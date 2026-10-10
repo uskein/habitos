@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo B — Aurora Flow | Identidad Visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0F1A; --surface:rgba(255,255,255,.04); --surface-solid:#141A2B;
+  --elevated:#1B2338;
+  --primary:#8B7CFF; --primary-hover:#9D90FF; --primary-ink:#0B0F1A;
+  --secondary:#5EEAD4; --accent:#F472B6; --accent-alt:#FBBF24;
+  --text:#F1F5F9; --muted:#94A3B8;
+  --border:rgba(255,255,255,.08); --border-glow:rgba(139,124,255,.35);
+  --success:#34D399; --warning:#FBBF24; --error:#FB7185;
+  --grad:linear-gradient(135deg,#8B7CFF 0%,#5EEAD4 100%);
+  --r-sm:12px; --r-md:16px; --r-lg:20px; --r-xl:28px; --r-pill:999px;
+  --glass:0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07);
+  --glow:0 0 32px rgba(139,124,255,.25);
+  --ring:0 0 0 3px rgba(139,124,255,.45);
+  --ease-std:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.aurora{position:fixed;inset:0;z-index:-2;pointer-events:none;filter:blur(90px);opacity:.7}
+.aurora span{position:absolute;border-radius:50%;display:block}
+.a1{width:52vw;height:52vw;background:#8B7CFF;top:-14vw;left:-10vw;animation:drift1 26s ease-in-out infinite alternate}
+.a2{width:44vw;height:44vw;background:#5EEAD4;top:34vh;right:-12vw;animation:drift2 30s ease-in-out infinite alternate}
+.a3{width:38vw;height:38vw;background:#F472B6;bottom:-8vw;left:22vw;opacity:.75;animation:drift3 24s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(9vw,7vh) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-8vw,-6vh) scale(.9)}}
+@keyframes drift3{to{transform:translate(6vw,-8vh) scale(1.1)}}
+.noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.page{max-width:960px;margin:0 auto;padding:48px 24px 96px}
+.hero{text-align:center;padding:44px 0 52px}
+.hero .tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary);background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25);padding:6px 14px;border-radius:var(--r-pill)}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:1.05;margin:22px 0 14px;letter-spacing:-.02em;background:linear-gradient(100deg,#F1F5F9 30%,#8B7CFF 60%,#5EEAD4 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto;font-size:16px}
+.section{margin-top:68px}
+.section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px}
+.section-head .num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--primary);background:rgba(139,124,255,.12);border:1px solid var(--border-glow);padding:4px 10px;border-radius:var(--r-pill)}
+.section-head h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.01em}
+.section-head span{color:var(--muted);font-size:14px}
+.card{background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;box-shadow:var(--glass)}
+.grid{display:grid;gap:16px}
+
+.phone-wrap{display:flex;justify-content:center}
+.phone{
+  width:375px;max-width:100%;background:var(--bg);position:relative;
+  border-radius:var(--r-xl);overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 40px 90px rgba(0,0,0,.6), 0 0 0 1px rgba(139,124,255,.12), var(--glow);
+}
+.phone::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 85% 5%, rgba(139,124,255,.35), transparent 45%),
+  radial-gradient(circle at 10% 45%, rgba(94,234,212,.22), transparent 50%),
+  radial-gradient(circle at 60% 100%, rgba(244,114,182,.2), transparent 55%);pointer-events:none}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 6px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;position:relative;z-index:1}
+.phone-body{padding:8px 20px 96px;position:relative;z-index:1;min-height:560px}
+.app-top{display:flex;justify-content:space-between;align-items:center;margin:10px 0 20px}
+.app-top h3{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em}
+.app-top .sub{font-size:13px;color:var(--muted);font-weight:500}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:#0B0F1A;background:var(--grad);position:relative;box-shadow:0 0 18px rgba(94,234,212,.4)}
+.avatar .dot{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:var(--success);border:2px solid var(--bg)}
+.streak-card{border-radius:var(--r-lg);padding:18px 20px;position:relative;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(16px);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--glass)}
+.streak-card::after{content:"";position:absolute;right:-34px;top:-44px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(139,124,255,.55),transparent 70%);filter:blur(6px)}
+.streak-card .label{font-size:12px;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.1em}
+.streak-card .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;line-height:1.1;text-shadow:0 0 20px rgba(139,124,255,.6)}
+.streak-card .value small{font-size:14px;font-weight:500;color:var(--muted)}
+.flame{font-size:38px;position:relative;z-index:1}
+.habits-title{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}
+.habits-title h4{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px}
+.habits-title a{font-size:13px;font-weight:600;color:var(--secondary);text-decoration:none}
+.habit{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.045);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:10px;backdrop-filter:blur(12px);transition:transform .12s var(--ease-std),border-color .18s var(--ease-std);cursor:pointer;user-select:none}
+.habit:hover{border-color:var(--border-glow)}
+.habit:active{transform:scale(.985)}
+.habit .ico{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(139,124,255,.15);border:1px solid rgba(139,124,255,.25)}
+.habit .info{flex:1;min-width:0}
+.habit .info b{display:block;font-size:15px;font-weight:600}
+.habit .info span{font-size:12px;color:var(--muted);font-weight:500}
+.habit .check{width:28px;height:28px;border-radius:9px;border:2px solid rgba(255,255,255,.18);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-std);flex-shrink:0}
+.habit .check svg{opacity:0;transform:scale(.4);transition:all .18s var(--ease-std);stroke:#0B0F1A}
+.habit.done .check{background:var(--grad);border-color:transparent;box-shadow:0 0 16px rgba(94,234,212,.5)}
+.habit.done .check svg{opacity:1;transform:scale(1)}
+.habit.done .info b{text-decoration:line-through;color:var(--muted)}
+.plus-one{position:absolute;right:18px;top:10px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;color:var(--secondary);opacity:0;pointer-events:none;text-shadow:0 0 12px rgba(94,234,212,.8)}
+.plus-one.fly{animation:fly 1s var(--ease-std) forwards}
+@keyframes fly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-34px)}}
+.progress-block{margin-top:18px;background:rgba(255,255,255,.045);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;backdrop-filter:blur(12px)}
+.progress-block .row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px}
+.progress-block .row span:last-child{font-family:'JetBrains Mono',monospace;color:var(--secondary)}
+.track{height:10px;background:rgba(255,255,255,.09);border-radius:var(--r-pill);overflow:hidden}
+.fill{height:100%;width:0;background:var(--grad);border-radius:var(--r-pill);transition:width .5s var(--ease-std);box-shadow:0 0 14px rgba(139,124,255,.6)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(11,15,26,.82);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding-bottom:6px;z-index:2}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:var(--r-md);transition:color .18s var(--ease-std);background:none;border:none;font-family:inherit}
+.tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s var(--ease-std),filter .18s var(--ease-std)}
+.tab.active{color:var(--secondary)}
+.tab.active svg{transform:translateY(-2px) scale(1.06);filter:drop-shadow(0 0 8px rgba(94,234,212,.7))}
+.tab .ind{width:34px;height:4px;border-radius:var(--r-pill);background:transparent;transition:background .18s var(--ease-std)}
+.tab.active .ind{background:var(--secondary);box-shadow:0 0 8px rgba(94,234,212,.7)}
+.fab{position:absolute;right:20px;bottom:88px;width:56px;height:56px;border-radius:50%;background:var(--grad);color:#0B0F1A;border:none;font-size:26px;cursor:pointer;box-shadow:0 0 28px rgba(139,124,255,.55);transition:transform .12s var(--ease-std);display:flex;align-items:center;justify-content:center;z-index:3;font-weight:600}
+.fab:active{transform:scale(.94)}
+
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.swatch{border-radius:var(--r-md);overflow:hidden;background:var(--surface-solid);border:1px solid var(--border)}
+.swatch .color{height:74px;position:relative}
+.swatch .color::after{content:"";position:absolute;inset:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.swatch .meta{padding:10px 12px}
+.swatch .meta b{display:block;font-size:13px;font-weight:600}
+.swatch .meta code{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+.swatch .meta i{font-style:normal;font-size:11px;color:var(--secondary);font-weight:600}
+.light-strip{margin-top:22px;background:#F6F7FB;border-radius:var(--r-lg);padding:22px;color:#101828}
+.light-strip h4{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:4px}
+.light-strip p{font-size:13px;color:#667085;margin-bottom:16px}
+.light-strip .swatches .swatch{background:#fff;border-color:#E4E7EC}
+.light-strip .swatch .meta b{color:#101828}
+.light-strip .swatch .meta code{color:#667085}
+.light-strip .swatch .meta i{color:#6D5DF6}
+
+.type-row{display:flex;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.type-row:last-child{border-bottom:none}
+.type-row .tag{width:118px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:500}
+.t-d36{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:36px;letter-spacing:-.02em}
+.t-d28{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.01em}
+.t-d20{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+.t-b16{font-size:16px}
+.t-b14{font-size:14px;color:var(--muted)}
+.t-s12{font-size:12px;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.08em}
+.t-mono{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--secondary)}
+
+.btn-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.btn{font-family:'Inter',sans-serif;font-weight:600;font-size:16px;border-radius:var(--r-pill);padding:0 26px;height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;border:none;transition:transform .12s var(--ease-std),box-shadow .18s var(--ease-std),filter .18s var(--ease-std)}
+.btn-grad{background:var(--grad);color:var(--primary-ink);box-shadow:0 8px 28px rgba(139,124,255,.35)}
+.btn-grad:hover{filter:brightness(1.1);box-shadow:0 12px 36px rgba(139,124,255,.5);transform:translateY(-2px)}
+.btn-grad:active{transform:scale(.97);box-shadow:0 4px 16px rgba(139,124,255,.4)}
+.btn:focus-visible{outline:none;box-shadow:0 8px 28px rgba(139,124,255,.35),var(--ring)}
+.btn-sec{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px)}
+.btn-sec:hover{border-color:var(--border-glow);background:rgba(139,124,255,.1);transform:translateY(-2px)}
+.btn-sec:active{transform:scale(.97)}
+.btn-ghost{background:transparent;color:var(--secondary);box-shadow:none}
+.btn-ghost:hover{background:rgba(94,234,212,.1)}
+.btn-danger{background:rgba(251,113,133,.14);color:#FDA4AF;border:1px solid rgba(251,113,133,.35)}
+.btn-danger:hover{background:rgba(251,113,133,.22);transform:translateY(-2px)}
+.btn[disabled]{opacity:.4!important;cursor:not-allowed;transform:none!important;filter:none!important;box-shadow:none!important}
+.btn-icon{width:44px;height:44px;padding:0;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .12s var(--ease-std);color:var(--text)}
+.btn-icon:hover{border-color:var(--border-glow);box-shadow:var(--glow)}
+.btn-icon:active{transform:scale(.94)}
+.state-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip-state{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--r-pill)}
+.demo-label{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:26px 0 12px}
+.demo-label:first-child{margin-top:0}
+
+.chips{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.chip{flex-shrink:0;height:38px;padding:0 18px;border-radius:var(--r-pill);background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:all .18s var(--ease-std);backdrop-filter:blur(8px)}
+.chip.active{background:rgba(139,124,255,.18);color:#C7BFFF;border-color:var(--border-glow);box-shadow:0 0 18px rgba(139,124,255,.3)}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.field .inp{height:52px;border-radius:var(--r-md);background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:0 16px;gap:10px;font-size:15px;color:var(--muted);transition:all .18s var(--ease-std);cursor:text;backdrop-filter:blur(8px)}
+.field .inp:hover{border-color:rgba(255,255,255,.2)}
+.field .inp.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,124,255,.22),var(--glow);color:var(--text)}
+.field .inp.err{border-color:var(--error);box-shadow:0 0 0 3px rgba(251,113,133,.18);color:var(--text)}
+.field .inp.ok{border-color:var(--success);box-shadow:0 0 0 3px rgba(52,211,153,.18);color:var(--text)}
+.field .help{font-size:12px;margin-top:6px;color:var(--muted);display:flex;gap:5px;align-items:center}
+.field .help.error{color:#FDA4AF}
+.field .help.ok{color:#6EE7B7}
+.opt-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:4px}
+.opt{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:500;cursor:pointer;user-select:none}
+.cbx{width:24px;height:24px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-std)}
+.cbx svg{opacity:0;transform:scale(.3);transition:all .18s var(--ease-std);stroke:#0B0F1A}
+.opt.on .cbx{background:var(--grad);border-color:transparent;box-shadow:0 0 14px rgba(139,124,255,.5)}
+.opt.on .cbx svg{opacity:1;transform:scale(1)}
+.radio{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease-std)}
+.radio i{width:10px;height:10px;border-radius:50%;background:var(--secondary);transform:scale(0);transition:transform .18s var(--ease-std);box-shadow:0 0 8px rgba(94,234,212,.8)}
+.opt.on .radio{border-color:var(--secondary)}
+.opt.on .radio i{transform:scale(1)}
+.toggle{width:52px;height:32px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);position:relative;cursor:pointer;transition:background .18s var(--ease-std);flex-shrink:0;border:none}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.4);transition:transform .18s var(--ease-std)}
+.toggle.on{background:linear-gradient(135deg,#8B7CFF,#5EEAD4);box-shadow:0 0 16px rgba(139,124,255,.45)}
+.toggle.on::after{transform:translateX(20px)}
+.stepper{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-pill);padding:5px;backdrop-filter:blur(8px)}
+.stepper button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--secondary);font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s var(--ease-std)}
+.stepper button:hover{background:rgba(94,234,212,.12);border-color:rgba(94,234,212,.4)}
+.stepper button:active{transform:scale(.9)}
+.stepper .val{min-width:56px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+.mini-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;backdrop-filter:blur(16px);box-shadow:var(--glass);transition:transform .12s var(--ease-std),border-color .18s var(--ease-std),box-shadow .18s var(--ease-std);cursor:pointer}
+.mini-card:hover{border-color:var(--border-glow);box-shadow:var(--glass),var(--glow);transform:translateY(-3px)}
+.mini-card h5{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px}
+.mini-card p{font-size:13.5px;color:var(--muted)}
+.tag-badge{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:11.5px;font-weight:600;backdrop-filter:blur(8px)}
+.b-streak{background:rgba(251,113,133,.15);color:#FDA4AF;border:1px solid rgba(251,113,133,.3)}
+.b-done{background:rgba(52,211,153,.14);color:#6EE7B7;border:1px solid rgba(52,211,153,.3)}
+.b-level{background:rgba(251,191,36,.14);color:#FCD34D;border:1px solid rgba(251,191,36,.3)}
+.b-info{background:rgba(139,124,255,.16);color:#C4B5FD;border:1px solid rgba(139,124,255,.35)}
+.tooltip-demo{position:relative;display:inline-block}
+.tooltip-demo .tip{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);background:#1B2338;color:var(--text);border:1px solid var(--border-glow);font-size:12.5px;font-weight:500;padding:8px 13px;border-radius:12px;width:max-content;max-width:240px;opacity:0;pointer-events:none;transition:all .18s var(--ease-std);box-shadow:var(--glow)}
+.tooltip-demo .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1B2338}
+.tooltip-demo:hover .tip,.tooltip-demo.show .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(24px);background:#1B2338;border:1px solid var(--border-glow);color:var(--text);border-radius:var(--r-md);padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:600;box-shadow:0 20px 48px rgba(0,0,0,.6),var(--glow);opacity:0;pointer-events:none;transition:all .3s var(--ease-std);z-index:60;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast .tico{width:26px;height:26px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sheet-backdrop{position:fixed;inset:0;background:rgba(4,6,12,.66);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease-std);z-index:70}
+.sheet-backdrop.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(110%);width:420px;max-width:100%;background:#141A2B;border:1px solid var(--border);border-bottom:none;border-radius:24px 24px 0 0;padding:12px 24px 36px;transition:transform .32s var(--ease-std);z-index:80;box-shadow:0 -16px 48px rgba(0,0,0,.6),0 -4px 40px rgba(139,124,255,.15)}
+.sheet.show{transform:translateX(-50%) translateY(0)}
+.handle{width:36px;height:4px;border-radius:var(--r-pill);background:rgba(255,255,255,.2);margin:0 auto 18px}
+.sheet h4{font-family:'Space Grotesk',sans-serif;font-size:19px;margin-bottom:8px}
+.sheet p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.sheet .btn{width:100%;margin-bottom:10px}
+.spinner{width:28px;height:28px;border-radius:50%;border:3.5px solid rgba(255,255,255,.1);border-top-color:var(--secondary);animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:34px 18px;background:var(--surface);border-radius:var(--r-lg);border:1px dashed var(--border-glow);backdrop-filter:blur(12px)}
+.empty .blob{width:84px;height:84px;margin:0 auto 14px;border-radius:42% 58% 55% 45%/48% 42% 58% 52%;background:var(--grad);animation:blob 7s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 34px rgba(139,124,255,.5)}
+@keyframes blob{50%{border-radius:56% 44% 42% 58%/52% 56% 44% 48%}}
+.empty b{font-family:'Space Grotesk',sans-serif;display:block;font-size:16px;margin-bottom:5px}
+.empty p{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.row-user{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 16px;min-height:64px;backdrop-filter:blur(16px);box-shadow:var(--glass)}
+.row-user .u-name{flex:1}
+.row-user .u-name b{display:block;font-size:15px;font-weight:600}
+.row-user .u-name span{font-size:13px;color:var(--muted)}
+.row-user .chev{color:rgba(255,255,255,.25);font-size:20px}
+.avatar-sm{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;color:#0B0F1A;font-size:14px}
+.av-1{background:linear-gradient(135deg,#8B7CFF,#5EEAD4);box-shadow:0 0 16px rgba(139,124,255,.45)}
+.av-2{background:linear-gradient(135deg,#5EEAD4,#F472B6);box-shadow:0 0 16px rgba(94,234,212,.4)}
+.av-3{background:linear-gradient(135deg,#FBBF24,#F472B6);box-shadow:0 0 16px rgba(244,114,182,.4)}
+.foot{margin-top:72px;text-align:center;color:var(--muted);font-size:13px}
+@media (max-width:560px){
+  .hero h1{font-size:32px}
+  .type-row{flex-direction:column;gap:6px}
+  .type-row .tag{width:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .aurora span{animation:none}
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div class="noise"></div>
+
+<div class="page">
+
+<header class="hero">
+  <span class="tag">Prototipo B · Estilo Complementario</span>
+  <h1>Aurora Flow</h1>
+  <p>Malla de degradados en movimiento sobre fondo profundo. Componentes etéreos de vidrio para una app de hábitos, metas y bienestar: calma contemplativa con energía premium.</p>
+</header>
+
+<section class="section">
+  <div class="section-head"><span class="num">01</span><h2>Vista previa en contexto</h2><span>Home · 375px</span></div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-status"><span>9:41</span><span>▲ ▮ 100%</span></div>
+      <div class="phone-body">
+        <div class="app-top">
+          <div>
+            <div class="sub">Viernes, 9 de octubre</div>
+            <h3>Hola, Alex</h3>
+          </div>
+          <div class="avatar">AL<span class="dot"></span></div>
+        </div>
+
+        <div class="streak-card">
+          <div>
+            <div class="label">Racha actual</div>
+            <div class="value"><span id="streakNum">12</span> <small>días</small></div>
+          </div>
+          <div class="flame">🔥</div>
+        </div>
+
+        <div class="habits-title"><h4>Hoy</h4><a href="#">Ver todos</a></div>
+
+        <div class="habit" data-habit>
+          <div class="ico">🧘</div>
+          <div class="info"><b>Meditar 10 min</b><span>Bienestar · 7:00 AM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+        <div class="habit" data-habit>
+          <div class="ico" style="background:rgba(94,234,212,.12);border-color:rgba(94,234,212,.3)">🏃</div>
+          <div class="info"><b>Correr 3 km</b><span>Meta · 6:30 PM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+        <div class="habit" data-habit>
+          <div class="ico" style="background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)">📚</div>
+          <div class="info"><b>Leer 20 páginas</b><span>Hábito · 9:00 PM</span></div>
+          <div class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        </div>
+
+        <div class="progress-block">
+          <div class="row"><span>Progreso del día</span><span id="progressLabel">0 / 3</span></div>
+          <div class="track"><div class="fill" id="dayFill"></div></div>
+        </div>
+
+        <div class="plus-one" id="plusOne">+1 🔥</div>
+
+        <button class="fab" id="fabBtn" aria-label="Nuevo hábito">+</button>
+
+        <nav class="tabbar">
+          <button class="tab active"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Inicio<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Plan<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></svg>Logros<span class="ind"></span></button>
+          <button class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>Perfil<span class="ind"></span></button>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:13.5px;margin-top:16px">Interacción real: toca los hábitos para completarlos, las pestañas, el FAB o los chips. El fondo aurora anima en toda la página.</p>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">02</span><h2>Paleta cromática</h2><span>Roles semánticos</span></div>
+  <div class="card">
+    <div class="swatches">
+      <div class="swatch"><div class="color" style="background:#8B7CFF"></div><div class="meta"><b>Primary</b><code>#8B7CFF</code><i>CTA base, foco</i></div></div>
+      <div class="swatch"><div class="color" style="background:linear-gradient(135deg,#8B7CFF,#5EEAD4)"></div><div class="meta"><b>Gradient CTA</b><code>#8B7CFF→#5EEAD4</code><i>texto ink #0B0F1A (5.9:1 AA)</i></div></div>
+      <div class="swatch"><div class="color" style="background:#9D90FF"></div><div class="meta"><b>Primary hover</b><code>#9D90FF</code><i>hover de CTA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#5EEAD4"></div><div class="meta"><b>Secondary</b><code>#5EEAD4</code><i>progreso, bienestar</i></div></div>
+      <div class="swatch"><div class="color" style="background:#F472B6"></div><div class="meta"><b>Accent</b><code>#F472B6</code><i>retos, emoción</i></div></div>
+      <div class="swatch"><div class="color" style="background:#FBBF24"></div><div class="meta"><b>Accent logro</b><code>#FBBF24</code><i>medallas</i></div></div>
+      <div class="swatch"><div class="color" style="background:#0B0F1A;border-bottom:1px solid rgba(255,255,255,.1)"></div><div class="meta"><b>Bg base</b><code>#0B0F1A</code><i>fondo noche</i></div></div>
+      <div class="swatch"><div class="color" style="background:#141A2B"></div><div class="meta"><b>Surface</b><code>#141A2B</code><i>cards sólidas</i></div></div>
+      <div class="swatch"><div class="color" style="background:#1B2338"></div><div class="meta"><b>Elevated</b><code>#1B2338</code><i>modales, sheets</i></div></div>
+      <div class="swatch"><div class="color" style="background:#F1F5F9"></div><div class="meta"><b>Text</b><code>#F1F5F9</code><i>17:1 AAA</i></div></div>
+      <div class="swatch"><div class="color" style="background:#94A3B8"></div><div class="meta"><b>Text muted</b><code>#94A3B8</code><i>6.7:1 AA</i></div></div>
+      <div class="swatch"><div class="color" style="background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04))"></div><div class="meta"><b>Border</b><code>rgba(255,255,255,.08)</code><i>foco: glow violeta</i></div></div>
+      <div class="swatch"><div class="color" style="background:#34D399"></div><div class="meta"><b>Success</b><code>#34D399</code><i>check, progreso</i></div></div>
+      <div class="swatch"><div class="color" style="background:#FB7185"></div><div class="meta"><b>Error</b><code>#FB7185</code><i>destructivo</i></div></div>
+      <div class="swatch"><div class="color" style="background:rgba(255,255,255,.05)"></div><div class="meta"><b>Surface glass</b><code>rgba(255,255,255,.04)</code><i>+ blur 16</i></div></div>
+    </div>
+    <div class="light-strip">
+      <h4>Modo claro opcional</h4>
+      <p>La aurora se reduce a acentos; superficies neutras y texto oscuro.</p>
+      <div class="swatches">
+        <div class="swatch"><div class="color" style="background:#F6F7FB"></div><div class="meta"><b>Light bg</b><code>#F6F7FB</code></div></div>
+        <div class="swatch"><div class="color" style="background:#FFFFFF"></div><div class="meta"><b>Light surface</b><code>#FFFFFF</code></div></div>
+        <div class="swatch"><div class="color" style="background:#101828"></div><div class="meta"><b>Light text</b><code>#101828</code></div></div>
+        <div class="swatch"><div class="color" style="background:#667085"></div><div class="meta"><b>Light muted</b><code>#667085</code></div></div>
+        <div class="swatch"><div class="color" style="background:#6D5DF6"></div><div class="meta"><b>Primary light</b><code>#6D5DF6</code></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">03</span><h2>Tipografía</h2><span>Space Grotesk · Inter · JetBrains Mono</span></div>
+  <div class="card">
+    <div class="type-row"><span class="tag">display 36/700</span><span class="t-d36">Constancia diaria</span></div>
+    <div class="type-row"><span class="tag">title 28/700</span><span class="t-d28">Tus metas de la semana</span></div>
+    <div class="type-row"><span class="tag">heading 20/700</span><span class="t-d20">Progreso de bienestar</span></div>
+    <div class="type-row"><span class="tag">body 16/400</span><span class="t-b16">Completa tus hábitos y mantén la racha viva cada día.</span></div>
+    <div class="type-row"><span class="tag">body-sm 14/500</span><span class="t-b14">Los recordatorios se envían a la hora que elijas.</span></div>
+    <div class="type-row"><span class="tag">label 12/600</span><span class="t-s12">Racha · Nivel · Serie</span></div>
+    <div class="type-row"><span class="tag">mono 20/700</span><span class="t-mono">128 días · 94% · 06:30</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">04</span><h2>Botones y acciones</h2><span>Estados completos</span></div>
+  <div class="card">
+    <div class="demo-label">Primario (gradiente + ink oscuro)</div>
+    <div class="btn-row">
+      <button class="btn btn-grad">Completar hábito</button>
+      <button class="btn btn-grad" disabled>Completar hábito</button>
+    </div>
+    <div class="state-legend"><span class="chip-state">default grad #8B7CFF→#5EEAD4</span><span class="chip-state">hover: brightness 1.1 + glow</span><span class="chip-state">active: scale .97</span><span class="chip-state">disabled: opacity .4</span></div>
+
+    <div class="demo-label">Secundario / Ghost / Peligro</div>
+    <div class="btn-row">
+      <button class="btn btn-sec">Ver progreso</button>
+      <button class="btn btn-ghost">Más tarde</button>
+      <button class="btn btn-danger">Eliminar meta</button>
+      <button class="btn-icon" aria-label="Compartir">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      </button>
+      <button class="btn-icon" aria-label="Favorito" style="color:var(--accent)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-9.5-9C.9 8.4 3 4.5 6.8 4.5c2 0 3.6 1.1 4.2 2.5h2c.6-1.4 2.2-2.5 4.2-2.5 3.8 0 5.9 3.9 4.3 7.5-2 4.3-9.5 9-9.5 9z"/></svg>
+      </button>
+    </div>
+    <div class="state-legend"><span class="chip-state">focus: ring 3px rgba(139,124,255,.45)</span><span class="chip-state">glass secundario: blur 12</span><span class="chip-state">min-height 52px</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">05</span><h2>Navegación</h2><span>Bottom tabs · chips</span></div>
+  <div class="card">
+    <div class="demo-label">Chips-tabs (scroll horizontal)</div>
+    <div class="chips" id="chipRow">
+      <button class="chip active">Todos</button>
+      <button class="chip">Bienestar</button>
+      <button class="chip">Metas</button>
+      <button class="chip">Hábitos</button>
+      <button class="chip">Retos</button>
+    </div>
+    <div class="demo-label">Bottom tab bar (glass oscuro)</div>
+    <div style="background:rgba(11,15,26,.82);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:var(--r-md);display:flex;justify-content:space-around;padding:12px 8px 8px">
+      <button class="tab active" data-tabdemo><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Inicio<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Plan<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></svg>Logros<span class="ind"></span></button>
+      <button class="tab" data-tabdemo><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>Perfil<span class="ind"></span></button>
+    </div>
+    <div class="state-legend"><span class="chip-state">activo: #5EEAD4 + glow</span><span class="chip-state">inactivo: #94A3B8</span><span class="chip-state">alto bar 64 + safe-area</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">06</span><h2>Entrada de datos</h2><span>Estados de validación</span></div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="field">
+        <label>Nombre del hábito</label>
+        <div class="inp focus">Meditar 10 minutos</div>
+        <div class="help">Se verá en tu pantalla de hoy.</div>
+      </div>
+      <div class="field">
+        <label>Correo</label>
+        <div class="inp err">alex@mail</div>
+        <div class="help error">⚠ Introduce un correo válido.</div>
+      </div>
+      <div class="field">
+        <label>Objetivo semanal</label>
+        <div class="inp ok">5 entrenamientos</div>
+        <div class="help ok">✓ Perfecto para tu nivel.</div>
+      </div>
+      <div class="field">
+        <label>Selector (patrón nativo → sheet)</label>
+        <div class="inp" style="justify-content:space-between;cursor:pointer">Cada día <span style="color:var(--secondary)">▾</span></div>
+      </div>
+    </div>
+
+    <div class="demo-label">Checkbox · Radio · Toggle</div>
+    <div class="opt-row">
+      <div class="opt on" data-check><span class="cbx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>Recordatorios</div>
+      <div class="opt" data-check><span class="cbx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>Modo privado</div>
+      <div class="opt on" data-radio><span class="radio"><i></i></span>Diario</div>
+      <div class="opt" data-radio><span class="radio"><i></i></span>Personalizado</div>
+      <div class="opt" style="gap:12px"><button class="toggle on" data-toggle></button>Notificaciones push</div>
+      <div class="opt" style="gap:12px"><button class="toggle" data-toggle></button>Modo bienestar</div>
+    </div>
+
+    <div class="demo-label">Stepper numérico (mono tabular)</div>
+    <div class="stepper">
+      <button data-step="-1">−</button>
+      <span class="val" id="stepVal">3</span>
+      <button data-step="1">+</button>
+    </div>
+    <span style="font-size:13px;color:var(--muted);margin-left:12px">veces por semana</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">07</span><h2>Contenedores y superposiciones</h2><span>Glass · sheet · tooltip</span></div>
+  <div class="comp-grid">
+    <div class="mini-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <span class="tag-badge b-streak">🔥 12 días</span>
+        <span class="tag-badge b-level">Nivel 4</span>
+      </div>
+      <h5>Card glass</h5>
+      <p>blur 16, borde 1px, glow violeta al hacer hover. Púlsala.</p>
+    </div>
+    <div class="mini-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <span class="tag-badge b-done">✓ Completado</span>
+        <span class="tag-badge b-info">Meta</span>
+      </div>
+      <h5>Badges luminosos</h5>
+      <p>Tinte 15% + texto claro sobre oscuro → AA garantizado (mín. 6:1).</p>
+    </div>
+    <div class="mini-card">
+      <h5>Tooltip / bottom sheet</h5>
+      <p style="margin-bottom:14px">Pasa el cursor o toca el botón:</p>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span class="tooltip-demo" id="tipDemo">
+          <button class="btn-icon" aria-label="Información">?</button>
+          <span class="tip">Los hábitos se ordenan por hora programada.</span>
+        </span>
+        <button class="btn btn-sec" style="height:44px;font-size:14px" id="openSheet">Abrir sheet</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">08</span><h2>Feedback del sistema</h2><span>Toast · progress · empty</span></div>
+  <div class="comp-grid">
+    <div class="mini-card">
+      <h5>Toast</h5>
+      <p style="margin-bottom:14px">Borde glow, auto-dismiss 4s.</p>
+      <button class="btn btn-grad" style="height:44px;font-size:14px" id="toastBtn">Disparar toast</button>
+    </div>
+    <div class="mini-card">
+      <h5>Progress bar</h5>
+      <div class="track" style="margin:14px 0 8px"><div class="fill" style="width:72%"></div></div>
+      <p><b style="font-family:'JetBrains Mono',monospace;color:var(--secondary)">72%</b> · meta semanal completada</p>
+    </div>
+    <div class="mini-card" style="display:flex;align-items:center;gap:16px">
+      <span class="spinner"></span>
+      <div><h5>Spinner</h5><p>800ms lineal · aro #5EEAD4</p></div>
+    </div>
+    <div class="empty">
+      <div class="blob">🌱</div>
+      <b>Sin hábitos aún</b>
+      <p>Crea tu primer hábito y empieza una racha hoy.</p>
+      <button class="btn btn-sec" style="height:44px;font-size:14px">Crear hábito</button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">09</span><h2>Elementos de usuario</h2><span>Avatares · listas</span></div>
+  <div class="comp-grid">
+    <div class="mini-card" style="display:flex;gap:14px;align-items:center">
+      <div class="avatar-sm av-1">AL</div>
+      <div class="avatar-sm av-2">MR</div>
+      <div class="avatar-sm av-3">JP</div>
+      <div style="font-size:13px;color:var(--muted)">Gradiente aurora + iniciales</div>
+    </div>
+    <div class="row-user">
+      <div class="avatar-sm av-2" style="position:relative">MR<span style="position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:var(--success);border:2px solid #141A2B"></span></div>
+      <div class="u-name"><b>María Rodríguez</b><span>Nivel 7 · racha de 48 días</span></div>
+      <span class="chev">›</span>
+    </div>
+    <div class="row-user">
+      <div class="avatar-sm av-3">JP</div>
+      <div class="u-name"><b>Jorge Peña</b><span>Completó «Correr 5 km»</span></div>
+      <span class="tag-badge b-done">hace 2 h</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><span class="num">10</span><h2>Movimiento</h2><span>Curvas y microinteracciones</span></div>
+  <div class="card">
+    <div class="type-row"><span class="tag">base 240ms</span><span class="t-b16" style="font-weight:600">easing <code style="font-family:'JetBrains Mono',monospace;font-size:13px">cubic-bezier(.22,1,.36,1)</code> (salidas suaves)</span></div>
+    <div class="type-row"><span class="tag">aurora 24–30s</span><span class="t-b16" style="font-weight:600">deriva lenta de los blobs de malla (limitada a motion preferido)</span></div>
+    <div class="type-row"><span class="tag">glow 180ms</span><span class="t-b16" style="font-weight:600">apagado/encendido de bordes luminosos en foco y activo</span></div>
+    <div class="type-row"><span class="tag">streak +1</span><span class="t-b16" style="font-weight:600">“+1 🔥” flotante con text-glow al completar (pruébalo arriba)</span></div>
+    <div class="type-row"><span class="tag">accesibilidad</span><span class="t-b16" style="font-weight:600"><code style="font-family:'JetBrains Mono',monospace;font-size:13px">prefers-reduced-motion</code> detiene aurora y transiciones</span></div>
+  </div>
+</section>
+
+<footer class="foot">Prototipo B — Aurora Flow · App de Hábitos · Móvil (iOS/Android) · Solo validación visual</footer>
+</div>
+
+<div class="toast" id="toast">
+  <span class="tico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B0F1A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
+  Hábito completado · +1 🔥 a tu racha
+</div>
+
+<div class="sheet-backdrop" id="sheetBd"></div>
+<div class="sheet" id="sheet">
+  <div class="handle"></div>
+  <h4>¿Eliminar «Correr 3 km»?</h4>
+  <p>Se borrarán 30 días de progreso y la racha asociada a esta meta.</p>
+  <button class="btn btn-danger" id="sheetDel">Eliminar definitivamente</button>
+  <button class="btn btn-sec" id="sheetCancel">Cancelar</button>
+</div>
+
+<script>
+const habits=document.querySelectorAll('[data-habit]');
+const fill=document.getElementById('dayFill');
+const label=document.getElementById('progressLabel');
+const streak=document.getElementById('streakNum');
+const plusOne=document.getElementById('plusOne');
+function updateProgress(){
+  const done=document.querySelectorAll('[data-habit].done').length;
+  label.textContent=done+' / 3';
+  fill.style.width=(done/3*100)+'%';
+}
+habits.forEach(h=>{
+  h.addEventListener('click',()=>{
+    h.classList.toggle('done');
+    if(h.classList.contains('done')){
+      streak.textContent=Number(streak.textContent)+1;
+      plusOne.style.top=(h.offsetTop+4)+'px';
+      plusOne.classList.remove('fly');void plusOne.offsetWidth;plusOne.classList.add('fly');
+      showToast();
+    }else{
+      streak.textContent=Number(streak.textContent)-1;
+    }
+    updateProgress();
+  });
+});
+document.querySelectorAll('.tabbar .tab,[data-tabdemo]').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const scope=t.closest('.tabbar')||t.parentElement;
+    scope.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+document.querySelectorAll('#chipRow .chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#chipRow .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+document.querySelectorAll('[data-check]').forEach(o=>o.addEventListener('click',()=>o.classList.toggle('on')));
+document.querySelectorAll('[data-radio]').forEach(o=>o.addEventListener('click',()=>{
+  document.querySelectorAll('[data-radio]').forEach(x=>x.classList.remove('on'));o.classList.add('on');
+}));
+document.querySelectorAll('[data-toggle]').forEach(o=>o.addEventListener('click',()=>o.classList.toggle('on')));
+const stepVal=document.getElementById('stepVal');
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+  let v=Number(stepVal.textContent)+Number(b.dataset.step);
+  v=Math.max(1,Math.min(7,v));stepVal.textContent=v;
+}));
+const toast=document.getElementById('toast');let toastTimer;
+function showToast(){toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),4000);}
+document.getElementById('toastBtn').addEventListener('click',showToast);
+toast.addEventListener('click',()=>toast.classList.remove('show'));
+const sheet=document.getElementById('sheet'),bd=document.getElementById('sheetBd');
+function openSheet(){sheet.classList.add('show');bd.classList.add('show');}
+function closeSheet(){sheet.classList.remove('show');bd.classList.remove('show');}
+document.getElementById('openSheet').addEventListener('click',openSheet);
+document.getElementById('fabBtn').addEventListener('click',openSheet);
+document.getElementById('sheetCancel').addEventListener('click',closeSheet);
+document.getElementById('sheetDel').addEventListener('click',()=>{closeSheet();showToast();});
+bd.addEventListener('click',closeSheet);
+const tipDemo=document.getElementById('tipDemo');
+tipDemo.addEventListener('click',()=>tipDemo.classList.toggle('show'));
+</script>
+</body>
+</html>

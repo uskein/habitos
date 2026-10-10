@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprints de Pantallas — App Hábitos · Pulse Clay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-hover:#5B3AE0; --primary-soft:#EDE9FE;
+  --secondary:#2EC4B6; --secondary-soft:#D7F5F1;
+  --streak:#FF6B6B; --award:#F59E0B;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --warning:#F59E0B; --error:#DC2626;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95);
+  --ease-std:cubic-bezier(.2,.8,.2,1); --ease-clay:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.4;pointer-events:none;z-index:-1}
+.b1{width:460px;height:460px;background:#C9BEFD;top:-140px;left:-120px;animation:f1 18s ease-in-out infinite alternate}
+.b2{width:380px;height:380px;background:#A8ECE5;bottom:5%;right:-140px;animation:f2 21s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate(50px,40px) scale(1.08)}}
+@keyframes f2{to{transform:translate(-40px,-30px) scale(.94)}}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px 110px}
+.hero{text-align:center;padding:64px 0 10px}
+.kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(30px,5.5vw,48px);letter-spacing:-.02em;margin:22px 0 12px}
+.hero h1 .o{color:var(--primary)}
+.hero p{color:var(--muted);max-width:640px;margin:0 auto}
+.hero .meta{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hero .meta span{font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-pill);color:var(--muted);box-shadow:var(--shadow-clay)}
+
+.selector{position:sticky;top:0;z-index:60;background:rgba(247,245,255,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);margin:44px -24px 0;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.spill{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;border:2px solid var(--border);background:var(--surface);color:var(--muted);padding:9px 18px;border-radius:var(--r-pill);cursor:pointer;transition:all .2s var(--ease-std)}
+.spill:hover{transform:translateY(-2px)}
+.spill.on{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(109,75,245,.35)}
+
+.stage{display:grid;grid-template-columns:400px 1fr;gap:32px;margin-top:34px;align-items:start}
+@media (max-width:920px){.stage{grid-template-columns:1fr}.phone-col{order:-1}}
+
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:16px}
+.statebar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip{font-size:12px;font-weight:700;border:2px solid var(--border);background:var(--surface);color:var(--muted);padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .18s var(--ease-std)}
+.chip:hover{transform:translateY(-2px)}
+.chip.on{border-color:var(--primary);background:var(--primary-soft);color:var(--primary)}
+.phone{width:360px;height:720px;background:#17122B;border-radius:44px;padding:10px;box-shadow:0 30px 60px rgba(23,18,43,.28),inset 0 0 0 2px #2a2440;position:relative;flex-shrink:0}
+.screen{width:100%;height:100%;background:var(--bg);border-radius:36px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#17122B;border-radius:var(--r-pill);z-index:30}
+.sbar{display:flex;justify-content:space-between;padding:14px 24px 6px;font-size:12px;font-weight:700;color:var(--text)}
+.sbar .mono{font-family:'JetBrains Mono',monospace}
+.p-body{flex:1;overflow:hidden;padding:10px 18px 8px;position:relative}
+.p-tabbar{height:64px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:stretch;padding-bottom:6px}
+.p-tabbar .tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.p-tabbar .tb .ic{font-size:19px;line-height:1}
+.p-tabbar .tb.on{color:var(--primary)}
+.p-tabbar .tb.on .ic{transform:translateY(-2px)}
+.p-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.p-top h2{font-family:'Sora',sans-serif;font-size:21px;font-weight:800}
+.p-top .sub{font-size:12px;color:var(--muted);font-weight:600}
+.p-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FFD1D1,#5EEAD4);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;box-shadow:inset 0 2px 0 rgba(255,255,255,.6),0 4px 10px rgba(23,18,43,.15)}
+.clay{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:16px}
+.streakcard{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.streakcard .flame{font-size:30px}
+.streakcard .n{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text)}
+.streakcard .lb{font-size:11.5px;color:var(--muted);font-weight:600}
+.streakcard .lvl{margin-left:auto;font-size:11px;font-weight:700;background:var(--primary-soft);color:var(--primary);padding:5px 12px;border-radius:var(--r-pill)}
+.p-prog{margin-bottom:14px}
+.p-prog .row{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:6px}
+.p-prog .row span:last-child{font-family:'JetBrains Mono',monospace;color:var(--primary)}
+.track{height:10px;background:#DDD5FB;border-radius:var(--r-pill);overflow:hidden}
+.track i{display:block;height:100%;background:linear-gradient(90deg,#6D4BF5,#8B70FF);border-radius:var(--r-pill);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.hcard{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-clay);padding:12px 14px;margin-bottom:10px;cursor:pointer}
+.hcard .ic{width:42px;height:42px;border-radius:14px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.hcard .t{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;display:block}
+.hcard .s{font-size:11.5px;color:var(--muted);font-weight:600}
+.hcard .ck{width:32px;height:32px;border-radius:50%;border:2.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;background:var(--surface)}
+.hcard .ck.on{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 4px 10px rgba(109,75,245,.45)}
+.hcard .ck svg{opacity:0}.hcard .ck.on svg{opacity:1}
+.fab{position:absolute;right:18px;bottom:80px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6D4BF5,#8B70FF);color:#fff;font-size:28px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(109,75,245,.5),inset 0 2px 0 rgba(255,255,255,.35);z-index:20}
+.fab:active{transform:scale(.94)}
+.skel{background:var(--surface-alt);border-radius:var(--r-md);position:relative;overflow:hidden}
+.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:shim 1.3s infinite}
+@keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.skel-card{height:66px;margin-bottom:10px}
+.skel-streak{height:72px;margin-bottom:12px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 18px}
+.empty .blobm{width:84px;height:76px;background:linear-gradient(135deg,#C9BEFD,#A8ECE5);border-radius:42% 58% 55% 45%/48% 42% 58% 52%;margin-bottom:16px;box-shadow:inset 0 3px 0 rgba(255,255,255,.6)}
+.empty h3{font-family:'Sora',sans-serif;font-size:17px;margin-bottom:6px}
+.empty p{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.btn-p{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:var(--r-pill);background:var(--primary);color:#fff;font-weight:700;font-size:14px;box-shadow:0 6px 14px rgba(109,75,245,.4),inset 0 2px 0 rgba(255,255,255,.25)}
+.btn-s{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 22px;border-radius:var(--r-pill);background:var(--surface);border:1.5px solid var(--border);color:var(--text);font-weight:700;font-size:13.5px}
+.errbanner{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--r-md);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.errbanner .x{font-size:16px}
+.errbanner b{display:block;font-size:12.5px;color:#B91C1C}
+.errbanner span{font-size:11.5px;color:#7F1D1D}
+.errbanner button{margin-top:8px;font-size:11.5px;font-weight:700;background:#fff;border:1.5px solid #FECACA;border-radius:var(--r-pill);padding:6px 14px;cursor:pointer;color:#B91C1C;font-family:inherit}
+.toast{position:absolute;left:18px;right:18px;bottom:84px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-clay-hover);padding:12px 14px;display:flex;gap:10px;align-items:center;z-index:25;font-size:12.5px;font-weight:600}
+.toast .dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast.ok .dot{background:#DCFCE7;color:#15803D}
+.toast.er .dot{background:#FEE2E2;color:#B91C1C}
+.chipsrow{display:flex;gap:8px;margin-bottom:14px}
+.chipsrow .c{font-size:12px;font-weight:700;padding:8px 16px;border-radius:var(--r-pill);background:var(--surface);border:1.5px solid var(--border);color:var(--muted)}
+.chipsrow .c.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.goalcard{margin-bottom:10px}
+.goalcard .gt{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px}
+.goalcard .gt em{font-style:normal;font-family:'JetBrains Mono',monospace;color:var(--primary)}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.medal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-clay);padding:12px 8px;text-align:center}
+.medal .em{font-size:26px;display:block;margin-bottom:4px}
+.medal .mn{font-size:10.5px;font-weight:700}
+.medal .ms{font-size:9.5px;color:var(--muted);font-weight:600}
+.medal.locked{opacity:.5;filter:grayscale(1)}
+.calstrip{display:flex;gap:6px;justify-content:space-between;margin-top:12px}
+.calstrip i{width:30px;height:30px;border-radius:9px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:10px;font-style:normal;font-weight:700;color:var(--muted)}
+.calstrip i.on{background:var(--primary);color:#fff}
+.p-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-clay);padding:13px 14px;margin-bottom:9px;font-size:13.5px;font-weight:600}
+.p-row .ic{font-size:17px}
+.p-row .chev{margin-left:auto;color:var(--muted)}
+.tgl{margin-left:auto;width:46px;height:28px;border-radius:var(--r-pill);background:var(--primary);position:relative}
+.tgl::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.tgl.off{background:#D6D0EA}
+.tgl.off::after{right:auto;left:3px}
+.dim{position:absolute;inset:0;background:rgba(23,18,43,.5);z-index:40;display:flex;align-items:flex-end}
+.sheet{width:100%;background:var(--surface);border-radius:28px 28px 0 0;padding:12px 20px 26px;box-shadow:0 -12px 40px rgba(23,18,43,.25);z-index:45}
+.handle{width:36px;height:4px;border-radius:var(--r-pill);background:var(--border);margin:0 auto 14px}
+.sheet h3{font-family:'Sora',sans-serif;font-size:19px;margin-bottom:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.field .inp{height:52px;border-radius:var(--r-md);background:var(--surface-alt);border:2px solid var(--border);display:flex;align-items:center;padding:0 16px;font-size:14px;font-weight:600;color:var(--text)}
+.field .inp.focus{border-color:var(--primary);background:#F3EFFF;box-shadow:0 0 0 4px rgba(109,75,245,.15)}
+.field .inp.err{border-color:var(--error);background:#FEF2F2}
+.field .inp.ph{color:var(--muted);font-weight:500}
+.field .help{font-size:11px;color:var(--muted);margin-top:5px;font-weight:600}
+.field .help.er{color:var(--error)}
+.cats{display:flex;gap:7px}
+.cats .cat{font-size:11.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);border:1.5px solid var(--border);background:var(--surface)}
+.cats .cat.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.emos{display:flex;gap:8px;justify-content:space-between;margin-bottom:6px}
+.emos .e{width:52px;height:52px;border-radius:18px;background:var(--surface-alt);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px}
+.emos .e.on{border-color:var(--primary);background:var(--primary-soft);transform:scale(1.08)}
+.ctr{display:flex;align-items:center;justify-content:center;gap:16px}
+.ctr .btn-sq{width:44px;height:44px;border-radius:14px;background:var(--surface-alt);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.ctr .val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;min-width:40px;text-align:center}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.pinrow{display:flex;gap:12px;justify-content:center;margin:26px 0 18px}
+.pinrow i{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:var(--surface)}
+.pinrow i.f{background:var(--primary);border-color:var(--primary);box-shadow:0 0 0 4px rgba(109,75,245,.2)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.keypad button{height:56px;border-radius:var(--r-md);background:var(--surface);border:1.5px solid var(--border);box-shadow:var(--shadow-clay);font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.celebrate{text-align:center;padding-top:40px}
+.celebrate .big{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#FDE68A,#F59E0B);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:inset 0 4px 0 rgba(255,255,255,.5),0 16px 36px rgba(245,158,11,.45);animation:pop .6s var(--ease-clay)}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.celebrate h3{font-family:'Sora',sans-serif;font-size:21px;margin-bottom:6px}
+.celebrate p{font-size:13px;color:var(--muted);margin-bottom:22px}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;opacity:.9}
+
+.meta-col{display:flex;flex-direction:column;gap:18px}
+.mcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:22px 24px}
+.mcard h3{font-family:'Sora',sans-serif;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mcard p{font-size:14px;color:var(--muted)}
+.mcard .tags{display:flex;flex-wrap:wrap;gap:8px}
+.mcard .tag{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-pill);padding:5px 12px;color:var(--primary)}
+.mcard .tag.ds{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--primary-soft);border-color:transparent}
+.mcard ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.mcard li{font-size:13.5px;display:flex;gap:9px;align-items:flex-start}
+.mcard li b{color:var(--text)}
+.mcard li span{color:var(--muted)}
+.mcard .li-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.ld-load{background:var(--warning)}.ld-empty{background:var(--secondary)}.ld-succ{background:var(--success)}.ld-err{background:var(--error)}
+footer{margin-top:90px;text-align:center;color:var(--muted);font-size:13px;padding-top:36px;border-top:1px solid var(--border)}
+footer b{color:var(--text)}
+@media (max-width:420px){.phone{width:100%;max-width:360px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div>
+
+<div class="wrap">
+<header class="hero">
+  <span class="kicker">Paso 4 · Producto y Flujos</span>
+  <h1>Blueprints de <span class="o">Pantallas</span></h1>
+  <p>Ocho pantallas clave renderizadas con sus cuatro estados reales. Cada blueprint cita los componentes del Design System y los contratos de datos que lo sostienen.</p>
+  <div class="meta">
+    <span>📱 8 pantallas</span>
+    <span>🎨 32 estados renderizados</span>
+    <span>✅ Loading · Empty · Success · Error</span>
+  </div>
+</header>
+
+<nav class="selector" id="selector"></nav>
+
+<div class="stage">
+  <div class="phone-col">
+    <div class="statebar" id="statebar"></div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen" id="screen"></div>
+    </div>
+  </div>
+  <div class="meta-col">
+    <div class="mcard"><h3>🎯 Propósito</h3><p id="mPurpose"></p></div>
+    <div class="mcard"><h3>🧩 Composición (Design System)</h3><div class="tags" id="mComps"></div></div>
+    <div class="mcard"><h3>🗄 Datos y contratos</h3><div class="tags" id="mData"></div></div>
+    <div class="mcard"><h3>📐 Estados y reglas</h3><ul id="mStates"></ul></div>
+  </div>
+</div>
+
+<footer>
+  <p><b>Blueprints de Pantallas — App Hábitos</b> · Paso 4 de Producto y Flujos · Pulse Clay v1.0</p>
+  <p style="margin-top:6px">Trazabilidad: componentes y curvas del <code>manual-identidad-visual.md</code> · repositorios de <code>CONTRATOS_API.md</code> · estados cubiertos 100%</p>
+</footer>
+</div>
+
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>
+const sbar=`<div class="sbar"><span class="mono">9:41</span><span>▮▮▮ ⚡</span></div>`;
+const tabbar=(on)=>`<div class="p-tabbar">
+<div class="tb ${on==='hoy'?'on':''}"><span class="ic">🏠</span>Hoy</div>
+<div class="tb ${on==='plan'?'on':''}"><span class="ic">📋</span>Plan</div>
+<div class="tb ${on==='logros'?'on':''}"><span class="ic">🏆</span>Logros</div>
+<div class="tb ${on==='perfil'?'on':''}"><span class="ic">👤</span>Perfil</div></div>`;
+const check=(on)=>`<div class="ck ${on?'on':''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>`;
+const ckHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="3.6" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>`;
+const habit=(ic,t,s,on)=>`<div class="hcard"><div class="ic">${ic}</div><div><span class="t">${t}</span><span class="s">${s}</span></div><div class="ck ${on?'on':''}">${on?ckHTML:''}</div></div>`;
+
+const SCREENS={
+hoy:{name:'Hoy',icon:'🏠',purpose:'Pantalla raíz tras desbloquear. Responde en <3 s: racha, progreso del día y lista de hábitos con check de un toque. Es el 80 % del uso de la app.',comps:['Top App Bar','StreakCard','Progress','HabitCard','FAB','Skeleton','EmptyState','Toast','Bottom Tab Bar'],data:['HabitRepository.listByDate()','HABIT_LOG','HABIT_STREAK_CACHE','STREAK_CACHE','toggleLog()'],
+states:{
+loading:{label:'Loading',html:sbar+`<div class="p-body"><div class="skel skel-streak"></div><div class="skel" style="height:10px;margin-bottom:14px"></div><div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div>`+tabbar('hoy'),rules:[['ld-load','Loading','3 <code>Skeleton</code> con shimmer — jamás pantalla en blanco.'],['ld-load','Sin FAB durante carga','Evitar escrituras antes de leer la fecha actual.']]},
+empty:{label:'Empty',html:sbar+`<div class="p-body"><div class="empty"><div class="blobm"></div><h3>Tu día empieza aquí</h3><p>Crea tu primer hábito y construye tu racha.</p><span class="btn-s">Crear hábito</span></div></div>`+tabbar('hoy'),rules:[['ld-empty','0 hábitos','<code>EmptyState</code> con blob y CTA secundario «Crear hábito».'],['ld-empty','StreakCard oculta','No se muestra racha sin hábitos activos.']]},
+success:{label:'Success',html:sbar+`<div class="p-body"><div class="p-top"><div><h2>Hola, Alex 👋</h2><span class="sub">Martes, 7 de octubre</span></div><div class="p-av">AL</div></div><div class="clay streakcard"><span class="flame">🔥</span><div><span class="n">12</span> <span class="lb">días de racha</span></div><span class="lvl">Nivel 4</span></div><div class="p-prog"><div class="row"><span>Progreso del día</span><span>2/4</span></div><div class="track"><i style="width:50%"></i></div></div>${habit('💪','Ejercicio','20 min · mañana',true)}${habit('📖','Leer','10 páginas · noche',true)}${habit('💧','Beber agua','2 litros · todo el día',false)}${habit('🧘','Meditar','10 min · mañana',false)}</div><div class="fab">+</div>`+tabbar('hoy'),rules:[['ld-succ','Check táctil','<code>toggleLog</code> → pop ease-clay + «+1 🔥» + toast.'],['ld-succ','Datos O(1)','Racha y progreso leídos de cachés SQLite, nunca recálculo en UI.']]},
+error:{label:'Error',html:sbar+`<div class="p-body"><div class="errbanner"><span class="x">⚠️</span><div><b>No se pudo leer la base local</b><span>El archivo de la BD no responde. Tus datos no se han perdido.</span><br><button>Reintentar</button></div></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div><div class="toast er"><span class="dot">✕</span>SQLite error — toca para reintentar</div>`+tabbar('hoy'),rules:[['ld-err','No se navega','Permanecer en Hoy con <code>Toast</code> de error y retry in-situ (R9).'],['ld-err','Rollback','Si falla un <code>toggleLog</code>, se revierte la transacción completa.']]}}},
+
+plan:{name:'Plan',icon:'📋',purpose:'Vista de organización: hábitos no archivados y metas con barras de progreso. Aquí se planifica, no se ejecuta el día a día.',comps:['Chips-tabs','Card clay','Progress','FAB','Skeleton','EmptyState','Toast'],data:['HABIT (is_archived=false)','GOAL','HabitRepository.list()','GoalRepository.list()'],
+states:{
+loading:{label:'Loading',html:sbar+`<div class="p-body"><div class="chipsrow"><span class="c on">Hábitos</span><span class="c">Metas</span></div><div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div>`+tabbar('plan'),rules:[['ld-load','Chips fijos','Los chips-tabs no dependen de datos; se pintan ya.']]},
+empty:{label:'Empty',html:sbar+`<div class="p-body"><div class="chipsrow"><span class="c on">Hábitos</span><span class="c">Metas</span></div><div class="empty"><div class="blobm"></div><h3>Planifica tu camino</h3><p>Los hábitos y metas que crees aparecerán aquí.</p><span class="btn-p">Nuevo hábito</span></div></div>`+tabbar('plan'),rules:[['ld-empty','CTA crea hábito','La tab Plan abre <code>new-habit</code> por defecto en estado vacío.']]},
+success:{label:'Success',html:sbar+`<div class="p-body"><div class="p-top"><h2>Plan</h2></div><div class="chipsrow"><span class="c">Hábitos</span><span class="c on">Metas</span></div><div class="clay goalcard"><div class="gt"><span>📚 Leer 12 libros</span><em>5/12</em></div><div class="track"><i style="width:42%"></i></div></div><div class="clay goalcard"><div class="gt"><span>🏃 Correr 100 km</span><em>42/100</em></div><div class="track"><i style="width:42%"></i></div></div><div class="clay goalcard"><div class="gt"><span>🧘 30 días seguidos</span><em>12/30</em></div><div class="track"><i style="width:40%"></i></div></div></div><div class="fab">+</div>`+tabbar('plan'),rules:[['ld-succ','Chips cambian filtro','Sin navegación: mismo árbol, distinto repositorio.'],['ld-succ','Meta completada','<code>current ≥ target</code> → badge «Completada» y fill 100 %.']]},
+error:{label:'Error',html:sbar+`<div class="p-body"><div class="errbanner"><span class="x">⚠️</span><div><b>Error al cargar el plan</b><span>No se pudieron leer GOAL y HABIT.</span><br><button>Reintentar</button></div></div><div class="skel skel-card"></div></div>`+tabbar('plan'),rules:[['ld-err','Retry in-situ','Toast + banner; nunca se empuja ruta de error.']]}}},
+
+logros:{name:'Logros',icon:'🏆',purpose:'Vitrina de constancia: racha máxima, nivel, calendario del mes y medallas desbloqueadas vs bloqueadas.',comps:['StreakCard','Badge tint','Card clay','Progress','Skeleton','EmptyState'],data:['ACHIEVEMENT','ACHIEVEMENT_UNLOCK','AchievementRepository','STREAK_CACHE'],
+states:{
+loading:{label:'Loading',html:sbar+`<div class="p-body"><div class="skel skel-streak"></div><div class="skel" style="height:90px;margin-bottom:10px"></div><div class="skel" style="height:120px"></div></div>`+tabbar('logros'),rules:[['ld-load','Grid estable','La vitrina usa layout fijo para evitar saltos (CLS=0).']]},
+empty:{label:'Empty',html:sbar+`<div class="p-body"><div class="empty"><div class="blobm"></div><h3>Tu vitrina está vacía</h3><p>Completa tu primer día de hábitos para empezar a ganar medallas.</p></div></div>`+tabbar('logros'),rules:[['ld-empty','Sin medallas','Medalla placeholder bloqueada + copy motivacional.']]},
+success:{label:'Success',html:sbar+`<div class="p-body"><div class="clay streakcard"><span class="flame">🔥</span><div><span class="n">12</span> <span class="lb">racha actual · máx. 12</span></div><span class="lvl">Nivel 4</span></div><div class="badges"><div class="medal"><span class="em">🌱</span><span class="mn">Primer día</span><span class="ms">Desbloqueada</span></div><div class="medal"><span class="em">⚡</span><span class="mn">7 días</span><span class="ms">Desbloqueada</span></div><div class="medal"><span class="em">🔥</span><span class="mn">10 días</span><span class="ms">Desbloqueada</span></div><div class="medal locked"><span class="em">🏔</span><span class="mn">30 días</span><span class="ms">12/30</span></div><div class="medal locked"><span class="em">💎</span><span class="mn">100 días</span><span class="ms">12/100</span></div><div class="medal locked"><span class="em">🎯</span><span class="mn">Meta x3</span><span class="ms">0/3</span></div></div><div class="calstrip"><i class="on">1</i><i class="on">2</i><i class="on">3</i><i class="on">4</i><i class="on">5</i><i>6</i><i class="on">7</i><i class="on">8</i><i class="on">9</i><i class="on">10</i></div></div>`+tabbar('logros'),rules:[['ld-succ','Unlock idempotente','<code>UNIQUE</code> impide duplicar <code>ACHIEVEMENT_UNLOCK</code>.'],['ld-succ','Progreso de medalla','Locked muestran fracción mono (12/30).']]},
+error:{label:'Error',html:sbar+`<div class="p-body"><div class="errbanner"><span class="x">⚠️</span><div><b>No se pudieron cargar los logros</b><span>Error leyendo ACHIEVEMENT_UNLOCK.</span><br><button>Reintentar</button></div></div></div>`+tabbar('logros'),rules:[['ld-err','Datos parciales','Si falla la vitrina pero la racha está en caché, se muestra la racha.']]}}},
+
+perfil:{name:'Perfil',icon:'👤',purpose:'Identidad local y ajustes: seguridad (PIN/biometría), datos (export/import/limpiar), notificaciones y bloqueo manual.',comps:['Avatar gradiente','row-user','Toggle','Botón secundario','Botón peligro','Toast'],data:['USER_PROFILE','AuthRepository','MMKV','SecureStore','expo-sqlite'],
+states:{
+loading:{label:'Loading',html:sbar+`<div class="p-body"><div class="skel" style="height:88px;margin-bottom:14px"></div><div class="skel" style="height:54px;margin-bottom:9px"></div><div class="skel" style="height:54px;margin-bottom:9px"></div><div class="skel" style="height:54px"></div></div>`+tabbar('perfil'),rules:[['ld-load','Perfil rápido','La query de perfil es local y O(1); el skeleton cubre el primer frame.']]},
+empty:{label:'Empty',html:sbar+`<div class="p-body"><div class="empty"><div class="blobm"></div><h3>Perfil sin nombre</h3><p>Completa tu nombre y avatar para personalizar la app.</p><span class="btn-s">Completar perfil</span></div></div>`+tabbar('perfil'),rules:[['ld-empty','Falta USER_PROFILE','Estado defensivo: el onboarding siempre lo crea, pero la app es resiliente.']]},
+success:{label:'Success',html:sbar+`<div class="p-body"><div class="p-top"><div><h2>Perfil</h2><span class="sub">Datos 100 % en tu dispositivo</span></div><div class="p-av">AL</div></div><div class="p-row"><span class="ic">🔐</span> Seguridad · PIN activo <span class="chev">›</span></div><div class="p-row"><span class="ic">💾</span> Datos y respaldo <span class="chev">›</span></div><div class="p-row"><span class="ic">🔔</span> Notificaciones <span class="tgl"></span></div><div class="p-row"><span class="ic">🧘</span> Reduce movimiento <span class="tgl off"></span></div><div style="margin-top:16px"><span class="btn-s" style="width:100%">🔒 Bloquear ahora</span></div></div>`+tabbar('perfil'),rules:[['ld-succ','Bloquear ahora','Abre <code>lock</code> inmediatamente (misma ruta que AppState).'],['ld-succ','Exportar JSON','En Datos y respaldo: archivo cifrado vía share sheet.']]},
+error:{label:'Error',html:sbar+`<div class="p-body"><div class="errbanner"><span class="x">⚠️</span><div><b>Error de seguridad</b><span>No se pudo leer SecureStore. El PIN podría no funcionar.</span><br><button>Reintentar</button></div></div><div class="p-row"><span class="ic">🔐</span> Seguridad <span class="chev">›</span></div></div>`+tabbar('perfil'),rules:[['ld-err','Degradación','Los ajustes no críticos siguen usables; solo la sección afectada muestra el error.']]}}},
+
+lock:{name:'Lock',icon:'🔒',purpose:'Overlay global ante AppState→background. Exige PIN de 6 dígitos o biometría para volver a la app. Nunca muestra datos detrás.',comps:['ClayInput numérico','Avatar','Toast error','Botón ghost'],data:['AuthRepository.unlockWithPin()','unlockWithBiometrics()','SecureStore (scrypt)','RATE_LIMITED'],
+states:{
+loading:{label:'Verificando',html:sbar+`<div class="p-body" style="display:flex;flex-direction:column;align-items:center;padding-top:60px"><div class="p-av" style="width:64px;height:64px;font-size:22px">AL</div><h3 style="font-family:Sora;font-size:19px;margin-top:14px">Hola, Alex</h3><p style="font-size:12.5px;color:var(--muted)">Verificando biometría…</p><div class="pinrow"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div><span class="btn-p" style="opacity:.6"><span class="spinner"></span>Validando…</span></div>`,rules:[['ld-load','Biometría en curso','Botón deshabilitado + spinner white.'],['ld-load','Sin fallback','El usuario no puede tocar el teclado durante validación.']]},
+empty:{label:'Idle',html:sbar+`<div class="p-body" style="display:flex;flex-direction:column;align-items:center;padding-top:50px"><div class="p-av" style="width:64px;height:64px;font-size:22px">AL</div><h3 style="font-family:Sora;font-size:19px;margin-top:14px">App bloqueada</h3><p style="font-size:12.5px;color:var(--muted)">Introduce tu PIN de 6 dígitos</p><div class="pinrow"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button>${n}</button>`).join('')}<button style="opacity:.4">␣</button><button>0</button><button style="opacity:.4">⌫</button></div><p style="margin-top:14px;font-size:12.5px;font-weight:700;color:var(--primary)">☺ Usar biometría</p></div>`,rules:[['ld-empty','Teclado clay','Teclas 56px con <code>shadow-clay</code> y mono.'],['ld-empty','Biometría secundaria','CTA ghost bajo el teclado.']]},
+success:{label:'Desbloqueando',html:sbar+`<div class="p-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:30px"><div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#6D4BF5,#8B70FF);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 36px rgba(109,75,245,.5)"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div><h3 style="font-family:Sora;font-size:20px;margin-top:20px">¡Bienvenido de vuelta!</h3><p style="font-size:13px;color:var(--muted)">Abriendo Hoy…</p></div>`,rules:[['ld-succ','Transición ease-clay','320 ms de check pop → tab Hoy ya renderizada debajo.'],['ld-succ','PIN correcto','Comparación de hash scrypt en SecureStore; nada viaja por red.']]},
+error:{label:'Error',html:sbar+`<div class="p-body" style="display:flex;flex-direction:column;align-items:center;padding-top:50px"><div class="p-av" style="width:64px;height:64px;font-size:22px">AL</div><h3 style="font-family:Sora;font-size:19px;margin-top:14px">PIN incorrecto</h3><p style="font-size:12.5px;color:var(--error);font-weight:700">Quedan 2 intentos</p><div class="pinrow" style="animation:shake .4s"><i class="f" style="background:var(--error);border-color:var(--error)"></i><i class="f" style="background:var(--error);border-color:var(--error)"></i><i class="f" style="background:var(--error);border-color:var(--error)"></i><i class="f" style="background:var(--error);border-color:var(--error)"></i><i class="f"></i><i></i></div><div class="toast er" style="position:static;width:90%"><span class="dot">✕</span>Verifica tu PIN e inténtalo otra vez</div><div class="keypad" style="margin-top:14px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button>${n}</button>`).join('')}<button style="opacity:.4">␣</button><button>0</button><button style="opacity:.4">⌫</button></div></div>`,rules:[['ld-err','Shake + toast','Shake 400 ms + <code>Toast</code> error; contador de intentos visible.'],['ld-err','5 fallos → RATE_LIMITED','Backoff exponencial; el teclado se deshabilita con cuenta regresiva.']]}}},
+
+newhabit:{name:'Nuevo hábito',icon:'✨',purpose:'Bottom sheet de creación. Meta del producto: del FAB al hábito guardado en ≤60 s y ≤3 toques tras el formulario.',comps:['Bottom Sheet + handle','ClayInput','Chips-tabs (categoría)','Stepper','Botón primario','Toast'],data:['CreateHabitInput (Zod)','HabitRepository.create()','HABIT + HABIT_SCHEDULE','OUTBOX (sync_status)'],
+states:{
+loading:{label:'Guardando',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>Nuevo hábito</h3><div class="field"><label>Nombre</label><div class="inp focus">Correr 20 min</div></div><div class="field"><label>Categoría</label><div class="cats"><span class="cat on">💪 Bienestar</span><span class="cat">🎯 Meta</span><span class="cat">🔄 Hábito</span></div></div><span class="btn-p" style="width:100%;opacity:.7"><span class="spinner"></span>Guardando…</span></div></div>`,rules:[['ld-load','Sheet persistente','El sheet no se cierra hasta confirmar la escritura.'],['ld-load','Inputs deshabilitados','Evita doble submit; <code>create()</code> escribe HABIT+SCHEDULE+OUTBOX.']]},
+empty:{label:'Formulario',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>Nuevo hábito</h3><div class="field"><label>Nombre</label><div class="inp ph">Ej. Beber 2 litros de agua</div><div class="help">Máx. 40 caracteres</div></div><div class="field"><label>Categoría</label><div class="cats"><span class="cat on">💪 Bienestar</span><span class="cat">🎯 Meta</span><span class="cat">🔄 Hábito</span></div></div><div class="field"><label>Frecuencia</label><div class="cats"><span class="cat on">Todos los días</span><span class="cat">Personalizada</span></div></div><span class="btn-p" style="width:100%;background:var(--primary-disabled);color:#8B84A6;box-shadow:none">Crear hábito</span></div></div>`,rules:[['ld-empty','CTA disabled','Sin nombre: botón <code>#C9BEFD</code> deshabilitado (HU-4).'],['ld-empty','Placeholder real','Copy de ejemplo, nunca lorem.']]},
+success:{label:'Creado',html:`<div class="p-body">${sbar}<div class="p-top"><h2>Hoy</h2></div>${habit('💧','Beber agua','2 litros · todo el día',false)}${habit('💪','Ejercicio','20 min · mañana',true)}</div><div class="toast ok"><span class="dot">✓</span>«Beber agua» creado — ¡a por la racha!</div>`,rules:[['ld-succ','Sheet cerrado','Slide-down 320 ms ease-std + toast success 4 s.'],['ld-succ','Aparece al instante','<code>create()</code> devuelve la fila y TanStack invalida <code>listByDate</code>.']]},
+error:{label:'Error validación',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>Nuevo hábito</h3><div class="field"><label>Nombre</label><div class="inp err"></div><div class="help er">El nombre es obligatorio</div></div><div class="field"><label>Categoría</label><div class="cats"><span class="cat on">💪 Bienestar</span><span class="cat">🎯 Meta</span><span class="cat">🔄 Hábito</span></div></div><span class="btn-p" style="width:100%;background:var(--primary-disabled);color:#8B84A6;box-shadow:none">Crear hábito</span></div></div>`,rules:[['ld-err','Zod en cliente','<code>VALIDATION_ERROR</code> antes de tocar la BD; input a rojo + helper.'],['ld-err','Fallo de BD','Si <code>create()</code> lanza, toast «No se pudo guardar» y el sheet queda abierto con los datos.']]}}},
+
+checkin:{name:'Check-in',icon:'🧘',purpose:'Sheet de bienestar: ánimo y energía del día en dos toques. Máximo una entrada por calendario con upsert.',comps:['Bottom Sheet','Emojis clay 1–5','Stepper/estrellas','Botón primario','Toast'],data:['WellbeingRepository.upsertEntry()','WELL_ENTRY (UNIQUE entry_date)','OUTBOX'],
+states:{
+loading:{label:'Guardando',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>¿Cómo amaneciste?</h3><div class="field"><label>Ánimo</label><div class="emos"><span class="e">😞</span><span class="e">😕</span><span class="e on">😐</span><span class="e">🙂</span><span class="e">😄</span></div></div><span class="btn-p" style="width:100%;opacity:.7"><span class="spinner"></span>Guardando…</span></div></div>`,rules:[['ld-load','Upsert único','Si ya existe entrada hoy, se actualiza sin error.']]},
+empty:{label:'Formulario',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>¿Cómo amaneciste?</h3><div class="field"><label>Ánimo (1–5)</label><div class="emos"><span class="e">😞</span><span class="e">😕</span><span class="e">😐</span><span class="e">🙂</span><span class="e">😄</span></div><div class="help">Toca una opción</div></div><div class="field"><label>Energía (1–5)</label><div class="ctr"><span class="btn-sq">−</span><span class="val">3</span><span class="btn-sq">+</span></div></div><span class="btn-p" style="width:100%;background:var(--primary-disabled);color:#8B84A6;box-shadow:none">Guardar check-in</span></div></div>`,rules:[['ld-empty','Dos toques mínimo','Mood + guardar; energía por defecto 3.'],['ld-empty','Sin teclado','Todo es táctil: emojis y stepper.']]},
+success:{label:'Registrado',html:`<div class="p-body">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="clay" style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">🙂</span><div><b style="font-size:13.5px">Check-in de hoy listo</b><br><span style="font-size:11.5px;color:var(--muted)">Ánimo 4 · Energía 3</span></div></div></div><div class="toast ok"><span class="dot">✓</span>Registrado — tu calendario emocional crece</div>`,rules:[['ld-succ','Toast confirmatorio','4 s; la tarjeta mini persiste el resto del día.'],['ld-succ','Calendario','WELL_ENTRY alimenta la vista mensual de Perfil.']]},
+error:{label:'Error',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim"><div class="sheet"><div class="handle"></div><h3>¿Cómo amaneciste?</h3><div class="field"><label>Ánimo (1–5)</label><div class="emos"><span class="e">😞</span><span class="e">😕</span><span class="e on">😐</span><span class="e">🙂</span><span class="e">😄</span></div></div><div class="errbanner"><span class="x">⚠️</span><div><b>No se pudo guardar</b><span>Error escribiendo WELL_ENTRY. Tus selecciones se conservan.</span><br><button>Reintentar</button></div></div><span class="btn-p" style="width:100%">Reintentar</span></div></div>`,rules:[['ld-err','Selecciones preservadas','El sheet no se cierra ni limpia el estado ante un fallo.'],['ld-err','Rollback','La transacción no deja WELL_ENTRY a medias.']]}}},
+
+celebrate:{name:'Celebración',icon:'🏅',purpose:'Modal central al desbloquear una medalla. Máximo 4 s, no bloqueante, con acceso directo a la vitrina de Logros.',comps:['Card clay XL','Badge tint success','Confetti Reanimated','Botón primario + ghost'],data:['ACHIEVEMENT_UNLOCK (idempotente)','AchievementRepository.evaluateAndUnlock()'],
+states:{
+loading:{label:'Evaluando',html:`<div class="p-body" style="opacity:.5">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim" style="align-items:center;justify-content:center"><div class="sheet" style="border-radius:var(--r-xl);margin:0 24px;text-align:center;padding:30px 22px"><div class="spinner" style="border-color:rgba(109,75,245,.25);border-top-color:var(--primary);margin:0 auto 14px"></div><p style="font-size:13.5px;font-weight:600">Evaluando tus logros…</p></div></div>`,rules:[['ld-load','Dentro de toggleLog','La evaluación corre tras el commit del log; la UI no espera para mostrar el check.']]},
+empty:{label:'Sin medalla',html:`<div class="p-body">${sbar}<div class="p-top"><h2>Hoy</h2></div>${habit('📖','Leer','10 páginas · noche',true)}</div>`,rules:[['ld-empty','No hay premio','No se abre modal. Solo se muestra el check y la racha.']]},
+success:{label:'Desbloqueada',html:`<div class="p-body" style="opacity:.4">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim" style="align-items:center;justify-content:center"><div class="sheet" style="border-radius:var(--r-xl);margin:0 20px;text-align:center;padding:28px 20px 24px"><div class="celebrate" style="padding-top:6px"><div class="big">⚡</div><h3>¡7 días seguidos!</h3><p>Medalla «Una semana constante» desbloqueada</p><span class="btn-p" style="width:100%">Ver mis medallas</span><br><br><span style="font-size:12.5px;font-weight:700;color:var(--muted)">Cerrar</span></div></div></div>`,rules:[['ld-succ','Auto-cierre 4 s','Si no toca nada, el modal se cierra solo (R5).'],['ld-succ','CTA → Logros','Navega a la tab con la medalla recién ganada resaltada.']]},
+error:{label:'Error',html:`<div class="p-body" style="opacity:.4">${sbar}<div class="p-top"><h2>Hoy</h2></div><div class="skel skel-card"></div></div><div class="dim" style="align-items:center;justify-content:center"><div class="sheet" style="border-radius:var(--r-xl);margin:0 20px;text-align:center;padding:26px 20px"><div style="font-size:40px;margin-bottom:10px">😵</div><h3 style="font-family:Sora;font-size:17px">No se pudo evaluar</h3><p style="font-size:12.5px;color:var(--muted);margin:6px 0 16px">Tu hábito SÍ quedó marcado. El logro se evaluará en el próximo intento.</p><span class="btn-s">Entendido</span></div></div>`,rules:[['ld-err','Nunca revierte el check','El desbloqueo es best-effort: el hábito marcado es sagrado.'],['ld-err','Reintento futuro','Se re-evalúa en el siguiente <code>toggleLog</code> o al abrir Logros.']]}}}
+};
+
+let curScreen='hoy', curState='success';
+const sel=document.getElementById('selector');
+const sbarEl=document.getElementById('statebar');
+const screenEl=document.getElementById('screen');
+Object.keys(SCREENS).forEach(id=>{
+  const b=document.createElement('button');
+  b.className='spill'+(id===curScreen?' on':'');
+  b.textContent=SCREENS[id].icon+' '+SCREENS[id].name;
+  b.onclick=()=>{curScreen=id;curState=Object.keys(SCREENS[id].states).includes(curState)?curState:Object.keys(SCREENS[id].states)[0];render()};
+  sel.appendChild(b);
+});
+function render(){
+  const S=SCREENS[curScreen];
+  sel.querySelectorAll('.spill').forEach((b,i)=>b.classList.toggle('on',Object.keys(SCREENS)[i]===curScreen));
+  sbarEl.innerHTML='';
+  Object.keys(S.states).forEach(sid=>{
+    const c=document.createElement('button');
+    c.className='chip'+(sid===curState?' on':'');
+    c.textContent=S.states[sid].label;
+    c.onclick=()=>{curState=sid;render()};
+    sbarEl.appendChild(c);
+  });
+  screenEl.innerHTML=S.states[curState].html;
+  document.getElementById('mPurpose').innerHTML=S.purpose;
+  document.getElementById('mComps').innerHTML=S.comps.map(c=>`<span class="tag ds">${c}</span>`).join('');
+  document.getElementById('mData').innerHTML=S.data.map(c=>`<span class="tag">${c}</span>`).join('');
+  document.getElementById('mStates').innerHTML=S.states[curState].rules.map(r=>`<li><span class="li-dot ${r[0]}"></span><span><b>${r[1]}:</b> ${r[2]}</span></li>`).join('');
+}
+render();
+</script>
+</body>
+</html>

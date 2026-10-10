@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Producto y Flujos — Hub Maestro · App Hábitos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#6D4BF5; --primary-soft:#EDE9FE;
+  --secondary:#2EC4B6; --secondary-soft:#D7F5F1;
+  --streak:#FF6B6B; --award:#F59E0B;
+  --bg:#F7F5FF; --surface:#FFFFFF; --surface-alt:#EFEBFF;
+  --text:#17122B; --muted:#67617E; --border:#E4DFF3;
+  --success:#22C55E; --error:#DC2626;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --shadow-clay:0 8px 20px rgba(23,18,43,.08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -4px 8px rgba(109,75,245,.06);
+  --shadow-clay-hover:0 14px 28px rgba(23,18,43,.12), inset 0 2px 0 rgba(255,255,255,.95);
+  --ease-clay:cubic-bezier(.34,1.56,.64,1); --ease-std:cubic-bezier(.2,.8,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;pointer-events:none;z-index:-1}
+.b1{width:500px;height:500px;background:#C9BEFD;top:-160px;left:-140px;animation:f1 18s ease-in-out infinite alternate}
+.b2{width:400px;height:400px;background:#A8ECE5;bottom:4%;right:-150px;animation:f2 22s ease-in-out infinite alternate}
+.b3{width:320px;height:320px;background:#FFD1D1;top:40%;left:30%;opacity:.3;animation:f3 20s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate(60px,50px) scale(1.1)}}
+@keyframes f2{to{transform:translate(-50px,-40px) scale(.92)}}
+@keyframes f3{to{transform:translate(40px,-60px) scale(1.05)}}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px 100px}
+.hero{text-align:center;padding:70px 0 8px}
+.crest{width:88px;height:88px;margin:0 auto 20px;border-radius:28px;background:linear-gradient(135deg,#6D4BF5,#8B70FF);display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:0 18px 40px rgba(109,75,245,.45),inset 0 3px 0 rgba(255,255,255,.35);animation:pop .7s var(--ease-clay)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);background:var(--surface);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-clay)}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(32px,6vw,50px);letter-spacing:-.02em;margin:20px 0 12px}
+.hero h1 .o{color:var(--primary)}
+.hero p{color:var(--muted);max-width:600px;margin:0 auto;font-size:16px}
+.stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:26px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-clay);padding:14px 20px;min-width:110px}
+.stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--primary)}
+.stat span{font-size:11.5px;font-weight:600;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;margin-top:56px}
+.card{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:26px;text-decoration:none;color:inherit;position:relative;overflow:hidden;transition:transform .25s var(--ease-clay),box-shadow .25s var(--ease-std)}
+.card:hover{transform:translateY(-8px);box-shadow:var(--shadow-clay-hover)}
+.card .halo{position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;opacity:.14}
+.card .pnum{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:var(--surface-alt);border:1px solid var(--border);padding:4px 11px;border-radius:var(--r-pill);color:var(--primary);margin-bottom:14px}
+.card .ic{font-size:34px;display:block;margin-bottom:10px}
+.card h2{font-family:'Sora',sans-serif;font-size:19px;margin-bottom:8px}
+.card p{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.card .facts{display:flex;flex-wrap:wrap;gap:6px}
+.card .facts span{font-size:11px;font-weight:700;background:var(--surface-alt);border-radius:var(--r-pill);padding:5px 11px;color:var(--text)}
+.card .go{position:absolute;top:22px;right:22px;width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;transition:all .2s var(--ease-std)}
+.card:hover .go{background:var(--primary);color:#fff;transform:translateX(3px)}
+.chain{margin-top:64px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-clay);padding:30px 28px}
+.chain h2{font-family:'Sora',sans-serif;font-size:20px;text-align:center;margin-bottom:6px}
+.chain>p{color:var(--muted);font-size:13.5px;text-align:center;margin-bottom:24px}
+.steps{display:flex;gap:0;flex-wrap:wrap}
+.step{flex:1;min-width:140px;text-align:center;position:relative;padding:0 10px}
+.step .dot{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6D4BF5,#8B70FF);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 6px 14px rgba(109,75,245,.35);position:relative;z-index:2}
+.step::before{content:"";position:absolute;top:21px;left:calc(50% + 28px);right:calc(-50% + 28px);height:3px;background:var(--border);z-index:1}
+.step:last-child::before{display:none}
+.step b{font-family:'Sora',sans-serif;font-size:13px;display:block}
+.step span{font-size:11px;color:var(--muted)}
+.docs{margin-top:56px;text-align:center}
+.docs h2{font-family:'Sora',sans-serif;font-size:20px;margin-bottom:8px}
+.docs p{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+.docs .links{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.docs .links a{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:11px 20px;text-decoration:none;color:var(--primary);box-shadow:var(--shadow-clay);transition:all .2s var(--ease-std)}
+.docs .links a:hover{transform:translateY(-3px);background:var(--primary-soft)}
+footer{margin-top:80px;text-align:center;color:var(--muted);font-size:13px;padding-top:34px;border-top:1px solid var(--border)}
+footer b{color:var(--text)}
+@media (max-width:640px){.step::before{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="wrap">
+<header class="hero">
+  <div class="crest">🗺️</div>
+  <span class="kicker">Paso 6 · Documentación Maestra</span>
+  <h1>Producto y <span class="o">Flujos</span></h1>
+  <p>Hub central del dominio de producto de Hábos. Aquí vive todo lo aprobado en los pasos 2 a 5: requerimientos, arquitectura de información, blueprints y flujos jugables.</p>
+  <div class="stats">
+    <div class="stat"><b>1</b><span>persona</span></div>
+    <div class="stat"><b>5</b><span>épicas</span></div>
+    <div class="stat"><b>13</b><span>historias</span></div>
+    <div class="stat"><b>16</b><span>nodos</span></div>
+    <div class="stat"><b>8</b><span>pantallas</span></div>
+    <div class="stat"><b>32</b><span>estados</span></div>
+    <div class="stat"><b>9</b><span>flujos</span></div>
+  </div>
+</header>
+
+<div class="cards">
+  <a class="card" href="../Requerimientos/REQUERIMIENTOS_VISUAL.html">
+    <div class="halo" style="background:#6D4BF5"></div><span class="go">→</span>
+    <span class="pnum">PASO 2</span><span class="ic">📋</span>
+    <h2>Requerimientos Funcionales</h2>
+    <p>Personaje Alex Rivera, 5 épicas y 13 historias de usuario con criterios Given/When/Then marcables.</p>
+    <div class="facts"><span>Actores</span><span>Épicas</span><span>HU + criterios</span></div>
+  </a>
+  <a class="card" href="../ArquitecturaInformacion/ARQUITECTURA_INFORMACION_VISUAL.html">
+    <div class="halo" style="background:#2EC4B6"></div><span class="go">→</span>
+    <span class="pnum">PASO 3</span><span class="ic">🗺️</span>
+    <h2>Arquitectura de la Información</h2>
+    <p>Sitemap interactivo de 16 nodos en 4 capas y 9 reglas inquebrantables de navegación.</p>
+    <div class="facts"><span>Sitemap</span><span>R1–R9</span><span>Trayectoria feliz</span></div>
+  </a>
+  <a class="card" href="../Blueprints/BLUEPRINTS_VISUAL.html">
+    <div class="halo" style="background:#F59E0B"></div><span class="go">→</span>
+    <span class="pnum">PASO 4</span><span class="ic">📱</span>
+    <h2>Blueprints de Pantallas</h2>
+    <p>8 pantallas clave renderizadas con sus 4 estados (loading, empty, success, error) y trazabilidad de datos.</p>
+    <div class="facts"><span>8 pantallas</span><span>32 estados</span><span>DS + repos</span></div>
+  </a>
+  <a class="card" href="../Flujos/FLUJOS_VISUAL.html">
+    <div class="halo" style="background:#FF6B6B"></div><span class="go">→</span>
+    <span class="pnum">PASO 5</span><span class="ic">🎬</span>
+    <h2>Flujos de Usuario</h2>
+    <p>9 recorridos jugables paso a paso: 5 happy paths y 4 alternativos/críticos con narración de contratos.</p>
+    <div class="facts"><span>Happy paths</span><span>Alternativos</span><span>Modo auto</span></div>
+  </a>
+</div>
+
+<div class="chain">
+  <h2>Cadena de aprobación</h2>
+  <p>Cada fase consume la anterior. Nada se inventa: todo se cita.</p>
+  <div class="steps">
+    <div class="step"><div class="dot">1</div><b>Diseño Visual</b><span>SSOT Pulse Clay</span></div>
+    <div class="step"><div class="dot">2</div><b>Arquitectura</b><span>Stack + datos</span></div>
+    <div class="step"><div class="dot">3</div><b>Producto</b><span>HU + sitemap</span></div>
+    <div class="step"><div class="dot">4</div><b>Blueprints</b><span>Pantallas + estados</span></div>
+    <div class="step"><div class="dot">5</div><b>Flujos</b><span>Comportamiento</span></div>
+    <div class="step"><div class="dot">6</div><b>Implementación</b><span>Siguiente fase</span></div>
+  </div>
+</div>
+
+<div class="docs">
+  <h2>📄 Documentación formal (.md)</h2>
+  <p>La misma información en Markdown con diagramas Mermaid, para revisión y versionado.</p>
+  <div class="links">
+    <a href="../../documentación/Producto y Flujos/REQUERIMIENTOS_FUNCIONALES.md">REQUERIMIENTOS_FUNCIONALES.md</a>
+    <a href="../../documentación/Producto y Flujos/ARQUITECTURA_INFORMACION.md">ARQUITECTURA_INFORMACION.md</a>
+    <a href="../../documentación/Producto y Flujos/BLUEPRINTS_DE_PANTALLAS.md">BLUEPRINTS_DE_PANTALLAS.md</a>
+    <a href="../../documentación/Producto y Flujos/FLUJOS_DE_USUARIO.md">FLUJOS_DE_USUARIO.md</a>
+  </div>
+</div>
+
+<footer>
+  <p><b>Producto y Flujos — Hub Maestro</b> · App Hábitos · Pulse Clay v1.0</p>
+  <p style="margin-top:6px">Trazabilidad total: manual-identidad-visual.md · README_ARQUITECTURA.md · MODELO_DE_DATOS.md · CONTRATOS_API.md</p>
+</footer>
+</div>
+</body>
+</html>
