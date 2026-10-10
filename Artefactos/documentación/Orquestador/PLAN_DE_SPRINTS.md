@@ -156,8 +156,11 @@ decisiones:
 | Jest (jest-expo) post-V2 | ✔ 5 suites, 36/36 tests |
 | `expo-doctor` post-V2 | ✔ 21/21 |
 | `expo export --platform android` post-V2 | ✔ bundle hbc 7.2 MB |
-| Reduced-motion/WCAG recheck (M21) | ⏳ pendiente de verificación |
-| Docs/CI/commit/builds EAS (M21) | ⏳ en curso |
+| Reduced-motion/WCAG recheck (M21) | ✔ ClayCarousel condiciona FadeIn/FadeOut con useReducedMotion; contrastes con tokens DS (textMuted/error) |
+| Docs/CI/commit (M21) | ✔ README sección V2 + esta bitácora; CI vigente (typecheck×2+jest) ejecutado por push `cbe0ee8` (101 archivos, +10059) |
+| EAS build production (V2) | 🔄 EN COLA — `a519653d-c4a2-4083-9d7f-50cf765daca3` (expo.dev/accounts/uskein/projects/habitos/builds) |
+| EAS build preview (V2 APK) | 🔄 EN COLA — `57b9a078-9040-4ab3-aaa2-2ad84c099cdb` |
+| **M12–M25 (implementación V2)** | ✅ COMPLETADOS — **M21** solo aguarda FINISHED de los 2 builds |
 
 ---
 
