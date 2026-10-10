@@ -5,6 +5,7 @@ import { authRepository } from '@/core/repositories/authRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
 import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { sessionBus } from '@/core/storage/sessionBus';
+import { systemSheet } from '@/core/storage/systemSheet';
 import { palette } from '@/core/theme/theme';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { LockScreen } from '@/features/settings/LockScreen';
@@ -47,10 +48,10 @@ export function SessionGate({ children }: { children: ReactNode }) {
     void boot();
   }, [boot]);
 
-  // R4: auto-lock al pasar a background
+  // R4: auto-lock al pasar a background (exento sheets del sistema: systemSheet)
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'background' && lockEnabled()) {
+      if (s === 'background' && lockEnabled() && !systemSheet.active) {
         authRepository.lock();
         setPhase('locked');
       }

@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
 import { deleteImage, saveImage } from '@/core/data/imageStore';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
+import { systemSheet } from '@/core/storage/systemSheet';
 import { useToast } from '@/ui/feedback/Toast';
 
 /**
@@ -26,12 +27,14 @@ export function useAvatarPicker() {
         toast.show('Se necesita permiso de fotos para cambiar tu avatar', 'error');
         return;
       }
-      const res = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.9,
-      });
+      const res = await systemSheet.run(() =>
+        ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.9,
+        }),
+      );
       const asset = res.canceled ? undefined : res.assets[0];
       if (!asset) return;
 

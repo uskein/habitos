@@ -9,6 +9,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { saveImage } from '@/core/data/imageStore';
+import { systemSheet } from '@/core/storage/systemSheet';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
 import { useGoals } from '@/features/goals/useGoals';
 import { useActiveHabits, useCreateMilestone } from '@/features/milestones/useMilestones';
@@ -118,12 +119,14 @@ export default function NewHitoSheet() {
         toast.show('Se necesita permiso de fotos para adjuntar imágenes', 'error');
         return;
       }
-      const res = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsMultipleSelection: true,
-        selectionLimit: LIMITS.MILESTONE_IMAGES_MAX - images.length,
-        quality: 0.9,
-      });
+      const res = await systemSheet.run(() =>
+        ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsMultipleSelection: true,
+          selectionLimit: LIMITS.MILESTONE_IMAGES_MAX - images.length,
+          quality: 0.9,
+        }),
+      );
       const assets = res.canceled ? [] : res.assets;
       let saved = 0;
       let failed = 0;

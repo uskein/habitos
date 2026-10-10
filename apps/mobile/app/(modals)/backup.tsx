@@ -6,6 +6,7 @@ import * as Sharing from 'expo-sharing';
 import { useQueryClient } from '@tanstack/react-query';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
 import { backupService } from '@/core/services/backupService';
+import { systemSheet } from '@/core/storage/systemSheet';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayCard } from '@/ui/primitives/ClayCard';
@@ -45,7 +46,9 @@ export default function BackupSheet() {
       try {
         const uri = await backupService.exportEncrypted(password);
         if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, { dialogTitle: 'Guardar backup cifrado' });
+          await systemSheet.run(() =>
+            Sharing.shareAsync(uri, { dialogTitle: 'Guardar backup cifrado' }),
+          );
         }
         toast.show('Backup generado 🔒', 'success');
         setPassword('');
@@ -62,11 +65,13 @@ export default function BackupSheet() {
 
   const pickFile = async () => {
     setError(null);
-    const res = await DocumentPicker.getDocumentAsync({
-      type: '*/*',
-      copyToCacheDirectory: true,
-      multiple: false,
-    });
+    const res = await systemSheet.run(() =>
+      DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+        multiple: false,
+      }),
+    );
     if (res.canceled || !res.assets[0]) return;
     setPickedUri(res.assets[0].uri);
     setPickedName(res.assets[0].name ?? 'backup.habitos');

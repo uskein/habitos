@@ -6,6 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Sharing from 'expo-sharing';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
 import { milestoneShareService } from '@/core/services/milestoneShareService';
+import { systemSheet } from '@/core/storage/systemSheet';
 import {
   useMilestone,
   useRemoveMilestone,
@@ -86,7 +87,9 @@ export default function HitoDetailScreen() {
       try {
         const uri = await milestoneShareService.render(m.id);
         if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Compartir hito' });
+          await systemSheet.run(() =>
+            Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Compartir hito' }),
+          );
         } else {
           toast.show('Compartir no está disponible en este dispositivo', 'error');
         }
