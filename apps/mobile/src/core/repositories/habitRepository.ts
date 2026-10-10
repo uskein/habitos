@@ -175,7 +175,7 @@ export const habitRepository: HabitRepository = {
               h.created_at, h.updated_at, h.sync_status, h.time_slot,
               l.id AS l_id, l.habit_id AS l_habit_id, l.log_date AS l_log_date,
               l.completed AS l_completed, l.value AS l_value, l.completed_at AS l_completed_at,
-              l.created_at AS l_created_at, l.updated_at AS l_updated_at, sync_status AS l_sync_status
+              l.created_at AS l_created_at, l.updated_at AS l_updated_at, l.sync_status AS l_sync_status
        FROM habit h
        LEFT JOIN habit_log l ON l.habit_id = h.id AND l.log_date = ?
        WHERE h.is_archived = 0
