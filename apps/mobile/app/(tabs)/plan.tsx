@@ -27,6 +27,7 @@ export default function PlanScreen() {
 
   const loading = habits.isPending || goals.isPending || profile.isPending;
   const error = habits.isError || goals.isError;
+  if (error) console.error('[Plan] habits:', habits.error, 'goals:', goals.error);
 
   const openHabit = (id: string) => router.push({ pathname: '/habit/[id]', params: { id } });
   const openGoal = (id: string) => router.push({ pathname: '/goal/[id]', params: { id } });

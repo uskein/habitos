@@ -10,7 +10,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useCreateHabit } from '@/features/habits/useHabits';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, habitSwatches, palette, spacing } from '@/core/theme/theme';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayInput } from '@/ui/primitives/ClayInput';
@@ -124,7 +124,7 @@ export default function NewHabitSheet() {
         options={['daily', 'custom'] as const}
         value={frequency}
         onChange={setFrequency}
-        labels={{ daily: 'Todos los d��as', custom: 'D��as personalizados' }}
+        labels={{ daily: 'Todos los días', custom: 'Días personalizados' }}
       />
       <Text style={styles.label}>Tramo (opcional)</Text>
       <ChipsTabs
@@ -148,16 +148,25 @@ export default function NewHabitSheet() {
       )}
 
       <Text style={styles.label}>Color</Text>
-      <View style={styles.chipWrap}>
-        {HABIT_COLOR_TOKENS.map((t) => (
-          <Pressable
-            key={t}
-            onPress={() => setColorToken(t)}
-            style={[styles.tokenChip, colorToken === t && styles.tokenChipOn]}
-          >
-            <Text style={[styles.tokenText, colorToken === t && styles.dayTextOn]}>{t}</Text>
-          </Pressable>
-        ))}
+      <View style={styles.swatchRow}>
+        {HABIT_COLOR_TOKENS.map((t) => {
+          const on = colorToken === t;
+          return (
+            <Pressable
+              key={t}
+              onPress={() => setColorToken(t)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: on }}
+              accessibilityLabel={`Color ${t}`}
+              style={styles.swatchCol}
+            >
+              <View style={[styles.swatch, on && styles.swatchOn, { backgroundColor: habitSwatches[t] }]}>
+                {on ? <Text style={styles.swatchCheck}>✓</Text> : null}
+              </View>
+              <Text style={[styles.swatchName, on && styles.swatchNameOn]}>{t}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ClayButton
@@ -242,22 +251,41 @@ const styles = StyleSheet.create({
   dayTextOn: {
     color: palette.surface,
   },
-  tokenChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
+  swatchRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  swatchCol: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  swatch: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1.5,
     borderColor: palette.border,
-    backgroundColor: palette.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  tokenChipOn: {
+  swatchOn: {
     borderColor: palette.primary,
-    backgroundColor: palette.surfaceAlt,
+    borderWidth: 3,
   },
-  tokenText: {
+  swatchCheck: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: palette.primary,
+  },
+  swatchName: {
     fontFamily: fonts.body,
-    fontSize: 13,
+    fontSize: 11,
     color: palette.textMuted,
+  },
+  swatchNameOn: {
+    color: palette.primary,
+    fontWeight: '600',
   },
   submit: {
     marginTop: spacing.lg,

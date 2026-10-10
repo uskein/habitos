@@ -44,6 +44,7 @@ export default function HoyScreen() {
   }
 
   if (habits.isError) {
+    console.error('[Hoy] listByDate:', habits.error);
     return (
       <View style={styles.screen}>
         <View style={styles.center}>

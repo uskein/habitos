@@ -46,6 +46,14 @@ export const badgeTints = {
   purple: { bg: '#EDE9FE', text: '#6D28D9' },
 } as const;
 
+/** V2 · HU-4 — swatches de HABIT_COLOR_TOKENS (shared) para el selector de color. */
+export const habitSwatches = {
+  'primary-soft': badgeTints.purple.bg,
+  'success-soft': badgeTints.success.bg,
+  'warning-soft': badgeTints.warning.bg,
+  'accent-soft': badgeTints.danger.bg,
+} as const;
+
 export const darkPalette = {
   bg: '#12101C',
   surface: '#1C1930',

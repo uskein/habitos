@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -30,7 +31,7 @@ export function ClayLoader({ visible, label = 'Validando…' }: ClayLoaderProps)
     if (visible && !reduced) {
       spin.value = 0;
       spin.value = withRepeat(
-        withTiming(1, { duration: 800, easing: (t) => t /* lineal */ }),
+        withTiming(1, { duration: 800, easing: Easing.linear }),
         -1,
         false,
       );
