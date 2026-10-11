@@ -1,4 +1,4 @@
-import { hourInSlot, localDateISO, type TimeSlot } from '@habitos/shared';
+import { deviceHour, hourInSlot, localDateISO, type TimeSlot } from '@habitos/shared';
 import { getDb } from '../data/database';
 
 /** Días con ≥1 hábito completado en el rango (calendario global). */
@@ -77,7 +77,8 @@ export const statsRepository = {
    */
   async getHabitStats(habitId: string, timeSlot?: TimeSlot | null): Promise<HabitStats> {
     const slot = timeSlot ?? null;
-    const key = `habit:${habitId}:hour${slot ? `:${slot}` : ''}`;
+    // v2 → bustea caches viejos guardados con hora UTC y rangos con drift.
+    const key = `habit:${habitId}:v2${slot ? `:${slot}` : ''}`;
     const cached = await readCache<HabitStats>(key);
     if (cached) return cached;
 
@@ -91,15 +92,15 @@ export const statsRepository = {
       `SELECT log_date, created_at, completed_at FROM habit_log
        WHERE habit_id = ? AND completed = 1 AND log_date >= ?`,
       habitId,
-      start30.toISOString().slice(0, 10),
+      localDateISO(start30),
     );
+    if (!slot) console.log('[stats] recomputa', habitId, 'rows:', rows.length);
 
-    // HU-30 — con tramo: sólo cuenta el log cuya hora (completed_at → created_at) cae en él.
+    // HU-30 — con tramo: sólo cuenta el log cuya hora DEL DISPOSITIVO cae en él.
     const inSlot = slot
       ? rows.filter((r) => {
-          const stamp = r.completed_at || r.created_at;
-          const hour = Number(stamp.slice(11, 13));
-          return Number.isInteger(hour) && hourInSlot(hour, slot);
+          const hour = deviceHour(r.completed_at || r.created_at);
+          return hour !== null && hourInSlot(hour, slot);
         })
       : rows;
 
@@ -107,7 +108,7 @@ export const statsRepository = {
     for (let i = 0; i < 30; i++) {
       const d = new Date(start30);
       d.setDate(d.getDate() + i);
-      days.push({ date: d.toISOString().slice(0, 10), done: false });
+      days.push({ date: localDateISO(d), done: false });
     }
     const doneDates = new Set(inSlot.map((r) => r.log_date));
     const byDate = new Map(days.map((d) => [d.date, d]));
@@ -124,8 +125,8 @@ export const statsRepository = {
 
     const hourly = new Array<number>(24).fill(0);
     for (const r of inSlot) {
-      const hour = Number((r.completed_at || r.created_at || '').slice(11, 13));
-      if (Number.isInteger(hour) && hour >= 0 && hour < 24) hourly[hour] = (hourly[hour] ?? 0) + 1;
+      const hour = deviceHour(r.completed_at || r.created_at);
+      if (hour !== null) hourly[hour] = (hourly[hour] ?? 0) + 1;
     }
 
     const trend: number[] = [];
@@ -163,8 +164,8 @@ export const statsRepository = {
       `SELECT DISTINCT log_date FROM habit_log
        WHERE completed = 1 AND log_date > ? AND log_date < ?
        ORDER BY log_date`,
-      from.toISOString().slice(0, 10),
-      to.toISOString().slice(0, 10),
+      localDateISO(from),
+      localDateISO(to),
     );
     const hitoDate = milestone.occurred_at;
     const before = rows.filter((r) => r.log_date < hitoDate).length;

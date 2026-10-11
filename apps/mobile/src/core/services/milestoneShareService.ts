@@ -1,6 +1,15 @@
 import { AppError, ERROR_CODES } from '@habitos/shared';
-import { ClipOp, ImageFormat, Skia, TileMode, rrect } from '@shopify/react-native-skia';
+import {
+  ClipOp,
+  ImageFormat,
+  Skia,
+  TileMode,
+  rrect,
+  type SkFont,
+  type SkTypeface,
+} from '@shopify/react-native-skia';
 import { Directory, File, Paths } from 'expo-file-system';
+import { Image } from 'react-native';
 import { getDb } from '../data/database';
 import { base64ToBytes } from './backupCrypto';
 import { palette } from '../theme/theme';
@@ -13,6 +22,52 @@ import { palette } from '../theme/theme';
  */
 
 const SIZE = 1080;
+
+const FONT_ASSETS = {
+  display: require('../../../assets/fonts/Sora-Variable.ttf'),
+  body: require('../../../assets/fonts/PlusJakartaSans-Variable.ttf'),
+} as const;
+
+/**
+ * Carga un typeface desde los assets bundle. Fallbacks: (1) archivo embebido
+ * vía Paths.bundle, (2) URI del bundle JS (Metro en dev), (3) null → fuente
+ * del sistema (Skia.Font() sin typeface nunca lanza).
+ * NOTA: `Skia.Font(undefined, size)` lanza «Value is undefined, expected an
+ * Object» (JSI) — por eso jamás se pasa undefined explícito.
+ */
+const typefaceCache = new Map<string, SkTypeface | null>();
+
+async function loadTypeface(module: number, file: string): Promise<SkTypeface | null> {
+  const cached = typefaceCache.get(file);
+  if (cached !== undefined) return cached;
+  let tf: SkTypeface | null = null;
+  try {
+    const bundled = new File(Paths.bundle, `assets/fonts/${file}`);
+    if (bundled.exists) {
+      tf = Skia.Typeface.MakeFreeTypeFaceFromData(Skia.Data.fromBytes(await bundled.bytes()));
+    }
+  } catch {
+    tf = null;
+  }
+  if (!tf) {
+    try {
+      const uri = Image.resolveAssetSource(module)?.uri;
+      if (uri) tf = Skia.Typeface.MakeFreeTypeFaceFromData(await Skia.Data.fromURI(uri));
+    } catch {
+      tf = null;
+    }
+  }
+  if (!tf) console.warn('[share] typeface no disponible:', file);
+  typefaceCache.set(file, tf);
+  return tf;
+}
+
+function fontOf(tf: SkTypeface | null, size: number): SkFont {
+  if (tf) return Skia.Font(tf, size);
+  const fallback = Skia.Font();
+  fallback.setSize(size);
+  return fallback;
+}
 
 interface MilestoneRow {
   title: string;
@@ -93,9 +148,11 @@ export const milestoneShareService = {
       }
 
       // 4) Textos: título, fecha y crédito.
-      const titleFont = Skia.Font(undefined, 54);
-      const subFont = Skia.Font(undefined, 34);
-      const brandFont = Skia.Font(undefined, 30);
+      const titleFont = fontOf(await loadTypeface(FONT_ASSETS.display, 'Sora-Variable.ttf'), 54);
+      // El binding JSI de Skia usa asNumber() pese a la firma boolean → 1/0.
+      titleFont.setEmbolden(1 as unknown as boolean);
+      const subFont = fontOf(await loadTypeface(FONT_ASSETS.body, 'PlusJakartaSans-Variable.ttf'), 34);
+      const brandFont = fontOf(await loadTypeface(FONT_ASSETS.body, 'PlusJakartaSans-Variable.ttf'), 30);
 
       const titlePaint = Skia.Paint();
       titlePaint.setColor(Skia.Color(palette.text));
@@ -113,6 +170,7 @@ export const milestoneShareService = {
       canvas.drawText(brand, SIZE / 2 - brandWidth / 2, card.y + card.height - 50, brandPaint, brandFont);
 
       // 5) Snapshot → PNG → archivo temporal.
+      surface.flush();
       const snapshot = surface.makeImageSnapshot();
       const b64 = snapshot.encodeToBase64(ImageFormat.PNG, 100);
       if (!b64) throw new Error('encodeToBase64 devolvió vacío');
@@ -125,6 +183,7 @@ export const milestoneShareService = {
       return out.uri;
     } catch (e) {
       if (e instanceof AppError && e.code === ERROR_CODES.NOT_FOUND) throw e;
+      console.error('[share] render falló:', e);
       throw new AppError(
         ERROR_CODES.SHARE_RENDER_FAILED,
         'No se pudo renderizar la tarjeta para compartir',

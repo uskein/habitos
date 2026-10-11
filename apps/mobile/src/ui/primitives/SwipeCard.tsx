@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -19,10 +19,22 @@ const EASE_CLAY = Easing.bezier(...(easings.clay as [number, number, number, num
 
 export interface SwipeCardProps {
   emoji?: string;
+  /** V2 · visor de hitos — si hay foto, ocupa el slot del emoji (recorte r32). */
+  imageUri?: string;
   title: string;
   subtitle?: string;
   onGuardar: () => void;
   onDescartar: () => void;
+  /** Stamps y acciones personalizables (visor de hitos). */
+  stampSave?: string;
+  stampDiscard?: string;
+  saveGlyph?: string;
+  discardGlyph?: string;
+  hint?: string;
+  saveLabel?: string;
+  discardLabel?: string;
+  /** Altura de la card (visor de hitos usa más alto que el deck de motivos). */
+  height?: number;
 }
 
 /**
@@ -31,7 +43,22 @@ export interface SwipeCardProps {
  * (error) con opacidad lineal hasta 90 px; release easing.clay 350 ms.
  * Reduced-motion: sin rotación. Siempre trae botones alternativos accesibles.
  */
-export function SwipeCard({ emoji = '🔥', title, subtitle, onGuardar, onDescartar }: SwipeCardProps) {
+export function SwipeCard({
+  emoji = '🔥',
+  imageUri,
+  title,
+  subtitle,
+  onGuardar,
+  onDescartar,
+  stampSave = '★ GUARDAR',
+  stampDiscard = '✕ DESCARTAR',
+  saveGlyph = '★',
+  discardGlyph = '✕',
+  hint = 'Arrastra → guardar · ← descartar',
+  saveLabel = 'Guardar motivación',
+  discardLabel = 'Descartar motivación',
+  height = CARD_HEIGHT,
+}: SwipeCardProps) {
   const reduced = useReducedMotion();
   const x = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -78,42 +105,46 @@ export function SwipeCard({ emoji = '🔥', title, subtitle, onGuardar, onDescar
   }));
 
   return (
-    <View style={styles.outer}>
+    <View style={[styles.outer, { height }]}>
       <GestureDetector gesture={pan}>
         <Animated.View style={[styles.card, shadows.clay, cardStyle]}>
           <Animated.View style={[styles.stamp, styles.stampSave, saveStyle]} pointerEvents="none">
-            <Text style={[styles.stampText, styles.stampSaveText]}>★ GUARDAR</Text>
+            <Text style={[styles.stampText, styles.stampSaveText]}>{stampSave}</Text>
           </Animated.View>
           <Animated.View style={[styles.stamp, styles.stampDiscard, discardStyle]} pointerEvents="none">
-            <Text style={[styles.stampText, styles.stampDiscardText]}>✕ DESCARTAR</Text>
+            <Text style={[styles.stampText, styles.stampDiscardText]}>{stampDiscard}</Text>
           </Animated.View>
 
-          <Text style={styles.emoji} accessibilityElementsHidden>
-            {emoji}
-          </Text>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.photo} accessibilityElementsHidden />
+          ) : (
+            <Text style={styles.emoji} accessibilityElementsHidden>
+              {emoji}
+            </Text>
+          )}
           <Text style={styles.title} numberOfLines={4}>
             {title}
           </Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
 
           <View style={styles.actions}>
-            <Text style={styles.hint}>Arrastra → guardar · ← descartar</Text>
+            <Text style={styles.hint}>{hint}</Text>
             <View style={styles.buttons}>
               <Text
                 accessibilityRole="button"
-                accessibilityLabel="Descartar motivación"
+                accessibilityLabel={discardLabel}
                 style={[styles.actionBtn, styles.actionDiscard]}
                 onPress={onDescartar}
               >
-                ✕
+                {discardGlyph}
               </Text>
               <Text
                 accessibilityRole="button"
-                accessibilityLabel="Guardar motivación"
+                accessibilityLabel={saveLabel}
                 style={[styles.actionBtn, styles.actionSave]}
                 onPress={onGuardar}
               >
-                ★
+                {saveGlyph}
               </Text>
             </View>
           </View>
@@ -168,6 +199,13 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 56,
     marginTop: spacing.lg,
+  },
+  photo: {
+    width: 120,
+    height: 120,
+    borderRadius: radii.lg,
+    marginTop: spacing.md,
+    backgroundColor: palette.surfaceAlt,
   },
   title: {
     fontFamily: 'Sora',

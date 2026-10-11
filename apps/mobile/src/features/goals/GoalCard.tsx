@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { Goal } from '@/core/domain/entities/goal';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, palette, spacing } from '@/core/theme/theme';
 import { Badge } from '@/ui/feedback/Badge';
 import { Progress } from '@/ui/feedback/Progress';
 import { ClayCard } from '@/ui/primitives/ClayCard';
@@ -8,14 +8,15 @@ import { ClayCard } from '@/ui/primitives/ClayCard';
 export interface GoalCardProps {
   goal: Goal;
   onPress?: () => void;
+  onLongPress?: () => void;
 }
 
 /** GoalCard — título, progreso mono-tabular, badge de estado. */
-export function GoalCard({ goal, onPress }: GoalCardProps) {
+export function GoalCard({ goal, onPress, onLongPress }: GoalCardProps) {
   const pct = goal.targetValue === 0 ? 0 : Math.min(1, goal.currentValue / goal.targetValue);
 
   return (
-    <ClayCard onPress={onPress} style={styles.card}>
+    <ClayCard onPress={onPress} onLongPress={onLongPress} style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
           {goal.title}

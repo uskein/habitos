@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { localDateISO } from '@habitos/shared';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { fonts, palette, shadows, spacing } from '@/core/theme/theme';
@@ -122,7 +123,7 @@ export default function HoyScreen() {
               disabled={toggle.isPending}
               onToggle={() => {
                 toggle.mutate(
-                  { habitId: h.id, date: h.log?.logDate ?? new Date().toISOString().slice(0, 10) },
+                  { habitId: h.id, date: h.log?.logDate ?? localDateISO() },
                   {
                     onSuccess: (log) => {
                       if (log.completed) toast.show('¡Hábito completado! 🔥', 'success');

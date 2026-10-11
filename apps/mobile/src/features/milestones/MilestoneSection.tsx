@@ -76,7 +76,7 @@ export function MilestoneSection({ entityType, entityId }: MilestoneSectionProps
         ))
       )}
       {list.length > 0 ? (
-        <ClayButton label="Ver todos los hitos" variant="ghost" onPress={() => router.push('/hitos/index')} />
+        <ClayButton label="Ver todos los hitos" variant="ghost" onPress={() => router.push('/hitos')} />
       ) : null}
     </View>
   );

@@ -59,3 +59,20 @@ export function localDateISO(d: Date = new Date()): string {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+/**
+ * Hora local (0–23) del DISPOSITIVO para un timestamp de la BD.
+ * Los writers guardan UTC (`toISOString()` / `datetime('now')`), así que un
+ * stamp sin marca de zona se asume UTC y se convierte a hora local.
+ * Nunca uses `slice(11, 13)` — devuelve la hora UTC y descuadra al usuario.
+ */
+export function deviceHour(stamp: string | null | undefined): number | null {
+  if (!stamp) return null;
+  const t0 = stamp.includes('T') ? stamp : stamp.replace(' ', 'T');
+  if (!t0.includes('T')) return null;
+  const t = /(?:Z|[+-]\d{2}:?\d{2})$/.test(t0) ? t0 : `${t0}Z`;
+  const d = new Date(t);
+  if (!Number.isFinite(d.getTime())) return null;
+  const h = d.getHours();
+  return h >= 0 && h < 24 ? h : null;
+}

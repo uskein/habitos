@@ -1,4 +1,4 @@
-import { hourInSlot, TIME_SLOT_HOURS } from '@habitos/shared';
+import { deviceHour, hourInSlot, TIME_SLOT_HOURS } from '@habitos/shared';
 
 describe('hourInSlot — HU-30 (V2.1)', () => {
   test('mañana: 5–11', () => {
@@ -31,5 +31,28 @@ describe('hourInSlot — HU-30 (V2.1)', () => {
       );
       expect(hits).toHaveLength(1);
     }
+  });
+});
+
+
+describe('deviceHour — hora del dispositivo (F19 fix)', () => {
+  test('valores vacios o invalidos -> null', () => {
+    expect(deviceHour(null)).toBeNull();
+    expect(deviceHour(undefined)).toBeNull();
+    expect(deviceHour('')).toBeNull();
+    expect(deviceHour('no-es-fecha')).toBeNull();
+  });
+
+  test('UTC sin marca (datetime now / toISOString cortado) se convierte a hora local', () => {
+    expect(deviceHour('2026-10-10 22:00:00')).toBe(new Date('2026-10-10T22:00:00Z').getHours());
+    expect(deviceHour('2026-10-10T22:00:00')).toBe(new Date('2026-10-10T22:00:00Z').getHours());
+  });
+
+  test('ISO con Z (completed_at) usa la hora local del device', () => {
+    expect(deviceHour('2026-10-10T22:00:00.000Z')).toBe(new Date('2026-10-10T22:00:00Z').getHours());
+  });
+
+  test('offset explicito se respeta', () => {
+    expect(deviceHour('2026-01-01T10:00:00+02:00')).toBe(new Date('2026-01-01T10:00:00+02:00').getHours());
   });
 });

@@ -1,5 +1,5 @@
 import { randomUUID } from 'expo-crypto';
-import type { AchievementEvent } from '@habitos/shared';
+import { localDateISO, type AchievementEvent } from '@habitos/shared';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { rowToAchievement, seedAchievements } from '../data/seeds/achievements';
 import { computeGlobalStreak } from '../domain/services/streakCalculator';
@@ -21,7 +21,7 @@ async function loadStats(db: SQLiteDatabase): Promise<EvaluationStats> {
 
   const global = computeGlobalStreak(
     dates.map((d) => d.log_date),
-    new Date().toISOString().slice(0, 10),
+    localDateISO(),
   );
 
   /** V2 — fechas por hábito y estado por meta (criterios habit_ids/goal_ids). */
@@ -84,7 +84,7 @@ export async function evaluateAchievementEvent(
   }));
 
   const stats = await loadStats(db);
-  const keys = evaluateEvent(catalog, unlocks, event, stats, new Date().toISOString().slice(0, 10));
+  const keys = evaluateEvent(catalog, unlocks, event, stats, localDateISO());
 
   for (const key of keys) {
     const ach = catalog.find((a) => a.key === key);

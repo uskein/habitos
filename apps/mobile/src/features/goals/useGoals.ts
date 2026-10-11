@@ -1,4 +1,4 @@
-import { CreateGoalInput, type CreateGoalInputType, type GoalStatus } from '@habitos/shared';
+import { type CreateGoalInputType, type GoalStatus } from '@habitos/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { goalRepository } from '@/core/repositories/goalRepository';
 
@@ -67,5 +67,13 @@ export function useGoalStats(goalId: string) {
     queryFn: () => goalRepository.getStats(goalId),
     enabled: !!goalId,
     retry: false,
+  });
+}
+
+export function useDeleteGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (goalId: string) => goalRepository.delete(goalId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['goals'] }),
   });
 }

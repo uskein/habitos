@@ -7,19 +7,30 @@ export interface ClayCardProps {
   style?: StyleProp<ViewStyle>;
   elevated?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
+  accessibilityLabel?: string;
 }
 
 /** Card clay r24 — surface blanca, borde sutil, sombra suave. */
-export function ClayCard({ children, style, elevated = true, onPress }: ClayCardProps) {
+export function ClayCard({
+  children,
+  style,
+  elevated = true,
+  onPress,
+  onLongPress,
+  accessibilityLabel,
+}: ClayCardProps) {
   const card = (
     <View style={[styles.card, elevated && shadows.clay, style]}>{children}</View>
   );
 
-  if (onPress) {
+  if (onPress || onLongPress) {
     return (
       <Pressable
         onPress={onPress}
+        onLongPress={onLongPress}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         style={({ pressed }) => pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] }}
       >
         {card}

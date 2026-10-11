@@ -1,4 +1,4 @@
-import { AppError, BackupPayload, BACKUP_VERSION, ERROR_CODES } from '@habitos/shared';
+import { AppError, BackupPayload, BACKUP_VERSION, ERROR_CODES, localDateISO } from '@habitos/shared';
 import { randomUUID } from 'expo-crypto';
 import { Directory, File, Paths } from 'expo-file-system';
 import { getDb } from '../data/database';
@@ -105,7 +105,7 @@ export const backupService = {
     const bytes = encryptJson(payload, password);
     const dir = new Directory(Paths.cache, 'backups');
     if (!dir.exists) dir.create({ intermediates: true });
-    const stamp = new Date().toISOString().slice(0, 10);
+    const stamp = localDateISO();
     const file = new File(dir, `habitos-backup-${stamp}.habitos`);
     file.write(bytes);
     return file.uri;

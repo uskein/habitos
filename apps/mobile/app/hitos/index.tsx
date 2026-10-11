@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -7,6 +8,8 @@ import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { AppBar } from '@/ui/navigation/AppBar';
 import { ClayButton } from '@/ui/primitives/ClayButton';
+
+const openViewer = () => router.push('/(modals)/hitos-viewer');
 
 /** Lista de hitos — HU-17/18 · BP 14 · back R10. */
 export default function HitosListScreen() {
@@ -45,7 +48,23 @@ export default function HitosListScreen() {
 
   return (
     <View style={styles.screen}>
-      <AppBar title="Hitos" onBack={() => router.back()} />
+      <AppBar
+        title="Hitos"
+        onBack={() => router.back()}
+        rightAction={
+          list.length > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ver hitos como tarjetas"
+              onPress={openViewer}
+              hitSlop={8}
+              style={styles.viewModeBtn}
+            >
+              <Ionicons name="albums" size={22} color={palette.primary} />
+            </Pressable>
+          ) : null
+        }
+      />
       {list.length === 0 ? (
         <View style={styles.center}>
           <EmptyState
@@ -62,6 +81,11 @@ export default function HitosListScreen() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+          <ClayButton
+            label="🎞 Ver como tarjetas"
+            variant="secondary"
+            onPress={openViewer}
+          />
           {list.map((m, i) => (
             <Animated.View key={m.id} entering={FadeIn.delay(i * 40).duration(220)}>
               <Pressable
@@ -162,6 +186,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: palette.textMuted,
     paddingRight: 4,
+  },
+  viewModeBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fab: {
     marginTop: spacing.sm,

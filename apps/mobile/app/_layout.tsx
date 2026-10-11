@@ -55,6 +55,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(modals)/new-hito" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="(modals)/new-logro" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
+                <Stack.Screen name="(modals)/hitos-viewer" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
                 <Stack.Screen name="goal/[id]" />
                 <Stack.Screen name="habit/[id]" />

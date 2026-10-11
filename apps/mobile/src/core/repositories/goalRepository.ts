@@ -1,8 +1,8 @@
-import { AppError, CreateGoalInput, ERROR_CODES } from '@habitos/shared';
+import { AppError, CreateGoalInput, deviceHour, ERROR_CODES, localDateISO } from '@habitos/shared';
 import { randomUUID } from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { getDb } from '../data/database';
-import type { Goal, GoalStats, GoalStatus, GoalUpdate } from '../domain/entities/goal';
+import type { Goal, GoalStatus, GoalUpdate } from '../domain/entities/goal';
 import type { GoalRepository } from '../domain/repositoryInterfaces';
 
 interface GoalRow {
@@ -224,7 +224,7 @@ export const goalRepository: GoalRepository = {
     const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (6 - i));
-      const iso = d.toISOString().slice(0, 10);
+      const iso = localDateISO(d);
       return {
         date: iso,
         label: d.toLocaleDateString('es-ES', { weekday: 'short' }).slice(0, 2).toLowerCase(),
@@ -236,8 +236,8 @@ export const goalRepository: GoalRepository = {
     for (const r of rows) {
       const day = byDate.get(r.entry_date);
       if (day) day.total += r.delta;
-      const hour = Number(r.created_at.slice(11, 13));
-      if (Number.isInteger(hour) && hour >= 0 && hour < 24) hourly[hour] = (hourly[hour] ?? 0) + 1;
+      const hour = deviceHour(r.created_at);
+      if (hour !== null) hourly[hour] = (hourly[hour] ?? 0) + 1;
     }
     return { daily: days, hourly, updates: rows.length };
   },
