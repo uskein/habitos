@@ -12,7 +12,7 @@ App móvil **local-first** de hábitos, metas y bienestar con gamificación. **1
 
 | Build | Tipo | versionCode | Enlace |
 |-------|------|-------------|--------|
-| **Preview (instalable)** | `.apk` | 4 | [⬇️ Descargar APK](https://expo.dev/artifacts/eas/f3oyUngqdeJxvYKSVIjQcForiDG8WClYnVYJBjW9k68.apk) |
+| **Preview (instalable)** | `.apk` | 4 | [⬇️ Descargar APK](https://expo.dev/artifacts/eas/m0EBwM3O1ckRRzvggOcfwxRCAXGAgu2NMQc55QqkNmk.apk) |
 | **Production (Play Store)** | `.aab` | 4 | [📦 Ver en Expo](https://expo.dev/artifacts/eas/W18FWZJR3vIh89KA8LiKEPMZpSR0CZBMBhGTFA-6n0E.aab) |
 
 > **Instalar el APK:** descarga el archivo en tu Android, abre el archivo y acepta la instalación. Requiere Android 8+ (API 26).
