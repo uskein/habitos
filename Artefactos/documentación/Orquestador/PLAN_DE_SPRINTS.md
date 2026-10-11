@@ -151,7 +151,7 @@ decisiones:
 | **V2 · S15 — M22 racha con freeze** | ✔ computeStreak+freezes, auto-consume, botón ❄ Logros, contador StreakCard, 6 tests nuevos (16/16 suite streak) |
 | **V2 · S15 — M23 backup cifrado** | ✔ scrypt+AES-GCM (@noble/ciphers), export/import Zod+tx rollback, modal (modals)/backup, 7 tests crypto (bugs base64 '+'/'/' y padding corregidos) |
 | **V2 · S15 — M24 hito compartible** | ✔ Skia offscreen 1080×1080 → PNG → expo-sharing, SHARE_RENDER_FAILED retry in-situ |
-| **V2 · S15 — M25 horarios por hábito** | ✔ time_slot end-to-end (create/update/ORDER BY tramo), filtro de stats con ChipsTabs, chips en new-habit, 4 tests hourInSlot (24 h sin solaparse) |
+| **V2 · S15 — M25 horarios por habito** | ✔ time_slot end-to-end (create/update/ORDER BY tramo), filtro de stats con ChipsTabs, chips en new-habit, 4 tests hourInSlot (24 h sin solaparse) |
 | `tsc --noEmit` post-V2 (mobile + shared) | ✔ limpio |
 | Jest (jest-expo) post-V2 | ✔ 5 suites, 36/36 tests |
 | `expo-doctor` post-V2 | ✔ 21/21 |
@@ -162,6 +162,63 @@ decisiones:
 | EAS build preview (V2 APK) | ✔ FINISHED — APK `57b9a078` → https://expo.dev/artifacts/eas/ovzBP5i5oQZsBfAtL5B0DxbL6y4G1KN18fl_F9hWYzM.apk |
 | Fix resolve RNGH (post-push) | ✔ `react-native-gesture-handler` faltaba en node_modules → `npm install` raíz + export OK (7.2 MB) |
 | **M12–M25 + M21 (implementación V2)** | ✅ COMPLETADOS — **Paso 4 cerrado**; quedan esperas activas Paso 5 (flujos en device) y Paso 10 (entrega) |
+
+---
+
+## 6. V2.2 — Sprint extra (2026-10-11): Fixes críticos + nueva tab Top Hitos
+
+| Sprint | Módulo | Tareas | HU / Flujos | Complejidad |
+|---|---|---|---|---|
+| S16 | **M26 — Fix SHARE_RENDER_FAILED + F19 hora dispositivo** | milestoneShareService: 3-tier typeface fallback (bundle file → URI → system), `setEmbolden(1)` fix JSI binding; `deviceHour()` helper en shared (UTC→local sin TZ → hora dispositivo), aplicado en statsRepository, goalRepository, achievementEvaluation, backupService, plan toggle; stats cache-bust v2 + logs diagnóstico; route hitos corregida `/hitos` | F22, F19, F23 | Media |
+| S16 | **M27 — Plan UI + ChipsTabs fix + Metas long-press** | Plan: listas pegadas bajo tabs (quitado flexGrow/justifyContent), long-press para eliminar metas (useDeleteGoal + Alert nativo); ChipsTabs: `flexGrow:0/flexShrink:0` elimina contenedor vacío gigante en ScrollView horizontal; hint actualizado | F23, Plan UX | Media |
+| S16 | **M28 — Nueva tab «Top Hitos»** | `app/(tabs)/top-hitos.tsx` + registro en `_layout` (sparkles, entre Plan y Logros); hero hito más reciente (foto full-bleed + velo dark + badge ¡Nuevo! + kicker + Ver detalle); grid 2-cols (foto/placeholder + chip fecha + título + meta); 4 estados R9 (skeleton/error/empty/contenido); tap → `/hito/[id]` | HU-18, F13, F19 | Media |
+
+### Validación V2.2
+
+| Check | Resultado |
+|---|---|
+| `tsc --noEmit` (mobile + shared) | ✔ limpio |
+| Lint (archivos tocados) | ✔ 0 problems |
+| Jest (jest-expo) | ✔ 5 suites, **40/40 tests** (+4 deviceHour) |
+| `expo-doctor` | ✔ 21/21 |
+| `expo export --platform android` | ✔ bundle hbc ~7.2 MB |
+| EAS build production (AAB) | ✔ FINISHED — `fa2baec7` versionCode 4 → https://expo.dev/artifacts/eas/W18FWZJR3vIh89KA8LiKEPMZpSR0CZBMBhGTFA-6n0E.aab |
+| EAS build preview (APK) | ✔ FINISHED — `6e2b5cfa` versionCode 4 → https://expo.dev/artifacts/eas/ZURXGh-lbGCqsJYCPNOHzGYwCpnQ7PR_k5IX-omWu6E.apk |
+| **Paso 5 V2.2 — Flujos en device** | ✅ **APROBADO por el usuario (2026-10-11)** — compartir hito, Plan scroll/eliminar metas, Top Hitos, ChipsTabs fijo |
+| **Paso 10 V2.2 — Entrega** | ✅ **COMPLETADO** — AAB + APK preview listos, docs actualizadas, commit `da9fd15` |
+
+---
+
+## 7. Estado final del orquestador V2.2
+
+```
+faseActual: "Paso 10 — Entrega V2.2 COMPLETADA"
+progreso: V1 100% — V2 M12-M25 ✓ — V2.2 M26-M28 ✓
+esperaActiva: NINGUNA
+errores: []
+decisiones_v2.2:
+  - deviceHour(): asume UTC si no hay marca TZ (datetime('now'), toISOString cortado) → new Date(...).getHours() local
+  - milestoneShareService: setEmbolden(1) por bug JSI binding (asNumber espera number, no boolean)
+  - ChipsTabs: ScrollView horizontal con flexGrow:0/flexShrink:0 previene estiramiento vertical en Android
+  - Top Hitos: 5ª tab bottom (Hoy, Plan, Top Hitos, Logros, Perfil) con icono sparkles
+  - route hitos: '/hitos' (index colapsado) en vez de '/hitos/index'
+```
+
+---
+
+## 8. Entregables finales (Paso 10 V2.2)
+
+- ✅ Código: `da9fd15` en `main` (23 archivos, +6381/-1791)
+- ✅ Build production AAB: versionCode 4 → `W18FWZJR3vIh89KA8LiKEPMZpSR0CZBMBhGTFA-6n0E.aab`
+- ✅ Build preview APK: versionCode 4 → `ZURXGh-lbGCqsJYCPNOHzGYwCpnQ7PR_k5IX-omWu6E.apk`
+- ✅ Tests: 40/40 (jest-expo, incl. deviceHour, hourInSlot, streak, evaluateEvent, crypto)
+- ✅ Typecheck: limpio (mobile + shared)
+- ✅ Lint: 0 problems en archivos modificados
+- ✅ Doctypes: `expo-doctor` 21/21
+- ✅ Export: bundle 7.2 MB sin errores
+- ✅ 4 estados R9 en Top Hitos (skeleton/error/empty/contenido)
+- ✅ Hex guard: solo `theme.ts`
+- ✅ Documentación: este plan actualizado + bitácora cerrada
 
 ---
 
