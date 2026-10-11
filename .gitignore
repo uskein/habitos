@@ -37,4 +37,6 @@ npm-debug.log*
 
 # Test coverage
 coverage/
-app.json
+
+# Artefacto de expo start en la RAÍZ del monorepo (solo raíz; NUNCA apps/mobile/app.json — lo necesita EAS Build)
+/app.json
