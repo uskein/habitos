@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -8,6 +9,7 @@ import {
   remindersEnabled,
   setRemindersEnabled,
 } from '@/core/services/notificationService';
+import { statsExportService } from '@/core/services/statsExportService';
 import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { sessionBus } from '@/core/storage/sessionBus';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
@@ -196,6 +198,27 @@ export default function ProfileScreen() {
             label="Backup y restauración"
             variant="secondary"
             onPress={() => router.push('/(modals)/backup')}
+          />
+          <ClayButton
+            label="Exportar datos (CSV)"
+            variant="secondary"
+            onPress={() => {
+              void (async () => {
+                try {
+                  const uri = await statsExportService.exportHabitLogCsv();
+                  if (await Sharing.isAvailableAsync()) {
+                    await Sharing.shareAsync(uri, {
+                      mimeType: 'text/csv',
+                      dialogTitle: 'Exportar datos (CSV)',
+                    });
+                  } else {
+                    toast.show('Compartir no disponible en este dispositivo', 'error');
+                  }
+                } catch {
+                  toast.show('No se pudo exportar el CSV', 'error');
+                }
+              })();
+            }}
           />
         </Section>
 
