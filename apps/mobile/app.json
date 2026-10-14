@@ -46,8 +46,26 @@
         }
       ],
       "@react-native-community/datetimepicker",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "HabitWidget",
+              "label": "Hábitos de hoy",
+              "description": "Progreso del día y tus hábitos pendientes",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
       "expo-sharing",
-      "expo-asset"
+      "expo-asset",
+      "react-native-android-widget"
     ],
     "extra": {
       "router": {},

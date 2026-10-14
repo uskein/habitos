@@ -8,6 +8,8 @@ import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initNotifications } from '@/core/services/notificationService';
 import { ThemeProvider, useAppTheme } from '@/core/theme/ThemeProvider';
+// M34 · el registro del widget task handler es un side-effect de import.
+import '@/features/widgets/habitWidget';
 import { CelebrationWatcher } from '@/features/achievements/CelebrationWatcher';
 import { SessionGate } from '@/features/settings/SessionGate';
 import { Spinner } from '@/ui/feedback/Spinner';

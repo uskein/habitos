@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { localDateISO } from '@habitos/shared';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
@@ -16,6 +16,11 @@ import { CheckInCard } from '@/features/wellbeing/CheckInCard';
 import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog } from '@/features/habits/useHabits';
 import { useFreezes } from '@/features/habits/useFreezes';
 import { MotivationCard } from '@/features/motivations/MotivationCard';
+import {
+  saveWidgetSnapshot,
+  syncHabitWidget,
+  type WidgetHabit,
+} from '@/features/widgets/habitWidget';
 
 function greetingFor(h: number): string {
   if (h < 12) return 'Buenos días';
@@ -84,6 +89,23 @@ export default function HoyScreen() {
   const habits = useHabitsToday();
   const freezes = useFreezes();
   const toggle = useToggleLog();
+
+  // M34 · widget: snapshot del día → home screen (best-effort, sin bloquear la UI).
+  useEffect(() => {
+    const list = habits.data;
+    if (!list) return;
+    const widgetHabits: WidgetHabit[] = list.slice(0, 3).map((h) => ({
+      icon: h.icon,
+      name: h.name,
+      done: h.log?.completed ?? false,
+    }));
+    saveWidgetSnapshot({
+      completed: list.filter((h) => h.log?.completed).length,
+      total: list.length,
+      habits: widgetHabits,
+    });
+    void syncHabitWidget();
+  }, [habits.data]);
 
   if (habits.isPending || profile.isPending) {
     return (
