@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { localDateISO } from '@habitos/shared';
 import { fonts, spacing } from '@/core/theme/theme';
@@ -109,6 +109,33 @@ const makeStyles = (colors: ActivePalette) =>
       fontSize: 12,
       color: colors.textMuted,
       textTransform: 'capitalize',
+      flex: 1,
+      textAlign: 'center',
+    },
+    calNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    calNavBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    calNavBtnOff: {
+      opacity: 0.4,
+    },
+    calNavGlyph: {
+      fontFamily: fonts.display,
+      fontSize: 20,
+      lineHeight: 24,
+      color: colors.primary,
+      fontWeight: '600',
     },
     calRow: {
       flexDirection: 'row',
@@ -172,8 +199,11 @@ export default function AchievementsScreen() {
   const freezes = useFreezes();
   const toggleFreeze = useToggleFreeze();
   const [view, setView] = useState<(typeof VIEWS)[number]>('all');
+  /** M35 · offset de mes navegado (0 = actual; negativo = anteriores). */
+  const [monthOffset, setMonthOffset] = useState(0);
   const now = new Date();
-  const month = useMonthCompletedDates(now.getFullYear(), now.getMonth());
+  const viewDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const month = useMonthCompletedDates(viewDate.getFullYear(), viewDate.getMonth());
   const heatmap = useYearHeatmap();
 
   if (streak.isPending || achievements.isPending) {
@@ -315,11 +345,33 @@ export default function AchievementsScreen() {
 
         <Text style={styles.section}>Calendario del mes</Text>
         <View style={styles.calendar}>
-          <Text style={styles.calCaption}>
-            Días con logros completados en {now.toLocaleDateString('es-ES', { month: 'long' })}
-          </Text>
+          <View style={styles.calNav}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Mes anterior"
+              onPress={() => setMonthOffset((o) => o - 1)}
+              style={styles.calNavBtn}
+              hitSlop={8}
+            >
+              <Text style={styles.calNavGlyph}>‹</Text>
+            </Pressable>
+            <Text style={styles.calCaption}>
+              Días con logros en {viewDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Mes siguiente"
+              accessibilityState={{ disabled: monthOffset >= 0 }}
+              disabled={monthOffset >= 0}
+              onPress={() => setMonthOffset((o) => Math.min(0, o + 1))}
+              style={[styles.calNavBtn, monthOffset >= 0 && styles.calNavBtnOff]}
+              hitSlop={8}
+            >
+              <Text style={styles.calNavGlyph}>›</Text>
+            </Pressable>
+          </View>
           <View style={styles.calRow}>
-            {buildMonthCells(now, month.data ?? []).map((c) => (
+            {buildMonthCells(viewDate, month.data ?? []).map((c) => (
               <View
                 key={c.key}
                 style={[
