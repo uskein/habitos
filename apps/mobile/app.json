@@ -64,8 +64,7 @@
         }
       ],
       "expo-sharing",
-      "expo-asset",
-      "react-native-android-widget"
+      "expo-asset"
     ],
     "extra": {
       "router": {},
