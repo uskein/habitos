@@ -183,7 +183,6 @@ export const milestoneShareService = {
       return out.uri;
     } catch (e) {
       if (e instanceof AppError && e.code === ERROR_CODES.NOT_FOUND) throw e;
-      console.error('[share] render falló:', e);
       throw new AppError(
         ERROR_CODES.SHARE_RENDER_FAILED,
         'No se pudo renderizar la tarjeta para compartir',

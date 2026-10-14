@@ -45,7 +45,6 @@ export default function HoyScreen() {
   }
 
   if (habits.isError) {
-    console.error('[Hoy] listByDate:', habits.error);
     return (
       <View style={styles.screen}>
         <View style={styles.center}>
@@ -126,7 +125,16 @@ export default function HoyScreen() {
                   { habitId: h.id, date: h.log?.logDate ?? localDateISO() },
                   {
                     onSuccess: (log) => {
-                      if (log.completed) toast.show('¡Hábito completado! 🔥', 'success');
+                      if (log.completed) {
+                        toast.show('¡Hábito completado! 🔥', 'success', {
+                          label: 'Deshacer',
+                          onPress: () =>
+                            toggle.mutate(
+                              { habitId: h.id, date: log.logDate },
+                              { onError: () => toast.show('No se pudo deshacer', 'error') },
+                            ),
+                        });
+                      }
                     },
                     onError: () => toast.show('No se pudo guardar', 'error'),
                   },

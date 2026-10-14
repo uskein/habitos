@@ -75,7 +75,16 @@ export default function HabitDetail() {
       { habitId: h.id, date: today },
       {
         onSuccess: (log) => {
-          if (log.completed) toast.show('¡Hábito completado! 🔥', 'success');
+          if (log.completed) {
+            toast.show('¡Hábito completado! 🔥', 'success', {
+              label: 'Deshacer',
+              onPress: () =>
+                toggle.mutate(
+                  { habitId: h.id, date: today },
+                  { onError: () => toast.show('No se pudo deshacer', 'error') },
+                ),
+            });
+          }
         },
         onError: () => toast.show('No se pudo guardar', 'error'),
       },

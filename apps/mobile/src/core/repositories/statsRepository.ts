@@ -94,7 +94,6 @@ export const statsRepository = {
       habitId,
       localDateISO(start30),
     );
-    if (!slot) console.log('[stats] recomputa', habitId, 'rows:', rows.length);
 
     // HU-30 — con tramo: sólo cuenta el log cuya hora DEL DISPOSITIVO cae en él.
     const inSlot = slot

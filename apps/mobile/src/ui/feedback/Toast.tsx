@@ -14,13 +14,20 @@ import { fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
 
 export type ToastTone = 'neutral' | 'success' | 'error';
 
+/** Acción opcional del toast (M30 · p. ej. «Deshacer» tras marcar hábito). */
+export interface ToastAction {
+  label: string;
+  onPress: () => void;
+}
+
 interface ToastState {
   message: string;
   tone: ToastTone;
+  action?: ToastAction;
 }
 
 interface ToastContextValue {
-  show: (message: string, tone?: ToastTone) => void;
+  show: (message: string, tone?: ToastTone, action?: ToastAction) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -41,11 +48,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((message: string, tone: ToastTone = 'neutral') => {
-    if (timer.current) clearTimeout(timer.current);
-    setToast({ message, tone });
-    timer.current = setTimeout(() => setToast(null), 3200);
-  }, []);
+  const show = useCallback(
+    (message: string, tone: ToastTone = 'neutral', action?: ToastAction) => {
+      if (timer.current) clearTimeout(timer.current);
+      setToast({ message, tone, action });
+      // Con acción (p. ej. Deshacer) extendemos la ventana de toque.
+      timer.current = setTimeout(() => setToast(null), action ? 5000 : 3200);
+    },
+    [],
+  );
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -63,9 +74,26 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               onPress={() => setToast(null)}
               style={[styles.toast, shadows.clay]}
             >
-              <Text style={[styles.message, { color: toneColor[toast.tone] }]}>
-                {toast.message}
-              </Text>
+              <View style={styles.toastRow}>
+                <Text style={[styles.message, { color: toneColor[toast.tone] }]}>
+                  {toast.message}
+                </Text>
+                {toast.action ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={toast.action.label}
+                    hitSlop={8}
+                    onPress={() => {
+                      const run = toast.action?.onPress;
+                      setToast(null);
+                      run?.();
+                    }}
+                    style={styles.actionBtn}
+                  >
+                    <Text style={styles.actionLabel}>{toast.action.label}</Text>
+                  </Pressable>
+                ) : null}
+              </View>
             </Pressable>
           </Animated.View>
         ) : null}
@@ -102,5 +130,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     textAlign: 'center',
+  },
+  toastRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  actionBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    backgroundColor: palette.surfaceAlt,
+  },
+  actionLabel: {
+    fontFamily: fonts.body,
+    fontWeight: '700',
+    fontSize: 13,
+    color: palette.primary,
   },
 });
