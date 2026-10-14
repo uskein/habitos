@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToast } from '@/ui/feedback/Toast';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Progress } from '@/ui/feedback/Progress';
@@ -15,7 +16,6 @@ import { StreakCard } from '@/features/habits/StreakCard';
 import { CheckInCard } from '@/features/wellbeing/CheckInCard';
 import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog } from '@/features/habits/useHabits';
 import { useFreezes } from '@/features/habits/useFreezes';
-import { MotivationCard } from '@/features/motivations/MotivationCard';
 import {
   saveWidgetSnapshot,
   syncHabitWidget,
@@ -83,6 +83,7 @@ const makeStyles = (colors: ActivePalette) =>
 export default function HoyScreen() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
   const toast = useToast();
   const profile = useProfile();
   const streak = useGlobalStreak();
@@ -159,7 +160,7 @@ export default function HoyScreen() {
             }
           />
         </View>
-        <Fab />
+        <Fab insets={insets} />
       </View>
     );
   }
@@ -184,7 +185,6 @@ export default function HoyScreen() {
 
         <CheckInCard />
 
-        <MotivationCard />
         <ClayButton
           label="+ Motivación"
           variant="ghost"
@@ -221,12 +221,12 @@ export default function HoyScreen() {
           ))}
         </View>
       </ScrollView>
-      <Fab />
+      <Fab insets={insets} />
     </View>
   );
 }
 
-function Fab() {
+function Fab({ insets }: { insets: { bottom: number } }) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -235,7 +235,12 @@ function Fab() {
       accessibilityRole="button"
       accessibilityLabel="Crear hábito"
       onPress={() => router.push('/(modals)/new-habit')}
-      style={({ pressed }) => [styles.fab, shadows.fab, pressed && { transform: [{ scale: 0.94 }] }]}
+      style={({ pressed }) => [
+        styles.fab,
+        { bottom: insets.bottom + 24 },
+        shadows.fab,
+        pressed && { transform: [{ scale: 0.94 }] },
+      ]}
     >
       <Text style={styles.fabIcon}>+</Text>
     </Pressable>

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Badge } from '@/ui/feedback/Badge';
+import { ClayAvatar } from '@/ui/primitives/ClayAvatar';
 import { ClayCard } from '@/ui/primitives/ClayCard';
 import { fonts, spacing } from '@/core/theme/theme';
 import { useAppTheme } from '@/core/theme/ThemeProvider';
+import { useProfile } from '@/features/habits/useHabits';
 
 export interface StreakCardProps {
   greeting: string;
@@ -16,7 +18,7 @@ export interface StreakCardProps {
   frozenToday?: boolean;
 }
 
-/** StreakCard — BLUEPRINTS §4: cifra mono + chip Nivel + progreso del día. */
+/** StreakCard — BLUEPRINTS §4: cifra mono + chip Nivel + progreso del día + avatar. */
 export function StreakCard({
   greeting,
   globalStreak,
@@ -26,6 +28,8 @@ export function StreakCard({
   frozenToday,
 }: StreakCardProps) {
   const { colors } = useAppTheme();
+  const profile = useProfile();
+  const avatarUri = profile.data?.photoUri;
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -119,6 +123,7 @@ export function StreakCard({
             </View>
           )}
           <Badge label={`Nivel ${Math.min(10, Math.floor(globalStreak / 3) + 1)}`} tint="warning" />
+          <ClayAvatar photoUri={avatarUri} size={40} name={profile.data?.displayName ?? 'Usuario'} />
         </View>
       </View>
       <View style={styles.streakRow}>
