@@ -9,3 +9,4 @@ export * from './schemas/milestone.schema';
 export * from './schemas/motivation.schema';
 export * from './schemas/achievementCustom.schema';
 export * from './schemas/backup.schema';
+export * from './schemas/challenge.schema';
