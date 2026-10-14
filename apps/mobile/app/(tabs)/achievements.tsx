@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { localDateISO } from '@habitos/shared';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, palette, spacing } from '@/core/theme/theme';
 import { useAchievements, useRemoveCustomAchievement } from '@/features/achievements/useAchievements';
 import { AchievementCard } from '@/features/achievements/AchievementCard';
-import { useMonthCompletedDates } from '@/features/achievements/useMonthStats';
+import { useMonthCompletedDates, useYearHeatmap } from '@/features/achievements/useMonthStats';
+import { YearHeatmap } from '@/features/achievements/YearHeatmap';
 import { useGlobalStreak } from '@/features/habits/useHabits';
 import { useFreezes, useToggleFreeze } from '@/features/habits/useFreezes';
 import { EmptyState } from '@/ui/feedback/EmptyState';
@@ -29,6 +30,7 @@ export default function AchievementsScreen() {
   const [view, setView] = useState<(typeof VIEWS)[number]>('all');
   const now = new Date();
   const month = useMonthCompletedDates(now.getFullYear(), now.getMonth());
+  const heatmap = useYearHeatmap();
 
   if (streak.isPending || achievements.isPending) {
     return (
@@ -187,6 +189,10 @@ export default function AchievementsScreen() {
             ))}
           </View>
         </View>
+
+        {heatmap.data ? (
+          <YearHeatmap weeks={heatmap.data.weeks} labels={heatmap.data.labels} />
+        ) : null}
 
         <View style={styles.medalsHeader}>
           <Text style={styles.section}>Medallas</Text>

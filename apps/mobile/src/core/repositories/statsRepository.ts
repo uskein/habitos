@@ -14,6 +14,26 @@ async function getMonthCompletedDates(from: string, to: string): Promise<string[
   return rows.map((r) => r.log_date);
 }
 
+/** M31 · heatmap anual — nº de hábitos completados por día en los últimos365 días. */
+async function getYearActivity(): Promise<Record<string, number>> {
+  const db = await getDb();
+  const from = addDaysISO(localDateISO(), -364);
+  const rows = await db.getAllAsync<{ log_date: string; n: number }>(
+    `SELECT log_date, COUNT(*) AS n FROM habit_log
+     WHERE completed = 1 AND log_date >= ?
+     GROUP BY log_date`,
+    from,
+  );
+  return Object.fromEntries(rows.map((r) => [r.log_date, r.n]));
+}
+
+function addDaysISO(iso: string, days: number): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(y!, (m ?? 1) - 1, d ?? 1);
+  date.setDate(date.getDate() + days);
+  return localDateISO(date);
+}
+
 /** V2 · HU-26 — tasa 30 días + hora + tendencia (ClayBars/Victory/ClaySparkline). */
 export interface HabitStats {
   /** Tasa de cumplimiento % en los últimos 30 días. */
@@ -69,6 +89,7 @@ function pct(n: number, total: number): number {
 
 export const statsRepository = {
   getMonthCompletedDates,
+  getYearActivity,
 
   /**
    * V2 · HU-26 — stats del hábito desde stats_cache (TTL 24 h).

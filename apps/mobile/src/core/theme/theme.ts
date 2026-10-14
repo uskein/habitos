@@ -27,6 +27,8 @@ export const palette = {
   awardSoft: '#FEF3C7',
   textFaded: '#9B95B5',
   track: '#DDD5FB',
+  /** Tono intermedio primary → primaryActive (rampas, heatmaps). Token del manual. */
+  primarySoft: '#8B78FF',
   /** V2 — relleno de área en gráficos (primary @12%). Solo vistas de stats. */
   chartArea: 'rgba(109,75,245,0.12)',
 } as const;
