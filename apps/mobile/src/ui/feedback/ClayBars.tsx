@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -9,7 +9,8 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { durations, easings, palette, radii } from '@/core/theme/theme';
+import { durations, easings, radii } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayBarsDatum {
   label: string;
@@ -27,7 +28,7 @@ export interface ClayBarsProps {
 
 /**
  * ClayBars (V2 · manual §8.2) — altura 160 px, barra 16 px r8, fill gradiente
- * primary → secondary sobre track #DDD5FB. Animación scaleY 320 ms easing.std
+ * primary → secondary sobre track. Animación scaleY 320 ms easing.std
  * con retardo escalonado 50 ms por barra. Reduced-motion: altura final ya montada.
  */
 export function ClayBars({
@@ -60,6 +61,7 @@ function Bar({
   trackHeight: number;
   index: number;
 }) {
+  const { colors } = useAppTheme();
   const reduced = useReducedMotion();
   const progress = useSharedValue(0);
   const clamped = Math.max(0, Math.min(100, datum.value));
@@ -80,12 +82,45 @@ function Bar({
     height: `${clamped * progress.value}%`,
   }));
 
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        barCol: {
+          flex: 1,
+          alignItems: 'center',
+          gap: 6,
+        },
+        barTrack: {
+          backgroundColor: colors.track,
+          borderRadius: radii.sm,
+          overflow: 'hidden',
+          justifyContent: 'flex-end',
+        },
+        fill: {
+          width: '100%',
+          borderRadius: radii.sm,
+          overflow: 'hidden',
+        },
+        label: {
+          fontSize: 10,
+          fontWeight: '700',
+          color: colors.textMuted,
+        },
+        caption: {
+          fontSize: 9,
+          fontFamily: 'JetBrains Mono',
+          color: colors.textFaded,
+        },
+      }),
+    [colors],
+  );
+
   return (
     <View style={styles.barCol} accessible accessibilityLabel={`${datum.label}: ${clamped}%`}>
       <View style={[styles.barTrack, { width: barWidth, height: trackHeight }]}>
         <Animated.View style={[styles.fill, fillStyle]}>
           <LinearGradient
-            colors={[palette.primary, palette.secondary]}
+            colors={[colors.primary, colors.secondary]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={StyleSheet.absoluteFill}
@@ -100,38 +135,13 @@ function Bar({
   );
 }
 
+/** Estilos puramente geométricos (sin color) — seguros a nivel de módulo. */
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: 7,
-  },
-  barCol: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 6,
-  },
-  barTrack: {
-    backgroundColor: palette.track,
-    borderRadius: radii.sm,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  fill: {
-    width: '100%',
-    borderRadius: radii.sm,
-    overflow: 'hidden',
-  },
-  label: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: palette.textMuted,
-  },
-  caption: {
-    fontSize: 9,
-    fontFamily: 'JetBrains Mono',
-    color: palette.textFaded,
   },
 });
 

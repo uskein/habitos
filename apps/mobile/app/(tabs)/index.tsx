@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import { localDateISO } from '@habitos/shared';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { fonts, palette, shadows, spacing } from '@/core/theme/theme';
+import { fonts, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useToast } from '@/ui/feedback/Toast';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Progress } from '@/ui/feedback/Progress';
@@ -21,8 +23,61 @@ function greetingFor(h: number): string {
   return 'Buenas noches';
 }
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+    },
+    body: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.md,
+      paddingBottom: 96,
+    },
+    greeting: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+    },
+    progress: {
+      marginHorizontal: 4,
+    },
+    list: {
+      gap: spacing.sm,
+    },
+    fab: {
+      position: 'absolute',
+      right: 20,
+      bottom: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fabIcon: {
+      color: colors.surface,
+      fontSize: 30,
+      lineHeight: 34,
+      fontWeight: '600',
+    },
+  });
+
 /** Tab Hoy — BLUEPRINTS §3 máquina de estados (Loading/Empty/Success/Error). */
 export default function HoyScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const toast = useToast();
   const profile = useProfile();
   const streak = useGlobalStreak();
@@ -150,6 +205,9 @@ export default function HoyScreen() {
 }
 
 function Fab() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -161,52 +219,3 @@ function Fab() {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
-    paddingBottom: 96,
-  },
-  greeting: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-  },
-  progress: {
-    marginHorizontal: 4,
-  },
-  list: {
-    gap: spacing.sm,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabIcon: {
-    color: palette.surface,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: '600',
-  },
-});

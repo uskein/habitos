@@ -10,7 +10,8 @@ import {
 } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
-import { fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { fonts, radii, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export type ToastTone = 'neutral' | 'success' | 'error';
 
@@ -38,13 +39,8 @@ export function useToast(): ToastContextValue {
   return ctx;
 }
 
-const toneColor: Record<ToastTone, string> = {
-  neutral: palette.text,
-  success: palette.success,
-  error: palette.error,
-};
-
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { colors } = useAppTheme();
   const [toast, setToast] = useState<ToastState | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,6 +59,66 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({ show }), [show]);
+
+  const toneColor = useMemo(
+    (): Record<ToastTone, string> => ({
+      neutral: colors.text,
+      success: colors.success,
+      error: colors.error,
+    }),
+    [colors],
+  );
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        host: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 999,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          paddingTop: 72,
+          pointerEvents: 'box-none',
+        },
+        toast: {
+          backgroundColor: colors.surface,
+          borderRadius: radii.pill,
+          borderWidth: 1,
+          borderColor: colors.border,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: 12,
+          maxWidth: '86%',
+        },
+        message: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 14,
+          textAlign: 'center',
+        },
+        toastRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.md,
+        },
+        actionBtn: {
+          paddingHorizontal: spacing.sm,
+          paddingVertical: 4,
+          borderRadius: radii.pill,
+          backgroundColor: colors.surfaceAlt,
+        },
+        actionLabel: {
+          fontFamily: fonts.body,
+          fontWeight: '700',
+          fontSize: 13,
+          color: colors.primary,
+        },
+      }),
+    [colors],
+  );
 
   return (
     <ToastContext.Provider value={value}>
@@ -102,50 +158,3 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     </ToastContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  host: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingTop: 72,
-    pointerEvents: 'box-none',
-  },
-  toast: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: palette.border,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 12,
-    maxWidth: '86%',
-  },
-  message: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  toastRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  actionBtn: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    backgroundColor: palette.surfaceAlt,
-  },
-  actionLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '700',
-    fontSize: 13,
-    color: palette.primary,
-  },
-});

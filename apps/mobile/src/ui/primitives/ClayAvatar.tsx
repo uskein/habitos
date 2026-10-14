@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { palette } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayAvatarProps {
   name: string;
@@ -29,18 +30,47 @@ function initials(name: string): string {
  * Si hay photoUri se muestra la foto (FileSystem); sin ella → gradiente + iniciales.
  */
 export function ClayAvatar({ name, size = 56, photoUri, onPressCamera, style }: ClayAvatarProps) {
+  const { colors } = useAppTheme();
   const dim = SIZES[size];
   const badgeSize = size === 88 ? 30 : 22;
+
+  const styles = useMemo(() => StyleSheet.create({
+    wrap: {
+      alignSelf: 'center',
+    },
+    circle: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 3,
+      borderColor: colors.surface,
+      overflow: 'hidden',
+    },
+    initials: {
+      fontFamily: 'Sora',
+      fontWeight: '700',
+      color: colors.surface,
+    },
+    camera: {
+      position: 'absolute',
+      right: -3,
+      bottom: -3,
+      backgroundColor: colors.primary,
+      borderWidth: 3,
+      borderColor: colors.bg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  }), [colors]);
 
   const body = photoUri ? (
     <Image
       source={{ uri: photoUri }}
-      style={{ width: dim, height: dim, borderRadius: dim / 2, borderWidth: 3, borderColor: palette.surface }}
+      style={{ width: dim, height: dim, borderRadius: dim / 2, borderWidth: 3, borderColor: colors.surface }}
       accessibilityLabel={`Foto de perfil de ${name}`}
     />
   ) : (
     <LinearGradient
-      colors={[palette.primary, palette.secondary]}
+      colors={[colors.primary, colors.secondary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.circle, { width: dim, height: dim, borderRadius: dim / 2 }]}
@@ -74,31 +104,3 @@ export function ClayAvatar({ name, size = 56, photoUri, onPressCamera, style }: 
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    alignSelf: 'center',
-  },
-  circle: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: palette.surface,
-    overflow: 'hidden',
-  },
-  initials: {
-    fontFamily: 'Sora',
-    fontWeight: '700',
-    color: palette.surface,
-  },
-  camera: {
-    position: 'absolute',
-    right: -3,
-    bottom: -3,
-    backgroundColor: palette.primary,
-    borderWidth: 3,
-    borderColor: palette.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

@@ -7,7 +7,8 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { durations, easings, palette, radii } from '@/core/theme/theme';
+import { durations, easings, radii } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface SkeletonProps {
   width?: ViewStyle['width'];
@@ -18,6 +19,7 @@ export interface SkeletonProps {
 
 /** Skeleton con pulse suave (opacity 0.5↔1). */
 export function Skeleton({ width = '100%', height = 16, borderRadius = radii.sm, style }: SkeletonProps) {
+  const { colors } = useAppTheme();
   const pulse = useSharedValue(0.5);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export function Skeleton({ width = '100%', height = 16, borderRadius = radii.sm,
   return (
     <Animated.View
       accessibilityElementsHidden
-      style={[{ width, height, borderRadius, backgroundColor: palette.surfaceAlt }, animated, style]}
+      style={[{ width, height, borderRadius, backgroundColor: colors.surfaceAlt }, animated, style]}
     />
   );
 }

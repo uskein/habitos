@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, {
   Easing,
@@ -5,7 +6,8 @@ import Animated, {
   useReducedMotion,
   withTiming,
 } from 'react-native-reanimated';
-import { components, durations, easings, palette } from '@/core/theme/theme';
+import { components, durations, easings } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useHaptics } from '@/hooks/useHaptics';
 
 export interface ClayToggleProps {
@@ -18,10 +20,36 @@ export interface ClayToggleProps {
 const THUMB = components.toggleHeight - 6;
 const TRAVEL = components.toggleWidth - THUMB - 6;
 
-/** Toggle 52×32 — thumb blanco, track primary/off con transición clay. */
+/** Toggle 52×32 — thumb surface, track primary/off con transición clay. */
 export function ClayToggle({ value, onValueChange, disabled = false, testID }: ClayToggleProps) {
+  const { colors } = useAppTheme();
   const haptics = useHaptics();
   const reduceMotion = useReducedMotion() ?? false;
+
+  const styles = useMemo(() => StyleSheet.create({
+    pressable: {
+      width: components.toggleWidth,
+      height: components.toggleHeight,
+      justifyContent: 'center',
+    },
+    track: {
+      width: components.toggleWidth,
+      height: components.toggleHeight,
+      borderRadius: components.toggleHeight / 2,
+      backgroundColor: colors.track,
+      padding: 3,
+      justifyContent: 'center',
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    thumb: {
+      width: THUMB,
+      height: THUMB,
+      borderRadius: THUMB / 2,
+      backgroundColor: colors.surface,
+    },
+  }), [colors]);
 
   const progress = useAnimatedStyle(() => {
     const x = value ? TRAVEL : 0;
@@ -38,8 +66,10 @@ export function ClayToggle({ value, onValueChange, disabled = false, testID }: C
     };
   });
 
+  // El worklet captura los colores del render actual; al cambiar de tema se
+  // re-crea con la paleta activa (transición animada vía withTiming).
   const trackStyle = useAnimatedStyle(() => {
-    const bg = value ? palette.primary : palette.track;
+    const bg = value ? colors.primary : colors.track;
     if (reduceMotion) return { backgroundColor: bg };
     return {
       backgroundColor: withTiming(bg, {
@@ -67,28 +97,3 @@ export function ClayToggle({ value, onValueChange, disabled = false, testID }: C
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  pressable: {
-    width: components.toggleWidth,
-    height: components.toggleHeight,
-    justifyContent: 'center',
-  },
-  track: {
-    width: components.toggleWidth,
-    height: components.toggleHeight,
-    borderRadius: components.toggleHeight / 2,
-    backgroundColor: palette.track,
-    padding: 3,
-    justifyContent: 'center',
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  thumb: {
-    width: THUMB,
-    height: THUMB,
-    borderRadius: THUMB / 2,
-    backgroundColor: palette.surface,
-  },
-});

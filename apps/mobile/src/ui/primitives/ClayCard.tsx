@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { radii, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayCardProps {
   children: ReactNode;
@@ -11,7 +12,7 @@ export interface ClayCardProps {
   accessibilityLabel?: string;
 }
 
-/** Card clay r24 — surface blanca, borde sutil, sombra suave. */
+/** Card clay r24 — surface del tema activo, borde sutil, sombra suave. */
 export function ClayCard({
   children,
   style,
@@ -20,6 +21,18 @@ export function ClayCard({
   onLongPress,
   accessibilityLabel,
 }: ClayCardProps) {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.lg,
+    },
+  }), [colors]);
+
   const card = (
     <View style={[styles.card, elevated && shadows.clay, style]}>{children}</View>
   );
@@ -39,13 +52,3 @@ export function ClayCard({
   }
   return card;
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.lg,
-  },
-});

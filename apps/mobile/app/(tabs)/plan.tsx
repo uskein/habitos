@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { habitRepository } from '@/core/repositories/habitRepository';
-import { badgeTints, fonts, habitSwatches, palette, shadows, spacing } from '@/core/theme/theme';
+import { badgeTints, fonts, habitSwatches, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useHabitsToday, useProfile } from '@/features/habits/useHabits';
 import { GoalCard } from '@/features/goals/GoalCard';
 import { useGoals, useDeleteGoal } from '@/features/goals/useGoals';
@@ -25,6 +26,112 @@ const SLOT_LABELS: Record<string, string> = {
 
 /** Tab Plan — M5: chips Hábitos/Metas, detalle y archivar (HU-7…HU-10). */
 export default function PlanScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        screen: {
+          flex: 1,
+          backgroundColor: colors.bg,
+        },
+        scroll: {
+          flex: 1,
+        },
+        loading: {
+          flex: 1,
+          paddingHorizontal: spacing.lg,
+          paddingTop: spacing.xs,
+          gap: spacing.sm,
+        },
+        body: {
+          paddingHorizontal: spacing.lg,
+          paddingTop: spacing.xs,
+          gap: spacing.sm,
+          paddingBottom: 96,
+        },
+        center: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        list: {
+          gap: spacing.sm,
+        },
+        habitCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          padding: spacing.md,
+        },
+        habitIcon: {
+          width: 48,
+          height: 48,
+          borderRadius: 24,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        habitIconText: {
+          fontSize: 22,
+        },
+        habitTexts: {
+          flex: 1,
+          gap: 2,
+        },
+        habitName: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 16,
+          color: colors.text,
+        },
+        habitMeta: {
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+          textTransform: 'capitalize',
+        },
+        donePill: {
+          backgroundColor: badgeTints.success.bg,
+          borderRadius: 999,
+          paddingHorizontal: 10,
+          paddingVertical: 4,
+        },
+        donePillText: {
+          fontFamily: fonts.body,
+          fontWeight: '700',
+          fontSize: 11,
+          color: badgeTints.success.text,
+        },
+        chevron: {
+          fontSize: 24,
+          color: colors.textMuted,
+        },
+        hint: {
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+          textAlign: 'center',
+          marginTop: spacing.sm,
+        },
+        fab: {
+          position: 'absolute',
+          right: 20,
+          bottom: 24,
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: colors.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        fabIcon: {
+          color: colors.surface,
+          fontSize: 30,
+          lineHeight: 34,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
   const toast = useToast();
   const [tab, setTab] = useState<Tab>('habitos');
   const profile = useProfile();
@@ -112,7 +219,7 @@ export default function PlanScreen() {
                           {
                             backgroundColor:
                               habitSwatches[h.colorToken as keyof typeof habitSwatches] ??
-                              palette.surfaceAlt,
+                              colors.surfaceAlt,
                           },
                         ]}
                       >
@@ -180,104 +287,3 @@ export default function PlanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  scroll: {
-    flex: 1,
-  },
-  loading: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
-    gap: spacing.sm,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
-    gap: spacing.sm,
-    paddingBottom: 96,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  list: {
-    gap: spacing.sm,
-  },
-  habitCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: spacing.md,
-  },
-  habitIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  habitIconText: {
-    fontSize: 22,
-  },
-  habitTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  habitName: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-  },
-  habitMeta: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textTransform: 'capitalize',
-  },
-  donePill: {
-    backgroundColor: badgeTints.success.bg,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  donePillText: {
-    fontFamily: fonts.body,
-    fontWeight: '700',
-    fontSize: 11,
-    color: badgeTints.success.text,
-  },
-  chevron: {
-    fontSize: 24,
-    color: palette.textMuted,
-  },
-  hint: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabIcon: {
-    color: palette.surface,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: '600',
-  },
-});

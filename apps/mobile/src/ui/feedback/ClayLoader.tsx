@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, {
@@ -9,7 +9,8 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { durations, palette, spacing } from '@/core/theme/theme';
+import { durations, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayLoaderProps {
   visible: boolean;
@@ -22,6 +23,7 @@ export interface ClayLoaderProps {
  * Con reduced-motion el spinner se congela en un frame estático (texto visible).
  */
 export function ClayLoader({ visible, label = 'Validando…' }: ClayLoaderProps) {
+  const { colors } = useAppTheme();
   const reduced = useReducedMotion();
   const spin = useSharedValue(0);
   const fade = useSharedValue(0);
@@ -43,6 +45,41 @@ export function ClayLoader({ visible, label = 'Validando…' }: ClayLoaderProps)
     transform: [{ rotate: `${spin.value * 360}deg` }],
   }));
 
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        overlay: {
+          ...StyleSheet.absoluteFill,
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+        },
+        veil: {
+          ...StyleSheet.absoluteFill,
+          backgroundColor: colors.bg,
+          opacity: 0.55,
+        },
+        center: {
+          alignItems: 'center',
+          gap: spacing.md,
+        },
+        spinner: {
+          width: SIZE,
+          height: SIZE,
+          borderRadius: SIZE / 2,
+          borderWidth: 4,
+          borderColor: colors.track,
+          borderTopColor: colors.primary,
+        },
+        label: {
+          fontSize: 13,
+          fontWeight: '700',
+          color: colors.textMuted,
+        },
+      }),
+    [colors],
+  );
+
   if (!visible) return null;
 
   return (
@@ -58,35 +95,3 @@ export function ClayLoader({ visible, label = 'Validando…' }: ClayLoaderProps)
 }
 
 const SIZE = 36;
-
-const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 50,
-  },
-  veil: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: palette.bg,
-    opacity: 0.55,
-  },
-  center: {
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  spinner: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
-    borderWidth: 4,
-    borderColor: palette.track,
-    borderTopColor: palette.primary,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: palette.textMuted,
-  },
-});
-

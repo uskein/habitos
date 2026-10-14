@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
-import { badgeTints, fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { badgeTints, fonts, radii, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useAchievements } from './useAchievements';
 
 interface FreshUnlock {
@@ -19,6 +20,86 @@ const AUTO_DISMISS_MS = 4000;
  * Observa la caché de medallas; solo celebra unlocks NUEVOS tras la primera carga.
  */
 export function CelebrationWatcher() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        backdrop: {
+          flex: 1,
+          backgroundColor: 'rgba(23,18,43,0.45)',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: spacing.lg,
+        },
+        card: {
+          width: '100%',
+          maxWidth: 340,
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          padding: spacing.lg,
+          alignItems: 'center',
+          gap: spacing.sm,
+        },
+        kicker: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 12,
+          color: badgeTints.warning.text,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+        },
+        medal: {
+          width: 84,
+          height: 84,
+          borderRadius: 42,
+          backgroundColor: colors.awardSoft,
+          borderWidth: 2,
+          borderColor: colors.award,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        icon: {
+          fontSize: 42,
+        },
+        title: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 20,
+          color: colors.text,
+          textAlign: 'center',
+        },
+        desc: {
+          fontFamily: fonts.body,
+          fontSize: 13,
+          color: colors.textMuted,
+          textAlign: 'center',
+        },
+        actions: {
+          gap: spacing.sm,
+          alignItems: 'center',
+          marginTop: spacing.xs,
+        },
+        cta: {
+          backgroundColor: colors.primary,
+          borderRadius: radii.pill,
+          paddingHorizontal: 32,
+          paddingVertical: 14,
+        },
+        ctaText: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 15,
+          color: colors.surface,
+        },
+        later: {
+          fontFamily: fonts.body,
+          fontSize: 14,
+          color: colors.textMuted,
+          paddingVertical: 4,
+        },
+      }),
+    [colors],
+  );
   const { data } = useAchievements();
   const known = useRef<Set<string> | null>(null);
   const [fresh, setFresh] = useState<FreshUnlock | null>(null);
@@ -78,78 +159,3 @@ export function CelebrationWatcher() {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(23,18,43,0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  kicker: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: badgeTints.warning.text,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  medal: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: palette.awardSoft,
-    borderWidth: 2,
-    borderColor: palette.award,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 42,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 20,
-    color: palette.text,
-    textAlign: 'center',
-  },
-  desc: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-    textAlign: 'center',
-  },
-  actions: {
-    gap: spacing.sm,
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  cta: {
-    backgroundColor: palette.primary,
-    borderRadius: radii.pill,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-  },
-  ctaText: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.surface,
-  },
-  later: {
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: palette.textMuted,
-    paddingVertical: 4,
-  },
-});

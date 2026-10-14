@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { authRepository } from '@/core/repositories/authRepository';
@@ -12,7 +12,8 @@ import {
 import { statsExportService } from '@/core/services/statsExportService';
 import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { sessionBus } from '@/core/storage/sessionBus';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useAchievements } from '@/features/achievements/useAchievements';
 import { useGoals } from '@/features/goals/useGoals';
 import { useGlobalStreak, useHabitsToday, useProfile } from '@/features/habits/useHabits';
@@ -25,8 +26,120 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayCard } from '@/ui/primitives/ClayCard';
 import { ClayToggle } from '@/ui/primitives/ClayToggle';
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    body: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.md,
+      paddingBottom: 32,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    identity: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    avatar: {
+      alignSelf: 'auto',
+    },
+    identityTexts: {
+      flex: 1,
+      gap: 2,
+    },
+    name: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 20,
+      color: colors.text,
+    },
+    level: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    section: {
+      gap: spacing.sm,
+    },
+    sectionTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 4,
+    },
+    sectionCard: {
+      gap: 0,
+      paddingVertical: spacing.xs,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingVertical: 12,
+    },
+    rowTexts: {
+      flex: 1,
+      gap: 2,
+    },
+    rowLabel: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 15,
+      color: colors.text,
+    },
+    rowSub: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+    },
+    stat: {
+      flex: 1,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: radii.lg,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      gap: 2,
+    },
+    statValue: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 18,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    statLabel: {
+      fontFamily: fonts.body,
+      fontSize: 11,
+      color: colors.textMuted,
+    },
+    version: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: spacing.sm,
+    },
+  });
+
 /** Tab Perfil — M8: identidad, seguridad, datos (blueprint §1). */
 export default function ProfileScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const toast = useToast();
   const profile = useProfile();
   const streak = useGlobalStreak();
@@ -243,6 +356,9 @@ export default function ProfileScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -262,6 +378,9 @@ function Row({
   toggle?: { value: boolean; onChange: (v: boolean) => void };
   children?: React.ReactNode;
 }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   return (
     <View style={styles.row}>
       <View style={styles.rowTexts}>
@@ -278,6 +397,9 @@ function Row({
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -285,111 +407,3 @@ function Stat({ label, value }: { label: string; value: string }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
-    paddingBottom: 32,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  identity: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  avatar: {
-    alignSelf: 'auto',
-  },
-  identityTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  name: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 20,
-    color: palette.text,
-  },
-  level: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  section: {
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-    marginLeft: 4,
-  },
-  sectionCard: {
-    gap: 0,
-    paddingVertical: spacing.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-  },
-  rowTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  rowLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.text,
-  },
-  rowSub: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  stat: {
-    flex: 1,
-    backgroundColor: palette.surfaceAlt,
-    borderRadius: radii.lg,
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    gap: 2,
-  },
-  statValue: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 18,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  statLabel: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-  version: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-});

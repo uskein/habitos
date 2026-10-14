@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,8 @@ import {
   View,
   type TextInputProps,
 } from 'react-native';
-import { fonts, palette, radii, components } from '@/core/theme/theme';
+import { fonts, radii, components } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayInputProps extends Omit<TextInputProps, 'style'> {
   label: string;
@@ -16,16 +17,49 @@ export interface ClayInputProps extends Omit<TextInputProps, 'style'> {
 
 /** Input clay h52 r16 — focus con borde primary, error con borde error. */
 export function ClayInput({ label, error, helper, onFocus, onBlur, ...rest }: ClayInputProps) {
+  const { colors } = useAppTheme();
   const [focused, setFocused] = useState(false);
 
-  const borderColor = error ? palette.error : focused ? palette.primary : palette.border;
+  const styles = useMemo(() => StyleSheet.create({
+    wrap: {
+      gap: 6,
+    },
+    label: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 14,
+      color: colors.text,
+    },
+    input: {
+      height: components.inputHeight,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 16,
+      fontFamily: fonts.body,
+      fontSize: 16,
+      color: colors.text,
+    },
+    error: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.error,
+    },
+    helper: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+  }), [colors]);
+
+  const borderColor = error ? colors.error : focused ? colors.primary : colors.border;
 
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         {...rest}
-        placeholderTextColor={palette.textMuted}
+        placeholderTextColor={colors.textMuted}
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -47,35 +81,3 @@ export function ClayInput({ label, error, helper, onFocus, onBlur, ...rest }: Cl
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    gap: 6,
-  },
-  label: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 14,
-    color: palette.text,
-  },
-  input: {
-    height: components.inputHeight,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-    backgroundColor: palette.surface,
-    paddingHorizontal: 16,
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: palette.text,
-  },
-  error: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.error,
-  },
-  helper: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-  },
-});

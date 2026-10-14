@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -9,9 +9,11 @@ import Animated, {
   withSequence,
   withSpring,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import type { HabitWithLog } from '@/core/domain/entities/habit';
-import { badgeTints, components, durations, easings, fonts, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { badgeTints, durations, easings, fonts, radii, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useHaptics } from '@/hooks/useHaptics';
 
 export interface HabitCardProps {
@@ -20,8 +22,150 @@ export interface HabitCardProps {
   disabled?: boolean;
 }
 
+const EASE_STD = Easing.bezier(...(easings.std as [number, number, number, number]));
+
+/**
+ * R8 (reduce-motion): estados inmediatos en los shared values, sin «+1 🔥»
+ * animado. Fuera del cuerpo del componente para que react-hooks/immutability
+ * del compiler trate la asignación a `.value` como mutable legítimo (ver ClayButton).
+ */
+function applyToggleMotion(
+  checkPop: SharedValue<number>,
+  scale: SharedValue<number>,
+  floatY: SharedValue<number>,
+  next: boolean,
+) {
+  'worklet';
+  checkPop.value = next ? 1 : 0;
+  scale.value = 1;
+  floatY.value = 0;
+}
+
+/** Reinicia el flotante a su posición base. Ver applyToggleMotion sobre inmutabilidad. */
+function resetFloatY(floatY: SharedValue<number>) {
+  'worklet';
+  floatY.value = 0;
+}
+
+/** Pop ease-clay del check + flotante «+1 🔥». Ver applyToggleMotion sobre inmutabilidad. */
+function applyToggleAnimation(
+  checkPop: SharedValue<number>,
+  scale: SharedValue<number>,
+  floatY: SharedValue<number>,
+  next: boolean,
+) {
+  'worklet';
+  scale.value = withSequence(
+    withTiming(0.97, { duration: durations.d1 }),
+    withSpring(1, { damping: 14, stiffness: 260 }),
+  );
+  checkPop.value = withSpring(next ? 1 : 0, { damping: 11, stiffness: 240 });
+
+  if (next) {
+    floatY.value = withSequence(
+      withTiming(-18, { duration: durations.d3, easing: EASE_STD }),
+      withTiming(-26, { duration: durations.d2 }),
+    );
+  } else {
+    floatY.value = 0;
+  }
+}
+
 /** HabitCard — icono clay + check 32 px, pop ease-clay y «+1 🔥» flotante (R8: sin motion si reduce-motion). */
 export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        wrap: {
+          position: 'relative',
+        },
+        card: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          paddingHorizontal: spacing.md,
+          paddingVertical: 14,
+          ...shadows.clay,
+        },
+        cardDone: {
+          backgroundColor: colors.surfaceAlt,
+          borderColor: colors.primary,
+        },
+        left: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          flex: 1,
+        },
+        iconBox: {
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        icon: {
+          fontSize: 22,
+        },
+        texts: {
+          flex: 1,
+          gap: 2,
+        },
+        name: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 16,
+          color: colors.text,
+        },
+        nameDone: {
+          color: colors.textMuted,
+          textDecorationLine: 'line-through',
+        },
+        meta: {
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+        },
+        check: {
+          width: 32,
+          height: 32,
+          borderRadius: 16,
+          borderWidth: 2,
+          borderColor: colors.border,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.surface,
+        },
+        checkOn: {
+          backgroundColor: colors.primary,
+          borderColor: colors.primary,
+        },
+        checkInner: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        checkMark: {
+          color: colors.surface,
+          fontSize: 16,
+          fontWeight: '700',
+        },
+        plusOne: {
+          position: 'absolute',
+          right: 18,
+          top: -6,
+          fontFamily: fonts.mono,
+          fontWeight: '700',
+          fontSize: 14,
+          color: badgeTints.danger.text,
+        },
+      }),
+    [colors],
+  );
   const haptics = useHaptics();
   const reduceMotion = useReducedMotion() ?? false;
   const [showPlusOne, setShowPlusOne] = useState(false);
@@ -50,33 +194,23 @@ export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps)
 
     if (reduceMotion) {
       // R8: estados inmediatos, sin «+1 🔥» animado
-      checkPop.value = next ? 1 : 0;
-      scale.value = 1;
-      floatY.value = 0;
+      applyToggleMotion(checkPop, scale, floatY, next);
       setShowPlusOne(false);
       onToggle();
       return;
     }
 
-    scale.value = withSequence(
-      withTiming(0.97, { duration: durations.d1 }),
-      withSpring(1, { damping: 14, stiffness: 260 }),
-    );
-    checkPop.value = withSpring(next ? 1 : 0, { damping: 11, stiffness: 240 });
+    applyToggleAnimation(checkPop, scale, floatY, next);
 
     if (next) {
-      floatY.value = withSequence(
-        withTiming(-18, { duration: durations.d3, easing: Easing.bezier(...(easings.std as [number, number, number, number])) }),
-        withTiming(-26, { duration: durations.d2 }),
-      );
       setShowPlusOne(true);
       if (plusTimer.current) clearTimeout(plusTimer.current);
       plusTimer.current = setTimeout(() => {
         setShowPlusOne(false);
-        floatY.value = 0;
+        resetFloatY(floatY);
       }, 900);
     } else {
-      floatY.value = 0;
+      resetFloatY(floatY);
       setShowPlusOne(false);
     }
 
@@ -94,7 +228,7 @@ export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps)
         style={[styles.card, done && styles.cardDone]}
       >
         <View style={styles.left}>
-          <View style={[styles.iconBox, { backgroundColor: palette.surfaceAlt }]}>
+          <View style={[styles.iconBox, { backgroundColor: colors.surfaceAlt }]}>
             <Text style={styles.icon}>{habit.icon}</Text>
           </View>
           <View style={styles.texts}>
@@ -127,91 +261,3 @@ export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps)
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    position: 'relative',
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 14,
-    ...shadows.clay,
-  },
-  cardDone: {
-    backgroundColor: palette.surfaceAlt,
-    borderColor: palette.primary,
-  },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 22,
-  },
-  texts: {
-    flex: 1,
-    gap: 2,
-  },
-  name: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 16,
-    color: palette.text,
-  },
-  nameDone: {
-    color: palette.textMuted,
-    textDecorationLine: 'line-through',
-  },
-  meta: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  check: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: palette.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.surface,
-  },
-  checkOn: {
-    backgroundColor: palette.primary,
-    borderColor: palette.primary,
-  },
-  checkInner: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkMark: {
-    color: palette.surface,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  plusOne: {
-    position: 'absolute',
-    right: 18,
-    top: -6,
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 14,
-    color: badgeTints.danger.text,
-  },
-});

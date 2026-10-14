@@ -6,7 +6,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { durations, easings, palette, radii } from '@/core/theme/theme';
+import { durations, easings, radii } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ProgressProps {
   /** 0–1 */
@@ -16,7 +17,10 @@ export interface ProgressProps {
 }
 
 /** Barra de progreso con fill animado (std ease). */
-export function Progress({ progress, color = palette.primary, trackColor = palette.track }: ProgressProps) {
+export function Progress({ progress, color, trackColor }: ProgressProps) {
+  const { colors } = useAppTheme();
+  const fill = color ?? colors.primary;
+  const track = trackColor ?? colors.track;
   const clamped = Math.min(1, Math.max(0, progress));
   const width = useSharedValue(0);
 
@@ -33,15 +37,16 @@ export function Progress({ progress, color = palette.primary, trackColor = palet
 
   return (
     <View
-      style={[styles.track, { backgroundColor: trackColor }]}
+      style={[styles.track, { backgroundColor: track }]}
       accessibilityRole="progressbar"
       accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
     >
-      <Animated.View style={[styles.fill, { backgroundColor: color }, fillStyle]} />
+      <Animated.View style={[styles.fill, { backgroundColor: fill }, fillStyle]} />
     </View>
   );
 }
 
+/** Geométrico puro (sin color) — a nivel de módulo. */
 const styles = StyleSheet.create({
   track: {
     height: 8,

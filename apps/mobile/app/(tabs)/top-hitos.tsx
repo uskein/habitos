@@ -1,16 +1,17 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import type { MilestoneWithMedia } from '@/core/domain/entities/milestone';
 import {
   badgeTints,
   fonts,
-  palette,
   radii,
   shadows,
   spacing,
   veils,
 } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useMilestones } from '@/features/milestones/useMilestones';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
@@ -31,6 +32,216 @@ function isRecent(iso: string): boolean {
 
 /** Top Hitos — V2.2 tab: galería creativa (hero del más reciente + grid) con detalle HU-18. */
 export default function TopHitosScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        screen: {
+          flex: 1,
+          backgroundColor: colors.bg,
+        },
+        body: {
+          padding: spacing.lg,
+          gap: spacing.md,
+          paddingBottom: 48,
+        },
+        center: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: spacing.lg,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: spacing.sm,
+        },
+        headerTexts: {
+          flex: 1,
+          gap: 2,
+        },
+        title: {
+          fontFamily: fonts.display,
+          fontWeight: '800',
+          fontSize: 28,
+          color: colors.text,
+        },
+        subtitle: {
+          fontFamily: fonts.body,
+          fontSize: 13,
+          color: colors.textMuted,
+        },
+        countPill: {
+          backgroundColor: badgeTints.purple.bg,
+          borderRadius: radii.pill,
+          paddingHorizontal: 14,
+          paddingVertical: 8,
+        },
+        countPillText: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 14,
+          color: badgeTints.purple.text,
+        },
+        hero: {
+          height: 260,
+          borderRadius: 32,
+          overflow: 'hidden',
+          backgroundColor: colors.primary,
+          justifyContent: 'flex-end',
+        },
+        heroImg: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          height: '100%',
+        },
+        heroFallback: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        heroFallbackGlyph: {
+          fontSize: 88,
+          color: veils.light,
+        },
+        heroShade: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: veils.dark,
+        },
+        heroBadge: {
+          position: 'absolute',
+          top: 14,
+          left: 14,
+          backgroundColor: badgeTints.success.bg,
+          borderRadius: radii.pill,
+          paddingHorizontal: 12,
+          paddingVertical: 5,
+        },
+        heroBadgeText: {
+          fontFamily: fonts.body,
+          fontWeight: '700',
+          fontSize: 12,
+          color: badgeTints.success.text,
+        },
+        heroTexts: {
+          padding: spacing.lg,
+          gap: 6,
+        },
+        heroKicker: {
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          letterSpacing: 1.5,
+          color: colors.surface,
+        },
+        heroTitle: {
+          fontFamily: fonts.display,
+          fontWeight: '800',
+          fontSize: 24,
+          color: colors.surface,
+        },
+        heroFooter: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: spacing.sm,
+        },
+        heroDate: {
+          fontFamily: fonts.mono,
+          fontSize: 13,
+          color: colors.surface,
+        },
+        heroCta: {
+          fontFamily: fonts.body,
+          fontWeight: '700',
+          fontSize: 14,
+          color: colors.surface,
+        },
+        sectionLabel: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 16,
+          color: colors.text,
+          marginTop: spacing.xs,
+        },
+        grid: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          rowGap: spacing.md,
+        },
+        gridItem: {
+          width: '48%',
+        },
+        card: {
+          gap: 8,
+        },
+        pressed: {
+          opacity: 0.85,
+          transform: [{ scale: 0.98 }],
+        },
+        thumbWrap: {
+          width: '100%',
+          aspectRatio: 1,
+          borderRadius: radii.lg,
+          overflow: 'hidden',
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        thumb: {
+          width: '100%',
+          height: '100%',
+        },
+        thumbEmpty: {
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.surfaceAlt,
+        },
+        thumbGlyph: {
+          fontSize: 44,
+          color: colors.primary,
+        },
+        dateChip: {
+          position: 'absolute',
+          bottom: 8,
+          left: 8,
+          backgroundColor: veils.dark,
+          borderRadius: radii.pill,
+          paddingHorizontal: 10,
+          paddingVertical: 4,
+        },
+        dateChipText: {
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          color: colors.surface,
+        },
+        cardTitle: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 14,
+          color: colors.text,
+        },
+        cardMeta: {
+          fontFamily: fonts.body,
+          fontSize: 11,
+          color: colors.textMuted,
+        },
+      }),
+    [colors],
+  );
   const milestones = useMilestones();
 
   if (milestones.isPending) {
@@ -189,208 +400,3 @@ export default function TopHitosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    padding: spacing.lg,
-    gap: spacing.md,
-    paddingBottom: 48,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-  },
-  headerTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '800',
-    fontSize: 28,
-    color: palette.text,
-  },
-  subtitle: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-  },
-  countPill: {
-    backgroundColor: badgeTints.purple.bg,
-    borderRadius: radii.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  countPillText: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 14,
-    color: badgeTints.purple.text,
-  },
-  hero: {
-    height: 260,
-    borderRadius: 32,
-    overflow: 'hidden',
-    backgroundColor: palette.primary,
-    justifyContent: 'flex-end',
-  },
-  heroImg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  heroFallback: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroFallbackGlyph: {
-    fontSize: 88,
-    color: veils.light,
-  },
-  heroShade: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: veils.dark,
-  },
-  heroBadge: {
-    position: 'absolute',
-    top: 14,
-    left: 14,
-    backgroundColor: badgeTints.success.bg,
-    borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  heroBadgeText: {
-    fontFamily: fonts.body,
-    fontWeight: '700',
-    fontSize: 12,
-    color: badgeTints.success.text,
-  },
-  heroTexts: {
-    padding: spacing.lg,
-    gap: 6,
-  },
-  heroKicker: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    letterSpacing: 1.5,
-    color: palette.surface,
-  },
-  heroTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '800',
-    fontSize: 24,
-    color: palette.surface,
-  },
-  heroFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-  },
-  heroDate: {
-    fontFamily: fonts.mono,
-    fontSize: 13,
-    color: palette.surface,
-  },
-  heroCta: {
-    fontFamily: fonts.body,
-    fontWeight: '700',
-    fontSize: 14,
-    color: palette.surface,
-  },
-  sectionLabel: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-    marginTop: spacing.xs,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: spacing.md,
-  },
-  gridItem: {
-    width: '48%',
-  },
-  card: {
-    gap: 8,
-  },
-  pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  thumbWrap: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: radii.lg,
-    overflow: 'hidden',
-    backgroundColor: palette.surface,
-    borderWidth: 1,
-    borderColor: palette.border,
-  },
-  thumb: {
-    width: '100%',
-    height: '100%',
-  },
-  thumbEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.surfaceAlt,
-  },
-  thumbGlyph: {
-    fontSize: 44,
-    color: palette.primary,
-  },
-  dateChip: {
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    backgroundColor: veils.dark,
-    borderRadius: radii.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  dateChipText: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    color: palette.surface,
-  },
-  cardTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 14,
-    color: palette.text,
-  },
-  cardMeta: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-});

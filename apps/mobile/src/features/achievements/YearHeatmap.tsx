@@ -1,18 +1,11 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import type { HeatmapWeek } from '@/core/domain/services/heatmap';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 const CELL = 11;
 const GAP = 2;
-
-/** Rampas de intensidad 0–4 con tokens del Design System (sin hex fuera de theme). */
-const LEVEL_BG = [
-  palette.surfaceAlt,
-  palette.track,
-  palette.primarySoft,
-  palette.primary,
-  palette.primaryActive,
-] as const;
 
 const MONTHS_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -26,6 +19,107 @@ interface YearHeatmapProps {
  * intensidad = % del máximo de actividad del periodo.
  */
 export function YearHeatmap({ weeks, labels }: YearHeatmapProps) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          padding: spacing.md,
+          gap: spacing.sm,
+        },
+        title: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 17,
+          color: colors.text,
+        },
+        labelsRow: {
+          flexDirection: 'row',
+          marginLeft: 26,
+          height: 16,
+        },
+        labelSlot: {
+          width: CELL + GAP,
+        },
+        monthLabel: {
+          fontFamily: fonts.body,
+          fontSize: 10,
+          color: colors.textMuted,
+        },
+        gridWrap: {
+          flexDirection: 'row',
+          gap: 6,
+        },
+        weekdays: {
+          width: 20,
+          justifyContent: 'space-between',
+          paddingVertical: 1,
+        },
+        weekday: {
+          fontFamily: fonts.mono,
+          fontSize: 9,
+          color: colors.textMuted,
+          lineHeight: CELL + GAP,
+        },
+        grid: {
+          gap: GAP,
+        },
+        row: {
+          flexDirection: 'row',
+          gap: GAP,
+        },
+        cell: {
+          width: CELL,
+          height: CELL,
+          borderRadius: 3,
+        },
+        cellToday: {
+          borderWidth: 1.5,
+          borderColor: colors.primaryActive,
+        },
+        footer: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: spacing.xs,
+        },
+        footerText: {
+          fontFamily: fonts.body,
+          fontSize: 11,
+          color: colors.textMuted,
+        },
+        legend: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 3,
+        },
+        legendText: {
+          fontFamily: fonts.body,
+          fontSize: 10,
+          color: colors.textMuted,
+          marginHorizontal: 2,
+        },
+      }),
+    [colors],
+  );
+
+  /** Rampas de intensidad 0–4 con tokens del Design System (sin hex fuera de theme). */
+  const levelBg = useMemo(
+    () =>
+      [
+        colors.surfaceAlt,
+        colors.track,
+        colors.primarySoft,
+        colors.primary,
+        colors.primaryActive,
+      ] as const,
+    [colors],
+  );
+
   const rowDays = [0, 1, 2, 3, 4, 5, 6];
   const totalDays = weeks.flat().filter((c) => c.date !== null).length;
 
@@ -60,7 +154,7 @@ export function YearHeatmap({ weeks, labels }: YearHeatmapProps) {
                         key={wi}
                         style={[
                           styles.cell,
-                          { backgroundColor: LEVEL_BG[cell.level] },
+                          { backgroundColor: levelBg[cell.level] },
                           cell.isToday && styles.cellToday,
                         ]}
                         accessibilityLabel={
@@ -81,7 +175,7 @@ export function YearHeatmap({ weeks, labels }: YearHeatmapProps) {
         <Text style={styles.footerText}>{totalDays} días con actividad registrada</Text>
         <View style={styles.legend}>
           <Text style={styles.legendText}>Menos</Text>
-          {LEVEL_BG.map((bg) => (
+          {levelBg.map((bg) => (
             <View key={bg} style={[styles.cell, { backgroundColor: bg }]} />
           ))}
           <Text style={styles.legendText}>Más</Text>
@@ -90,86 +184,3 @@ export function YearHeatmap({ weeks, labels }: YearHeatmapProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 17,
-    color: palette.text,
-  },
-  labelsRow: {
-    flexDirection: 'row',
-    marginLeft: 26,
-    height: 16,
-  },
-  labelSlot: {
-    width: CELL + GAP,
-  },
-  monthLabel: {
-    fontFamily: fonts.body,
-    fontSize: 10,
-    color: palette.textMuted,
-  },
-  gridWrap: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  weekdays: {
-    width: 20,
-    justifyContent: 'space-between',
-    paddingVertical: 1,
-  },
-  weekday: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    color: palette.textMuted,
-    lineHeight: CELL + GAP,
-  },
-  grid: {
-    gap: GAP,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: GAP,
-  },
-  cell: {
-    width: CELL,
-    height: CELL,
-    borderRadius: 3,
-  },
-  cellToday: {
-    borderWidth: 1.5,
-    borderColor: palette.primaryActive,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.xs,
-  },
-  footerText: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-  legend: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  legendText: {
-    fontFamily: fonts.body,
-    fontSize: 10,
-    color: palette.textMuted,
-    marginHorizontal: 2,
-  },
-});

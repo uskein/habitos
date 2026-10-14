@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { localDateISO } from '@habitos/shared';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useAchievements, useRemoveCustomAchievement } from '@/features/achievements/useAchievements';
 import { AchievementCard } from '@/features/achievements/AchievementCard';
 import { useMonthCompletedDates, useYearHeatmap } from '@/features/achievements/useMonthStats';
@@ -19,8 +20,151 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 const VIEWS = ['all', 'mine'] as const;
 const VIEW_LABELS = { all: 'Todas', mine: 'Mis logros' } as const;
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    body: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.md,
+      paddingBottom: 32,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    hero: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+    },
+    heroLeft: {
+      alignItems: 'center',
+      minWidth: 64,
+    },
+    heroLabel: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+    },
+    heroLevel: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 40,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    heroStats: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    stat: {
+      alignItems: 'center',
+      gap: 2,
+    },
+    statValue: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 18,
+      color: colors.text,
+      fontVariant: ['tabular-nums'],
+    },
+    statSuffix: {
+      fontSize: 14,
+    },
+    statLabel: {
+      fontFamily: fonts.body,
+      fontSize: 11,
+      color: colors.textMuted,
+    },
+    section: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 17,
+      color: colors.text,
+      marginTop: spacing.sm,
+    },
+    calendar: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    calCaption: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+      textTransform: 'capitalize',
+    },
+    calRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+    },
+    calCell: {
+      width: '13.7%',
+      aspectRatio: 1,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    calCellDone: {
+      backgroundColor: colors.primary,
+    },
+    calCellOff: {
+      backgroundColor: 'transparent',
+    },
+    calDay: {
+      fontFamily: fonts.mono,
+      fontSize: 12,
+      color: colors.textMuted,
+      fontVariant: ['tabular-nums'],
+    },
+    calDayDone: {
+      color: colors.surface,
+      fontWeight: '700',
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    gridCell: {
+      width: '48.5%',
+    },
+    medalsHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: spacing.sm,
+    },
+    customActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+  });
+
 /** Tab Logros — HU-12/HU-13: racha, nivel, calendario del mes y medallas + V2 HU-21/23. */
 export default function AchievementsScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const toast = useToast();
   const streak = useGlobalStreak();
   const achievements = useAchievements();
@@ -260,6 +404,9 @@ export default function AchievementsScreen() {
 }
 
 function Stat({ label, value, suffix }: { label: string; value: string; suffix: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>
@@ -291,142 +438,3 @@ function buildMonthCells(now: Date, dates: string[]): Cell[] {
   }
   return cells;
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
-    paddingBottom: 32,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: palette.surface,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-  },
-  heroLeft: {
-    alignItems: 'center',
-    minWidth: 64,
-  },
-  heroLabel: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textTransform: 'uppercase',
-  },
-  heroLevel: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 40,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  heroStats: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  stat: {
-    alignItems: 'center',
-    gap: 2,
-  },
-  statValue: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 18,
-    color: palette.text,
-    fontVariant: ['tabular-nums'],
-  },
-  statSuffix: {
-    fontSize: 14,
-  },
-  statLabel: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-  section: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 17,
-    color: palette.text,
-    marginTop: spacing.sm,
-  },
-  calendar: {
-    backgroundColor: palette.surface,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  calCaption: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textTransform: 'capitalize',
-  },
-  calRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  calCell: {
-    width: '13.7%',
-    aspectRatio: 1,
-    borderRadius: 10,
-    backgroundColor: palette.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calCellDone: {
-    backgroundColor: palette.primary,
-  },
-  calCellOff: {
-    backgroundColor: 'transparent',
-  },
-  calDay: {
-    fontFamily: fonts.mono,
-    fontSize: 12,
-    color: palette.textMuted,
-    fontVariant: ['tabular-nums'],
-  },
-  calDayDone: {
-    color: palette.surface,
-    fontWeight: '700',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  gridCell: {
-    width: '48.5%',
-  },
-  medalsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.sm,
-  },
-  customActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-});

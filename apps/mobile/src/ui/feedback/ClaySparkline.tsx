@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Canvas, Circle, Line, LinearGradient, Path, Skia } from '@shopify/react-native-skia';
-import { palette, veils } from '@/core/theme/theme';
+import { veils } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClaySparklineProps {
   /** Valores 0–100. */
@@ -21,6 +22,7 @@ export function ClaySparkline({
   height = 72,
   accessibilityLabel,
 }: ClaySparklineProps) {
+  const { colors } = useAppTheme();
   const pad = 6;
   const w = width - pad * 2;
   const h = height - pad * 2;
@@ -58,21 +60,22 @@ export function ClaySparkline({
       accessibilityLabel={accessibilityLabel ?? `Tendencia de ${data.length} puntos`}
     >
       <Canvas style={styles.canvas}>
-        <Path path={area} color={palette.chartArea} />
+        <Path path={area} color={colors.chartArea} />
         <Path path={line} style="stroke" strokeWidth={2.5} strokeCap="round" strokeJoin="round">
           <LinearGradient
             start={{ x: pad, y: 0 }}
             end={{ x: width - pad, y: 0 }}
-            colors={[palette.primary, palette.secondary]}
+            colors={[colors.primary, colors.secondary]}
           />
         </Path>
         <Line p1={{ x: pad, y: pad + h }} p2={{ x: width - pad, y: pad + h }} color={veils.light} strokeWidth={1} />
-        <Circle cx={lastX} cy={lastY} r={4} color={palette.secondary} />
+        <Circle cx={lastX} cy={lastY} r={4} color={colors.secondary} />
       </Canvas>
     </View>
   );
 }
 
+/** Geométrico puro (sin color) — a nivel de módulo. */
 const styles = StyleSheet.create({
   canvas: { flex: 1 },
 });

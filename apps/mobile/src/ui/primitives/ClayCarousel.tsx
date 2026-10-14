@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,8 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut, useReducedMotion } from 'react-native-reanimated';
-import { palette, radii, spacing, veils } from '@/core/theme/theme';
+import { radii, spacing, veils } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 export interface ClayCarouselProps {
   children: React.ReactNode[];
@@ -19,18 +20,76 @@ export interface ClayCarouselProps {
 
 /**
  * ClayCarousel (V2 · manual §8.2) — snap 320 ms easing.std, dots de 8 px
- * (activo 20 px r pill blanco), contador mono «n/t» sobre velo text 55 %.
+ * (activo 20 px r pill surface del tema), contador mono «n/t» sobre velo text 55 %.
  * Accesibilidad: dots como pagetab con label «Foto n de t» (§8.4).
  */
 export function ClayCarousel({ children, height = 200, itemLabel }: ClayCarouselProps) {
+  const { colors } = useAppTheme();
   const [index, setIndex] = useState(0);
-  const width = useRef(0);
+  // Ancho de página en estado (no ref): así el primer render ya pinta las
+  // páginas con el ancho correcto tras el onLayout.
+  const [pageWidth, setPageWidth] = useState(0);
   const reduced = useReducedMotion() ?? false;
   const total = children.length;
 
+  const styles = useMemo(() => StyleSheet.create({
+    wrap: {
+      borderRadius: radii.md,
+      overflow: 'hidden',
+      backgroundColor: colors.surfaceAlt,
+    },
+    single: {
+      borderRadius: radii.md,
+      overflow: 'hidden',
+      backgroundColor: colors.surfaceAlt,
+    },
+    page: {
+      height: '100%',
+    },
+    counter: {
+      position: 'absolute',
+      top: 8,
+      right: 10,
+      backgroundColor: veils.dark,
+      borderRadius: radii.pill,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+    },
+    counterText: {
+      color: colors.surface,
+      fontFamily: 'JetBrains Mono',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    dots: {
+      position: 'absolute',
+      bottom: 10,
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 6,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: veils.light,
+    },
+    dotActive: {
+      width: 20,
+      borderRadius: radii.pill,
+      backgroundColor: colors.surface,
+    },
+    srLabel: {
+      height: 0,
+      opacity: 0,
+    },
+  }), [colors]);
+
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (width.current <= 0) return;
-    const i = Math.round(e.nativeEvent.contentOffset.x / width.current);
+    if (pageWidth <= 0) return;
+    const i = Math.round(e.nativeEvent.contentOffset.x / pageWidth);
     if (i !== index && i >= 0 && i < total) setIndex(i);
   };
 
@@ -44,13 +103,13 @@ export function ClayCarousel({ children, height = 200, itemLabel }: ClayCarousel
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onLayout={(e) => (width.current = e.nativeEvent.layout.width)}
+        onLayout={(e) => setPageWidth(e.nativeEvent.layout.width)}
         onMomentumScrollEnd={onScroll}
         scrollEventThrottle={16}
         accessibilityLabel={`Carrusel de ${total} fotos`}
       >
         {children.map((child, i) => (
-          <View key={i} style={[styles.page, { width: width.current || 1 }]} accessibilityRole="image">
+          <View key={i} style={[styles.page, { width: pageWidth || 1 }]} accessibilityRole="image">
             {child}
           </View>
         ))}
@@ -84,58 +143,3 @@ export function ClayCarousel({ children, height = 200, itemLabel }: ClayCarousel
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    borderRadius: radii.md,
-    overflow: 'hidden',
-    backgroundColor: palette.surfaceAlt,
-  },
-  single: {
-    borderRadius: radii.md,
-    overflow: 'hidden',
-    backgroundColor: palette.surfaceAlt,
-  },
-  page: {
-    height: '100%',
-  },
-  counter: {
-    position: 'absolute',
-    top: 8,
-    right: 10,
-    backgroundColor: veils.dark,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-  },
-  counterText: {
-    color: palette.surface,
-    fontFamily: 'JetBrains Mono',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  dots: {
-    position: 'absolute',
-    bottom: 10,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: veils.light,
-  },
-  dotActive: {
-    width: 20,
-    borderRadius: radii.pill,
-    backgroundColor: palette.surface,
-  },
-  srLabel: {
-    height: 0,
-    opacity: 0,
-  },
-});

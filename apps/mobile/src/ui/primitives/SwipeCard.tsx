@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -8,7 +9,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { durations, easings, palette, radii, shadows, spacing } from '@/core/theme/theme';
+import { durations, easings, radii, shadows, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 
 const CARD_WIDTH = 320;
 const CARD_HEIGHT = 330;
@@ -59,9 +61,111 @@ export function SwipeCard({
   discardLabel = 'Descartar motivación',
   height = CARD_HEIGHT,
 }: SwipeCardProps) {
+  const { colors } = useAppTheme();
   const reduced = useReducedMotion();
   const x = useSharedValue(0);
   const scale = useSharedValue(1);
+
+  const styles = useMemo(() => StyleSheet.create({
+    outer: {
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT,
+      alignSelf: 'center',
+    },
+    card: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.xl,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    stamp: {
+      position: 'absolute',
+      top: 24,
+      borderWidth: 3,
+      borderRadius: radii.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      zIndex: 5,
+    },
+    stampSave: {
+      left: 20,
+      borderColor: colors.success,
+      transform: [{ rotate: '-8deg' }],
+    },
+    stampDiscard: {
+      right: 20,
+      borderColor: colors.error,
+      transform: [{ rotate: '8deg' }],
+    },
+    stampText: {
+      fontSize: 15,
+      fontWeight: '800',
+      letterSpacing: 1,
+    },
+    stampSaveText: { color: colors.success },
+    stampDiscardText: { color: colors.error },
+    emoji: {
+      fontSize: 56,
+      marginTop: spacing.lg,
+    },
+    photo: {
+      width: 120,
+      height: 120,
+      borderRadius: radii.lg,
+      marginTop: spacing.md,
+      backgroundColor: colors.surfaceAlt,
+    },
+    title: {
+      fontFamily: 'Sora',
+      fontSize: 20,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+      lineHeight: 28,
+      paddingHorizontal: spacing.sm,
+    },
+    subtitle: {
+      fontSize: 13,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: spacing.sm,
+    },
+    actions: {
+      alignItems: 'center',
+      gap: spacing.md,
+      width: '100%',
+    },
+    hint: {
+      fontSize: 12,
+      color: colors.textFaded,
+    },
+    buttons: {
+      flexDirection: 'row',
+      gap: spacing.xl,
+    },
+    actionBtn: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      textAlign: 'center',
+      lineHeight: 56,
+      fontSize: 22,
+      fontWeight: '800',
+      overflow: 'hidden',
+    },
+    actionDiscard: {
+      backgroundColor: colors.dangerSoft,
+      color: colors.error,
+    },
+    actionSave: {
+      backgroundColor: colors.secondarySoft,
+      color: colors.success,
+    },
+  }), [colors]);
 
   const finish = (direction: 1 | -1, action: () => void) => {
     'worklet';
@@ -153,104 +257,3 @@ export function SwipeCard({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  outer: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    alignSelf: 'center',
-  },
-  card: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  stamp: {
-    position: 'absolute',
-    top: 24,
-    borderWidth: 3,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    zIndex: 5,
-  },
-  stampSave: {
-    left: 20,
-    borderColor: palette.success,
-    transform: [{ rotate: '-8deg' }],
-  },
-  stampDiscard: {
-    right: 20,
-    borderColor: palette.error,
-    transform: [{ rotate: '8deg' }],
-  },
-  stampText: {
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  stampSaveText: { color: palette.success },
-  stampDiscardText: { color: palette.error },
-  emoji: {
-    fontSize: 56,
-    marginTop: spacing.lg,
-  },
-  photo: {
-    width: 120,
-    height: 120,
-    borderRadius: radii.lg,
-    marginTop: spacing.md,
-    backgroundColor: palette.surfaceAlt,
-  },
-  title: {
-    fontFamily: 'Sora',
-    fontSize: 20,
-    fontWeight: '700',
-    color: palette.text,
-    textAlign: 'center',
-    lineHeight: 28,
-    paddingHorizontal: spacing.sm,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: palette.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-  actions: {
-    alignItems: 'center',
-    gap: spacing.md,
-    width: '100%',
-  },
-  hint: {
-    fontSize: 12,
-    color: palette.textFaded,
-  },
-  buttons: {
-    flexDirection: 'row',
-    gap: spacing.xl,
-  },
-  actionBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    textAlign: 'center',
-    lineHeight: 56,
-    fontSize: 22,
-    fontWeight: '800',
-    overflow: 'hidden',
-  },
-  actionDiscard: {
-    backgroundColor: palette.dangerSoft,
-    color: palette.error,
-  },
-  actionSave: {
-    backgroundColor: palette.secondarySoft,
-    color: palette.success,
-  },
-});
