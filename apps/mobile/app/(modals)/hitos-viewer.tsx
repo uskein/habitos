@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useMilestones } from '@/features/milestones/useMilestones';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
@@ -14,6 +15,46 @@ import { SwipeCard } from '@/ui/primitives/SwipeCard';
  * detalle. Se abre desde la lista de hitos (formSheet).
  */
 export default function HitosViewerSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      paddingBottom: 48,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+    },
+    counter: {
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+    },
+    counterText: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 13,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: spacing.sm,
+    },
+  }), [colors]);
+
   const milestones = useMilestones();
   const [index, setIndex] = useState(0);
 
@@ -96,41 +137,3 @@ export default function HitosViewerSheet() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: 48,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-  },
-  counter: {
-    backgroundColor: palette.surfaceAlt,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  counterText: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 13,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-});

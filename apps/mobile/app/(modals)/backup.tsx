@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Sharing from 'expo-sharing';
 import { useQueryClient } from '@tanstack/react-query';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { backupService } from '@/core/services/backupService';
 import { systemSheet } from '@/core/storage/systemSheet';
 import { useToast } from '@/ui/feedback/Toast';
@@ -17,6 +18,59 @@ import { ClayInput } from '@/ui/primitives/ClayInput';
  * Errores en pantalla (R9): BACKUP_PASSWORD_INVALID / BACKUP_CORRUPT con reintento in-situ.
  */
 export default function BackupSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      padding: spacing.lg,
+      gap: spacing.md,
+      paddingBottom: spacing.xl * 2,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+    },
+    lead: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      lineHeight: 19,
+      color: colors.textMuted,
+    },
+    card: {
+      gap: spacing.md,
+      padding: spacing.md,
+    },
+    cardTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 16,
+      color: colors.text,
+    },
+    fileRow: {
+      gap: 2,
+    },
+    fileHint: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    errorBox: {
+      borderRadius: radii.md,
+      borderWidth: 1,
+      borderColor: colors.error,
+      padding: spacing.md,
+      gap: spacing.xs,
+      alignItems: 'flex-start',
+    },
+    errorText: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.error,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const qc = useQueryClient();
 
@@ -170,54 +224,3 @@ export default function BackupSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    padding: spacing.lg,
-    gap: spacing.md,
-    paddingBottom: spacing.xl * 2,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-  },
-  lead: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    lineHeight: 19,
-    color: palette.textMuted,
-  },
-  card: {
-    gap: spacing.md,
-    padding: spacing.md,
-  },
-  cardTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-  },
-  fileRow: {
-    gap: 2,
-  },
-  fileHint: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  errorBox: {
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: palette.error,
-    padding: spacing.md,
-    gap: spacing.xs,
-    alignItems: 'flex-start',
-  },
-  errorText: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.error,
-  },
-});

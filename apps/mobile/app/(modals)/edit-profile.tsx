@@ -1,9 +1,10 @@
 import { LIMITS } from '@habitos/shared';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useAvatarPicker } from '@/features/settings/useAvatarPicker';
 import { useProfile } from '@/features/habits/useHabits';
 import { useToast } from '@/ui/feedback/Toast';
@@ -13,6 +14,37 @@ import { ClayInput } from '@/ui/primitives/ClayInput';
 
 /** Edición de identidad — HU-1 (1–40 caracteres) + foto HU-14. */
 export default function EditProfileSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    photoBlock: {
+      alignItems: 'center',
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    photoActions: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const profile = useProfile();
   const avatar = useAvatarPicker();
@@ -88,32 +120,3 @@ export default function EditProfileSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-    marginBottom: spacing.sm,
-  },
-  photoBlock: {
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  photoActions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    alignItems: 'center',
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

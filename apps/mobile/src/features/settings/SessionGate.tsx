@@ -6,7 +6,7 @@ import { userProfileRepository } from '@/core/repositories/userProfileRepository
 import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { sessionBus } from '@/core/storage/sessionBus';
 import { systemSheet } from '@/core/storage/systemSheet';
-import { palette } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { LockScreen } from '@/features/settings/LockScreen';
 import { Spinner } from '@/ui/feedback/Spinner';
@@ -18,6 +18,7 @@ type Phase = 'boot' | 'onboarding' | 'locked' | 'app';
  * Único punto que decide entre onboarding / lock / app.
  */
 export function SessionGate({ children }: { children: ReactNode }) {
+  const { colors } = useAppTheme();
   const [phase, setPhase] = useState<Phase>('boot');
 
   const lockEnabled = () =>
@@ -45,6 +46,8 @@ export function SessionGate({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // boot() es async: los setPhase ocurren tras await getDb(), no síncronos.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void boot();
   }, [boot]);
 
@@ -71,7 +74,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
 
   if (phase === 'boot') {
     return (
-      <View style={{ flex: 1, backgroundColor: palette.bg, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
         <Spinner />
       </View>
     );
@@ -83,7 +86,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
 
   if (phase === 'locked') {
     return (
-      <View style={{ flex: 1, backgroundColor: palette.bg }}>
+      <View style={{ flex: 1, backgroundColor: colors.bg }}>
         <LockScreen
           onUnlocked={() => {
             prefs.set(PrefKeys.locked, false);

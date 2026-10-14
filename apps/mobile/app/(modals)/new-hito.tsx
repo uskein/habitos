@@ -6,11 +6,12 @@ import {
 } from '@habitos/shared';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { saveImage } from '@/core/data/imageStore';
 import { systemSheet } from '@/core/storage/systemSheet';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useGoals } from '@/features/goals/useGoals';
 import { useActiveHabits, useCreateMilestone } from '@/features/milestones/useMilestones';
 import { EmptyState } from '@/ui/feedback/EmptyState';
@@ -26,6 +27,84 @@ import { ClayInput } from '@/ui/primitives/ClayInput';
  * Zod: título 1–80, ≥1 ligazón, ≤10 fotos; guardado transaccional (M15).
  */
 export default function NewHitoSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    sectionTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 15,
+      color: colors.text,
+      marginTop: spacing.sm,
+      marginLeft: 4,
+    },
+    groupTitle: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 12,
+      color: colors.textMuted,
+      marginBottom: spacing.xs,
+    },
+    linkCard: {
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    error: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.error,
+      marginLeft: 4,
+    },
+    photoRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
+    thumbWrap: {
+      position: 'relative',
+    },
+    thumb: {
+      width: 64,
+      height: 64,
+      borderRadius: radii.md,
+      backgroundColor: colors.surfaceAlt,
+    },
+    thumbRemove: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: colors.dangerSoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    thumbRemoveText: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.error,
+      lineHeight: 18,
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const create = useCreateMilestone();
   const habits = useActiveHabits();
@@ -283,79 +362,3 @@ export default function NewHitoSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-    marginBottom: spacing.sm,
-  },
-  sectionTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 15,
-    color: palette.text,
-    marginTop: spacing.sm,
-    marginLeft: 4,
-  },
-  groupTitle: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: palette.textMuted,
-    marginBottom: spacing.xs,
-  },
-  linkCard: {
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  error: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.error,
-    marginLeft: 4,
-  },
-  photoRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    alignItems: 'center',
-  },
-  thumbWrap: {
-    position: 'relative',
-  },
-  thumb: {
-    width: 64,
-    height: 64,
-    borderRadius: radii.md,
-    backgroundColor: palette.surfaceAlt,
-  },
-  thumbRemove: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: palette.dangerSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbRemoveText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: palette.error,
-    lineHeight: 18,
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

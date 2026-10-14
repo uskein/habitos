@@ -1,7 +1,8 @@
 import { localDateISO } from '@habitos/shared';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import {
   useMotivationQueue,
   useShowMotivation,
@@ -17,6 +18,29 @@ import { SwipeCard } from '@/ui/primitives/SwipeCard';
  * «Deshacer» revierte la exclusión vía unmarkShown.
  */
 export function MotivationCard() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        wrap: {
+          gap: spacing.sm,
+        },
+        undoRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: spacing.sm,
+          paddingHorizontal: spacing.sm,
+        },
+        undoText: {
+          flex: 1,
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+        },
+      }),
+    [colors],
+  );
   const queue = useMotivationQueue();
   const show = useShowMotivation();
   const unshow = useUnshowMotivation();
@@ -90,22 +114,3 @@ export function MotivationCard() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    gap: spacing.sm,
-  },
-  undoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.sm,
-  },
-  undoText: {
-    flex: 1,
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-});

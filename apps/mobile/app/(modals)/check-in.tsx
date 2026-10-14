@@ -1,8 +1,9 @@
 import { localDateISO } from '@habitos/shared';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useTodayEntry, useUpsertEntry } from '@/features/wellbeing/useWellbeing';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
@@ -13,6 +14,87 @@ const ENERGY = ['1', '2', '3', '4', '5'];
 
 /** Check-in diario — HU-11 (mood/energy 1–5 + nota), upsert por fecha (F9). */
 export default function CheckInSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+    },
+    subtitle: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+      marginBottom: spacing.sm,
+    },
+    label: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 14,
+      color: colors.text,
+      marginTop: spacing.sm,
+    },
+    moodRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      justifyContent: 'space-between',
+    },
+    moodChip: {
+      flex: 1,
+      aspectRatio: 1,
+      borderRadius: radii.lg,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: 62,
+    },
+    moodChipOn: {
+      borderColor: colors.primary,
+      backgroundColor: colors.surfaceAlt,
+    },
+    moodEmoji: {
+      fontSize: 26,
+    },
+    energyChip: {
+      flex: 1,
+      height: 48,
+      borderRadius: radii.lg,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: 62,
+    },
+    energyChipOn: {
+      borderColor: colors.secondary,
+      backgroundColor: colors.secondarySoft,
+    },
+    energyText: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 18,
+      color: colors.textMuted,
+      fontVariant: ['tabular-nums'],
+    },
+    energyTextOn: {
+      color: colors.secondary,
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const today = localDateISO();
   const existing = useTodayEntry();
@@ -107,82 +189,3 @@ export default function CheckInSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-  },
-  subtitle: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-    marginBottom: spacing.sm,
-  },
-  label: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 14,
-    color: palette.text,
-    marginTop: spacing.sm,
-  },
-  moodRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'space-between',
-  },
-  moodChip: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    maxWidth: 62,
-  },
-  moodChipOn: {
-    borderColor: palette.primary,
-    backgroundColor: palette.surfaceAlt,
-  },
-  moodEmoji: {
-    fontSize: 26,
-  },
-  energyChip: {
-    flex: 1,
-    height: 48,
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    maxWidth: 62,
-  },
-  energyChipOn: {
-    borderColor: palette.secondary,
-    backgroundColor: palette.secondarySoft,
-  },
-  energyText: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 18,
-    color: palette.textMuted,
-    fontVariant: ['tabular-nums'],
-  },
-  energyTextOn: {
-    color: palette.secondary,
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

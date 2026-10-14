@@ -1,8 +1,9 @@
 import { CreateMotivationInput, MOTIVATION_TRIGGERS, type CreateMotivationInputType } from '@habitos/shared';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useGoals } from '@/features/goals/useGoals';
 import { useCreateMotivation } from '@/features/motivations/useMotivations';
 import { useToast } from '@/ui/feedback/Toast';
@@ -19,6 +20,60 @@ const TRIGGER_LABELS = {
 
 /** Sheet crear motivación — HU-24 · F16 · BP 15 (con preview de la card). */
 export default function NewMotivacionSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    label: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 14,
+      color: colors.text,
+      marginTop: spacing.sm,
+      marginLeft: 4,
+    },
+    goalRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    preview: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.lg,
+    },
+    previewEmoji: {
+      fontSize: 32,
+    },
+    previewText: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 16,
+      color: colors.text,
+      textAlign: 'center',
+    },
+    previewSub: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const create = useCreateMotivation();
   const goals = useGoals('active');
@@ -123,55 +178,3 @@ export default function NewMotivacionSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-    marginBottom: spacing.sm,
-  },
-  label: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 14,
-    color: palette.text,
-    marginTop: spacing.sm,
-    marginLeft: 4,
-  },
-  goalRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  preview: {
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.lg,
-  },
-  previewEmoji: {
-    fontSize: 32,
-  },
-  previewText: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 16,
-    color: palette.text,
-    textAlign: 'center',
-  },
-  previewSub: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

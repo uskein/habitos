@@ -3,7 +3,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import {
   useArchiveHabit,
   useHabit,
@@ -28,8 +29,240 @@ interface MonthCell {
   state: 'completed' | 'missed' | 'future' | 'off';
 }
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    body: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.md,
+      paddingBottom: 48,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+    },
+    icon: {
+      fontSize: 34,
+    },
+    headerTexts: {
+      flex: 1,
+      gap: 2,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 20,
+      color: colors.text,
+    },
+    meta: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+      textTransform: 'capitalize',
+    },
+    check: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      borderWidth: 2,
+      borderColor: colors.primary,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkOn: {
+      backgroundColor: colors.primary,
+    },
+    checkGlyph: {
+      color: colors.primary,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    checkGlyphOn: {
+      color: colors.surface,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    stat: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+    },
+    statValue: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    statLabel: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    statsSection: {
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    statsTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 4,
+    },
+    statsCard: {
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      gap: spacing.md,
+    },
+    statsHeadRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    statsLabel: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    statsRate: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 20,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    calendarCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    calHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    calNav: {
+      fontSize: 26,
+      color: colors.primary,
+      fontWeight: '600',
+      paddingHorizontal: 8,
+    },
+    calNavOff: {
+      color: colors.border,
+    },
+    calTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 15,
+      color: colors.text,
+    },
+    calGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+    },
+    calCell: {
+      width: '13.7%',
+      aspectRatio: 1,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    calCellDone: {
+      backgroundColor: colors.primary,
+    },
+    calCellMissed: {
+      backgroundColor: colors.dangerSoft,
+    },
+    calCellOff: {
+      backgroundColor: 'transparent',
+    },
+    calDay: {
+      fontFamily: fonts.mono,
+      fontSize: 12,
+      color: colors.text,
+      fontVariant: ['tabular-nums'],
+    },
+    calDayDone: {
+      color: colors.surface,
+      fontWeight: '700',
+    },
+    calDayFuture: {
+      color: colors.textMuted,
+    },
+    calDayOff: {
+      color: 'transparent',
+    },
+    legend: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      justifyContent: 'center',
+      marginTop: 4,
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    legendDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+    },
+    legendText: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    archive: {
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+    },
+    archiveText: {
+      fontFamily: fonts.body,
+      fontSize: 14,
+      color: colors.error,
+      fontWeight: '600',
+    },
+  });
+
 /** Detalle de hábito — HU-8 (historial) + archivar HU-7. */
 export default function HabitDetail() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { id } = useLocalSearchParams<{ id: string }>();
   const toast = useToast();
   const habit = useHabit(id);
@@ -181,9 +414,9 @@ export default function HabitDetail() {
           </View>
 
           <View style={styles.legend}>
-            <Legend color={palette.primary} label="Hecho" />
-            <Legend color={palette.dangerSoft} label="Fallado" />
-            <Legend color={palette.surfaceAlt} label="Libre" />
+            <Legend color={colors.primary} label="Hecho" />
+            <Legend color={colors.dangerSoft} label="Fallado" />
+            <Legend color={colors.surfaceAlt} label="Libre" />
           </View>
         </View>
 
@@ -218,6 +451,8 @@ const STAT_SLOT_LABELS = {
 } as const;
 
 function HabitStatsSection({ habitId }: { habitId: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [slot, setSlot] = useState<(typeof STAT_SLOTS)[number]>('all');
   const stats = useHabitStats(habitId, slot === 'all' ? null : slot);
 
@@ -275,6 +510,8 @@ function HabitStatsSection({ habitId }: { habitId: string }) {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -284,6 +521,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function Legend({ color, label }: { color: string; label: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, { backgroundColor: color }]} />
@@ -322,231 +561,3 @@ function buildMonth(today: string, page: number, logs: { logDate: string; comple
   }
   return cells;
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
-    paddingBottom: 48,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: palette.surface,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-  },
-  icon: {
-    fontSize: 34,
-  },
-  headerTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 20,
-    color: palette.text,
-  },
-  meta: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    textTransform: 'capitalize',
-  },
-  check: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: palette.primary,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkOn: {
-    backgroundColor: palette.primary,
-  },
-  checkGlyph: {
-    color: palette.primary,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  checkGlyphOn: {
-    color: palette.surface,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  stat: {
-    flex: 1,
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  statValue: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  statLabel: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-    marginTop: 2,
-  },
-  statsSection: {
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  statsTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-    marginLeft: 4,
-  },
-  statsCard: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-    gap: spacing.md,
-  },
-  statsHeadRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  statsLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  statsRate: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 20,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  calendarCard: {
-    backgroundColor: palette.surface,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  calHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  calNav: {
-    fontSize: 26,
-    color: palette.primary,
-    fontWeight: '600',
-    paddingHorizontal: 8,
-  },
-  calNavOff: {
-    color: palette.border,
-  },
-  calTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 15,
-    color: palette.text,
-  },
-  calGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  calCell: {
-    width: '13.7%',
-    aspectRatio: 1,
-    borderRadius: 10,
-    backgroundColor: palette.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calCellDone: {
-    backgroundColor: palette.primary,
-  },
-  calCellMissed: {
-    backgroundColor: palette.dangerSoft,
-  },
-  calCellOff: {
-    backgroundColor: 'transparent',
-  },
-  calDay: {
-    fontFamily: fonts.mono,
-    fontSize: 12,
-    color: palette.text,
-    fontVariant: ['tabular-nums'],
-  },
-  calDayDone: {
-    color: palette.surface,
-    fontWeight: '700',
-  },
-  calDayFuture: {
-    color: palette.textMuted,
-  },
-  calDayOff: {
-    color: 'transparent',
-  },
-  legend: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  legendText: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  archive: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  archiveText: {
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: palette.error,
-    fontWeight: '600',
-  },
-});

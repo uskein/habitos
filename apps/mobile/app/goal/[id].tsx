@@ -1,7 +1,8 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useAddProgress, useGoal, useGoalStats, useGoalUpdates, useUpdateGoalNote } from '@/features/goals/useGoals';
 import { MilestoneSection } from '@/features/milestones/MilestoneSection';
 import { AppBar } from '@/ui/navigation/AppBar';
@@ -17,8 +18,151 @@ import { ClayInput } from '@/ui/primitives/ClayInput';
 
 const DELTAS = [1, 5, 10];
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    body: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.md,
+      paddingBottom: 48,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 24,
+      color: colors.text,
+    },
+    numbers: {
+      fontFamily: fonts.body,
+      fontSize: 16,
+    },
+    value: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 34,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    target: {
+      color: colors.textMuted,
+    },
+    pctLabel: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    actions: {
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    blockTitle: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 16,
+      color: colors.text,
+    },
+    sectionWrap: {
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    updateCard: {
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    updateHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    updateDelta: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 18,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    updateDate: {
+      flex: 1,
+      fontFamily: fonts.mono,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    updateNote: {
+      fontFamily: fonts.body,
+      fontSize: 14,
+      color: colors.text,
+    },
+    updateNoteEmpty: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+      fontStyle: 'italic',
+    },
+    noteEditRow: {
+      gap: spacing.sm,
+    },
+    statsCard: {
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    statsLabel: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    hourlyWrap: {
+      gap: spacing.sm,
+    },
+    peak: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    peakValue: {
+      fontFamily: fonts.mono,
+      fontWeight: '700',
+      fontSize: 15,
+      color: colors.primary,
+    },
+    chartBox: {
+      height: 160,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: radii.md,
+      paddingVertical: spacing.sm,
+    },
+    deltaRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    doneBox: {
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: radii.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    doneText: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 16,
+      color: colors.primary,
+    },
+  });
+
 /** Detalle de meta — HU-10 / flujo F4 (registrar progreso con delta). */
 export default function GoalDetail() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { id } = useLocalSearchParams<{ id: string }>();
   const toast = useToast();
   const goal = useGoal(id);
@@ -86,7 +230,7 @@ export default function GoalDetail() {
             / {g.targetValue} {g.unit ?? ''}
           </Text>
         </Text>
-        <Progress progress={pct} color={done ? palette.success : palette.primary} />
+        <Progress progress={pct} color={done ? colors.success : colors.primary} />
         <Text style={styles.pctLabel}>{Math.round(pct * 100)}% completado</Text>
 
         {!done && (
@@ -142,6 +286,8 @@ export default function GoalDetail() {
 
 /** HU-19 — historial de progresos con edición de notas (tx GOAL_UPDATE). */
 function GoalHistory({ goalId }: { goalId: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const toast = useToast();
   const updates = useGoalUpdates(goalId);
   const editNote = useUpdateGoalNote();
@@ -218,6 +364,8 @@ function GoalHistory({ goalId }: { goalId: string }) {
 
 /** HU-20 · R9 — stats día/hora de meta: ClayBars 7 días + Victory hora pico. */
 function GoalStatsSection({ goalId, unit }: { goalId: string; unit: string | null }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const stats = useGoalStats(goalId);
 
   if (stats.isPending) {
@@ -268,142 +416,3 @@ function GoalStatsSection({ goalId, unit }: { goalId: string; unit: string | nul
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
-    paddingBottom: 48,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 24,
-    color: palette.text,
-  },
-  numbers: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-  },
-  value: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 34,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  target: {
-    color: palette.textMuted,
-  },
-  pctLabel: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-  },
-  actions: {
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  blockTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-  },
-  sectionWrap: {
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  updateCard: {
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  updateHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  updateDelta: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 18,
-    color: palette.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  updateDate: {
-    flex: 1,
-    fontFamily: fonts.mono,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  updateNote: {
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: palette.text,
-  },
-  updateNoteEmpty: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-    fontStyle: 'italic',
-  },
-  noteEditRow: {
-    gap: spacing.sm,
-  },
-  statsCard: {
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  statsLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  hourlyWrap: {
-    gap: spacing.sm,
-  },
-  peak: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-  },
-  peakValue: {
-    fontFamily: fonts.mono,
-    fontWeight: '700',
-    fontSize: 15,
-    color: palette.primary,
-  },
-  chartBox: {
-    height: 160,
-    backgroundColor: palette.surfaceAlt,
-    borderRadius: radii.md,
-    paddingVertical: spacing.sm,
-  },
-  deltaRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  doneBox: {
-    backgroundColor: palette.surfaceAlt,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  doneText: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 16,
-    color: palette.primary,
-  },
-});

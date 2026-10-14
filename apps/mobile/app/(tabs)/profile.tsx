@@ -21,6 +21,7 @@ import { useAvatarPicker } from '@/features/settings/useAvatarPicker';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
+import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
 import { ClayAvatar } from '@/ui/primitives/ClayAvatar';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayCard } from '@/ui/primitives/ClayCard';
@@ -138,7 +139,7 @@ const makeStyles = (colors: ActivePalette) =>
 
 /** Tab Perfil — M8: identidad, seguridad, datos (blueprint §1). */
 export default function ProfileScreen() {
-  const { colors } = useAppTheme();
+  const { colors, mode, setMode } = useAppTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const toast = useToast();
   const profile = useProfile();
@@ -221,6 +222,15 @@ export default function ProfileScreen() {
             <ClayButton label="Editar" variant="ghost" onPress={() => router.push('/(modals)/edit-profile')} />
           </ClayCard>
         </Animated.View>
+
+        <Section title="Apariencia">
+          <ChipsTabs
+            options={['light', 'dark', 'system'] as const}
+            value={mode}
+            onChange={setMode}
+            labels={{ light: 'Claro', dark: 'Oscuro', system: 'Sistema' }}
+          />
+        </Section>
 
         <Section title="Bienestar">
           <Row label="Check-in de hoy" sub="Ánimo y energía en 1 toque">

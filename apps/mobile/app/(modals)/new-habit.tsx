@@ -8,12 +8,13 @@ import {
 } from '@habitos/shared';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { defaultReminderTime } from '@/core/domain/services/reminderPlanner';
 import { ensurePermissionAsync } from '@/core/services/notificationService';
 import { useCreateHabit } from '@/features/habits/useHabits';
-import { fonts, habitSwatches, palette, spacing } from '@/core/theme/theme';
+import { fonts, habitSwatches, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayInput } from '@/ui/primitives/ClayInput';
@@ -36,6 +37,151 @@ type ColorToken = (typeof HABIT_COLOR_TOKENS)[number];
 
 /** Bottom sheet crear hábito — HU-4, validación Zod previa a la BD (F7). */
 export default function NewHabitSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    label: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 14,
+      color: colors.text,
+      marginTop: spacing.sm,
+    },
+    chipWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    iconChip: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconChipOn: {
+      borderColor: colors.primary,
+      backgroundColor: colors.surfaceAlt,
+    },
+    iconGlyph: {
+      fontSize: 22,
+    },
+    daysRow: {
+      flexDirection: 'row',
+      gap: 6,
+      justifyContent: 'space-between',
+    },
+    dayChip: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dayChipOn: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    dayText: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 14,
+      color: colors.textMuted,
+    },
+    dayTextOn: {
+      color: colors.surface,
+    },
+    swatchRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.md,
+    },
+    swatchCol: {
+      alignItems: 'center',
+      gap: 6,
+    },
+    swatch: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    swatchOn: {
+      borderColor: colors.primary,
+      borderWidth: 3,
+    },
+    swatchCheck: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    swatchName: {
+      fontFamily: fonts.body,
+      fontSize: 11,
+      color: colors.textMuted,
+    },
+    swatchNameOn: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    reminderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginTop: spacing.xs,
+    },
+    timeBtn: {
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    timeBtnOff: {
+      opacity: 0.5,
+    },
+    timeText: {
+      fontFamily: fonts.mono,
+      fontWeight: '600',
+      fontSize: 15,
+      color: colors.text,
+    },
+    timeTextOff: {
+      color: colors.textMuted,
+    },
+    reminderHint: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const create = useCreateHabit();
   const [name, setName] = useState('');
@@ -240,146 +386,3 @@ export default function NewHabitSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-    marginBottom: spacing.sm,
-  },
-  label: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 14,
-    color: palette.text,
-    marginTop: spacing.sm,
-  },
-  chipWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  iconChip: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconChipOn: {
-    borderColor: palette.primary,
-    backgroundColor: palette.surfaceAlt,
-  },
-  iconGlyph: {
-    fontSize: 22,
-  },
-  daysRow: {
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'space-between',
-  },
-  dayChip: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dayChipOn: {
-    backgroundColor: palette.primary,
-    borderColor: palette.primary,
-  },
-  dayText: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 14,
-    color: palette.textMuted,
-  },
-  dayTextOn: {
-    color: palette.surface,
-  },
-  swatchRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  swatchCol: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  swatch: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  swatchOn: {
-    borderColor: palette.primary,
-    borderWidth: 3,
-  },
-  swatchCheck: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: palette.primary,
-  },
-  swatchName: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-  swatchNameOn: {
-    color: palette.primary,
-    fontWeight: '600',
-  },
-  reminderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginTop: spacing.xs,
-  },
-  timeBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: palette.border,
-    backgroundColor: palette.surface,
-  },
-  timeBtnOff: {
-    opacity: 0.5,
-  },
-  timeText: {
-    fontFamily: fonts.mono,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.text,
-  },
-  timeTextOff: {
-    color: palette.textMuted,
-  },
-  reminderHint: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

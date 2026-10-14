@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useMilestonesByEntity } from './useMilestones';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { ClayButton } from '@/ui/primitives/ClayButton';
@@ -15,6 +17,95 @@ export interface MilestoneSectionProps {
  * Lista los hitos ligados + atajo a crear uno nuevo con la liga prefilled.
  */
 export function MilestoneSection({ entityType, entityId }: MilestoneSectionProps) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        wrap: {
+          gap: spacing.sm,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        title: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 16,
+          color: colors.text,
+          marginLeft: 4,
+        },
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.md,
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          padding: spacing.sm + 2,
+        },
+        rowPressed: {
+          opacity: 0.85,
+        },
+        thumb: {
+          width: 44,
+          height: 44,
+          borderRadius: radii.md,
+          backgroundColor: colors.surfaceAlt,
+        },
+        thumbEmpty: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        thumbGlyph: {
+          fontSize: 18,
+          color: colors.primary,
+        },
+        rowTexts: {
+          flex: 1,
+          gap: 2,
+        },
+        rowTitle: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 15,
+          color: colors.text,
+        },
+        rowMeta: {
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          color: colors.textMuted,
+        },
+        chevron: {
+          fontSize: 20,
+          color: colors.textMuted,
+          paddingRight: 4,
+        },
+        emptyRow: {
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          padding: spacing.md,
+          gap: spacing.sm,
+          alignItems: 'flex-start',
+        },
+        emptyText: {
+          fontFamily: fonts.body,
+          fontSize: 13,
+          color: colors.textMuted,
+        },
+        errorRow: {
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          padding: spacing.md,
+        },
+        errorText: {
+          fontFamily: fonts.body,
+          fontSize: 13,
+          color: colors.error,
+        },
+      }),
+    [colors],
+  );
   const milestones = useMilestonesByEntity(entityType, entityId);
 
   const openNew = () =>
@@ -81,88 +172,3 @@ export function MilestoneSection({ entityType, entityId }: MilestoneSectionProps
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    gap: spacing.sm,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-    marginLeft: 4,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    padding: spacing.sm + 2,
-  },
-  rowPressed: {
-    opacity: 0.85,
-  },
-  thumb: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.md,
-    backgroundColor: palette.surfaceAlt,
-  },
-  thumbEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbGlyph: {
-    fontSize: 18,
-    color: palette.primary,
-  },
-  rowTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  rowTitle: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.text,
-  },
-  rowMeta: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    color: palette.textMuted,
-  },
-  chevron: {
-    fontSize: 20,
-    color: palette.textMuted,
-    paddingRight: 4,
-  },
-  emptyRow: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    gap: spacing.sm,
-    alignItems: 'flex-start',
-  },
-  emptyText: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-  },
-  errorRow: {
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-  },
-  errorText: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.error,
-  },
-});

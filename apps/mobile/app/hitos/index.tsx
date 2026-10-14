@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useMilestones } from '@/features/milestones/useMilestones';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
@@ -13,6 +15,80 @@ const openViewer = () => router.push('/(modals)/hitos-viewer');
 
 /** Lista de hitos — HU-17/18 · BP 14 · back R10. */
 export default function HitosListScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        screen: {
+          flex: 1,
+          backgroundColor: colors.bg,
+        },
+        body: {
+          padding: spacing.lg,
+          gap: spacing.sm,
+          paddingBottom: 32,
+        },
+        center: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.md,
+          backgroundColor: colors.surface,
+          borderRadius: radii.lg,
+          padding: spacing.md,
+        },
+        rowPressed: {
+          opacity: 0.85,
+          transform: [{ scale: 0.99 }],
+        },
+        thumb: {
+          width: 56,
+          height: 56,
+          borderRadius: radii.lg,
+          backgroundColor: colors.surfaceAlt,
+        },
+        thumbEmpty: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        thumbGlyph: {
+          fontSize: 22,
+          color: colors.primary,
+        },
+        rowTexts: {
+          flex: 1,
+          gap: 2,
+        },
+        rowTitle: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 16,
+          color: colors.text,
+        },
+        rowMeta: {
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+        },
+        chevron: {
+          fontSize: 24,
+          color: colors.textMuted,
+          paddingRight: 4,
+        },
+        viewModeBtn: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        fab: {
+          marginTop: spacing.sm,
+        },
+      }),
+    [colors],
+  );
   const milestones = useMilestones();
 
   if (milestones.isPending) {
@@ -60,7 +136,7 @@ export default function HitosListScreen() {
               hitSlop={8}
               style={styles.viewModeBtn}
             >
-              <Ionicons name="albums" size={22} color={palette.primary} />
+              <Ionicons name="albums" size={22} color={colors.primary} />
             </Pressable>
           ) : null
         }
@@ -125,73 +201,3 @@ export default function HitosListScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    padding: spacing.lg,
-    gap: spacing.sm,
-    paddingBottom: 32,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: palette.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-  },
-  rowPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.99 }],
-  },
-  thumb: {
-    width: 56,
-    height: 56,
-    borderRadius: radii.lg,
-    backgroundColor: palette.surfaceAlt,
-  },
-  thumbEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbGlyph: {
-    fontSize: 22,
-    color: palette.primary,
-  },
-  rowTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  rowTitle: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-  },
-  rowMeta: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  chevron: {
-    fontSize: 24,
-    color: palette.textMuted,
-    paddingRight: 4,
-  },
-  viewModeBtn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fab: {
-    marginTop: spacing.sm,
-  },
-});

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { Badge } from '@/ui/feedback/Badge';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Progress } from '@/ui/feedback/Progress';
@@ -19,6 +20,34 @@ import { ClayToggle } from '@/ui/primitives/ClayToggle';
 const TAB_OPTIONS = ['todos', 'bienestar', 'meta', 'habito'] as const;
 
 export default function ShowcaseScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        screen: { flex: 1, backgroundColor: colors.bg },
+        flex: { flex: 1 },
+        body: {
+          padding: spacing.md,
+          gap: spacing.sm,
+          paddingBottom: spacing.xxl,
+        },
+        section: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 16,
+          color: colors.text,
+          marginTop: spacing.lg,
+          marginBottom: spacing.xs,
+        },
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          flexWrap: 'wrap',
+        },
+      }),
+    [colors],
+  );
   const toast = useToast();
   const [name, setName] = useState('');
   const [toggled, setToggled] = useState(true);
@@ -84,27 +113,3 @@ export default function ShowcaseScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.bg },
-  flex: { flex: 1 },
-  body: {
-    padding: spacing.md,
-    gap: spacing.sm,
-    paddingBottom: spacing.xxl,
-  },
-  section: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 16,
-    color: palette.text,
-    marginTop: spacing.lg,
-    marginBottom: spacing.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-  },
-});

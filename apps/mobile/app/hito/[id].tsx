@@ -1,10 +1,11 @@
 import { LIMITS } from '@habitos/shared';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Sharing from 'expo-sharing';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, radii, spacing } from '@/core/theme/theme';
+import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { milestoneShareService } from '@/core/services/milestoneShareService';
 import { systemSheet } from '@/core/storage/systemSheet';
 import {
@@ -24,8 +25,101 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayCard } from '@/ui/primitives/ClayCard';
 import { ClayCarousel } from '@/ui/primitives/ClayCarousel';
 
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
+const makeStyles = (colors: ActivePalette) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    body: {
+      padding: spacing.lg,
+      gap: spacing.md,
+      paddingBottom: 48,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    photo: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: colors.surfaceAlt,
+    },
+    photoEmpty: {
+      height: 160,
+      borderRadius: radii.lg,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    photoEmptyGlyph: {
+      fontSize: 40,
+      color: colors.primary,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 24,
+      color: colors.text,
+    },
+    meta: {
+      fontFamily: fonts.mono,
+      fontSize: 13,
+      color: colors.textMuted,
+      marginTop: -spacing.sm,
+    },
+    noteCard: {
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    noteLabel: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 12,
+      color: colors.textMuted,
+    },
+    noteInput: {
+      minHeight: 72,
+      borderRadius: radii.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceAlt,
+      padding: spacing.sm,
+      fontFamily: fonts.body,
+      fontSize: 15,
+      color: colors.text,
+    },
+    linksCard: {
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    activitySummary: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.textMuted,
+      textAlign: 'center',
+    },
+    shareError: {
+      borderRadius: radii.md,
+      borderWidth: 1,
+      borderColor: colors.error,
+      padding: spacing.md,
+      gap: spacing.sm,
+      alignItems: 'flex-start',
+    },
+    shareErrorText: {
+      fontFamily: fonts.body,
+      fontSize: 13,
+      color: colors.error,
+    },
+  });
+
 /** Detalle de hito — HU-18 · F13 · BP 13 (carrusel, comentario, borrar). */
 export default function HitoDetailScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { id } = useLocalSearchParams<{ id: string }>();
   const toast = useToast();
   const milestone = useMilestone(id);
@@ -150,7 +244,7 @@ export default function HitoDetailScreen() {
             numberOfLines={3}
             textAlignVertical="top"
             placeholder="¿Qué recuerdas de ese día?"
-            placeholderTextColor={palette.textMuted}
+            placeholderTextColor={colors.textMuted}
             style={styles.noteInput}
             accessibilityLabel="Comentario del hito"
           />
@@ -201,6 +295,8 @@ export default function HitoDetailScreen() {
 
 /** HU-26 · V2 — actividad de hábito/meta en la semana antes/después del hito. */
 function ActivitySection({ milestoneId }: { milestoneId: string }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const activity = useMilestoneActivity(milestoneId);
 
   if (activity.isPending) return <Skeleton height={110} borderRadius={24} />;
@@ -263,92 +359,3 @@ function LinkChip({ entityType, entityId }: { entityType: 'habit' | 'goal'; enti
     />
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-  },
-  body: {
-    padding: spacing.lg,
-    gap: spacing.md,
-    paddingBottom: 48,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: palette.surfaceAlt,
-  },
-  photoEmpty: {
-    height: 160,
-    borderRadius: radii.lg,
-    backgroundColor: palette.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoEmptyGlyph: {
-    fontSize: 40,
-    color: palette.primary,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 24,
-    color: palette.text,
-  },
-  meta: {
-    fontFamily: fonts.mono,
-    fontSize: 13,
-    color: palette.textMuted,
-    marginTop: -spacing.sm,
-  },
-  noteCard: {
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  noteLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  noteInput: {
-    minHeight: 72,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-    borderColor: palette.border,
-    backgroundColor: palette.surfaceAlt,
-    padding: spacing.sm,
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: palette.text,
-  },
-  linksCard: {
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  activitySummary: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.textMuted,
-    textAlign: 'center',
-  },
-  shareError: {
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: palette.error,
-    padding: spacing.md,
-    gap: spacing.sm,
-    alignItems: 'flex-start',
-  },
-  shareErrorText: {
-    fontFamily: fonts.body,
-    fontSize: 13,
-    color: palette.error,
-  },
-});

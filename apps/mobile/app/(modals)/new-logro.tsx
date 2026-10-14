@@ -3,9 +3,10 @@ import {
   type CreateCustomAchievementInputType,
 } from '@habitos/shared';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import {
   useAchievements,
   useCreateCustomAchievement,
@@ -32,6 +33,52 @@ const MODE_LABELS = { any: 'Cualquiera', all: 'Todos' } as const;
  * is_custom = 1; edición solo de medallas propias (semillas bloqueadas).
  */
 export default function NewLogroSheet() {
+  const { colors } = useAppTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    body: {
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: 48,
+      paddingTop: spacing.sm,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 22,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    label: {
+      fontFamily: fonts.display,
+      fontWeight: '700',
+      fontSize: 14,
+      color: colors.text,
+      marginTop: spacing.sm,
+      marginLeft: 4,
+    },
+    groupTitle: {
+      fontFamily: fonts.body,
+      fontWeight: '600',
+      fontSize: 12,
+      color: colors.textMuted,
+      marginBottom: spacing.xs,
+    },
+    linkCard: {
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    error: {
+      fontFamily: fonts.body,
+      fontSize: 12,
+      color: colors.error,
+      marginLeft: 4,
+    },
+    submit: {
+      marginTop: spacing.lg,
+    },
+  }), [colors]);
+
   const toast = useToast();
   const { achievementId } = useLocalSearchParams<{ achievementId?: string }>();
   const achievements = useAchievements();
@@ -252,47 +299,3 @@ export default function NewLogroSheet() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 48,
-    paddingTop: spacing.sm,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 22,
-    color: palette.text,
-    marginBottom: spacing.sm,
-  },
-  label: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 14,
-    color: palette.text,
-    marginTop: spacing.sm,
-    marginLeft: 4,
-  },
-  groupTitle: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 12,
-    color: palette.textMuted,
-    marginBottom: spacing.xs,
-  },
-  linkCard: {
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  error: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.error,
-    marginLeft: 4,
-  },
-  submit: {
-    marginTop: spacing.lg,
-  },
-});

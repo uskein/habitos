@@ -1,12 +1,13 @@
 import { LIMITS } from '@habitos/shared';
 import * as Notifications from 'expo-notifications';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { authRepository } from '@/core/repositories/authRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
 import { PrefKeys, prefs } from '@/core/storage/preferences';
-import { fonts, palette, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
@@ -20,6 +21,78 @@ const STEP_KEY = 'onboarding.step';
 
 /** Onboarding ida-sin-vuelta (R7): bienvenida → perfil → PIN → notificaciones. */
 export function OnboardingFlow({ onFinished }: { onFinished: () => void }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        screen: {
+          flex: 1,
+          backgroundColor: colors.bg,
+          padding: spacing.lg,
+          justifyContent: 'center',
+        },
+        progressDots: {
+          flexDirection: 'row',
+          gap: 6,
+          alignSelf: 'center',
+          marginBottom: spacing.xl,
+        },
+        pstep: {
+          width: 8,
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: colors.border,
+        },
+        pstepOn: {
+          backgroundColor: colors.primary,
+          width: 24,
+        },
+        body: {
+          gap: spacing.md,
+        },
+        logo: {
+          fontFamily: fonts.display,
+          fontWeight: '800',
+          fontSize: 36,
+          color: colors.primary,
+          textAlign: 'center',
+        },
+        title: {
+          fontFamily: fonts.display,
+          fontWeight: '700',
+          fontSize: 24,
+          color: colors.text,
+          textAlign: 'center',
+        },
+        desc: {
+          fontFamily: fonts.body,
+          fontSize: 15,
+          color: colors.textMuted,
+          textAlign: 'center',
+          lineHeight: 22,
+        },
+        bioRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: spacing.md,
+        },
+        bioLabel: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 15,
+          color: colors.text,
+        },
+        link: {
+          fontFamily: fonts.body,
+          fontSize: 14,
+          color: colors.primary,
+          textAlign: 'center',
+          marginTop: spacing.sm,
+        },
+      }),
+    [colors],
+  );
   const toast = useToast();
   const haptics = useHaptics();
 
@@ -89,6 +162,9 @@ export function OnboardingFlow({ onFinished }: { onFinished: () => void }) {
   };
 
   useEffect(() => {
+    // Flujo intencional: el effect dispara onPinComplete una única vez al
+    // completar los 6 dígitos (el PIN es estado, no hay handler mejor).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (pinEntry.length === 6 && step === 2) void onPinComplete(pinEntry);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinEntry, step]);
@@ -179,71 +255,3 @@ export function OnboardingFlow({ onFinished }: { onFinished: () => void }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.bg,
-    padding: spacing.lg,
-    justifyContent: 'center',
-  },
-  progressDots: {
-    flexDirection: 'row',
-    gap: 6,
-    alignSelf: 'center',
-    marginBottom: spacing.xl,
-  },
-  pstep: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: palette.border,
-  },
-  pstepOn: {
-    backgroundColor: palette.primary,
-    width: 24,
-  },
-  body: {
-    gap: spacing.md,
-  },
-  logo: {
-    fontFamily: fonts.display,
-    fontWeight: '800',
-    fontSize: 36,
-    color: palette.primary,
-    textAlign: 'center',
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontWeight: '700',
-    fontSize: 24,
-    color: palette.text,
-    textAlign: 'center',
-  },
-  desc: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: palette.textMuted,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  bioRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-  },
-  bioLabel: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.text,
-  },
-  link: {
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: palette.primary,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-});

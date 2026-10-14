@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { fonts, palette, radii, spacing } from '@/core/theme/theme';
+import { fonts, spacing } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
 import { useTodayEntry } from '@/features/wellbeing/useWellbeing';
 import { ClayCard } from '@/ui/primitives/ClayCard';
 
@@ -16,6 +18,48 @@ const MOOD_LABELS: Record<number, string> = {
 
 /** Mini-card de check-in en Hoy (F3/F9): precarga el sheet si ya existe hoy. */
 export function CheckInCard() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingVertical: 12,
+          paddingHorizontal: spacing.md,
+        },
+        left: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          flex: 1,
+        },
+        emoji: {
+          fontSize: 26,
+        },
+        texts: {
+          gap: 1,
+          flex: 1,
+        },
+        title: {
+          fontFamily: fonts.body,
+          fontWeight: '600',
+          fontSize: 15,
+          color: colors.text,
+        },
+        sub: {
+          fontFamily: fonts.body,
+          fontSize: 12,
+          color: colors.textMuted,
+        },
+        chevron: {
+          fontSize: 22,
+          color: colors.textMuted,
+        },
+      }),
+    [colors],
+  );
   const entry = useTodayEntry();
   const e = entry.data;
 
@@ -39,41 +83,3 @@ export function CheckInCard() {
     </ClayCard>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: spacing.md,
-  },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  emoji: {
-    fontSize: 26,
-  },
-  texts: {
-    gap: 1,
-    flex: 1,
-  },
-  title: {
-    fontFamily: fonts.body,
-    fontWeight: '600',
-    fontSize: 15,
-    color: palette.text,
-  },
-  sub: {
-    fontFamily: fonts.body,
-    fontSize: 12,
-    color: palette.textMuted,
-  },
-  chevron: {
-    fontSize: 22,
-    color: palette.textMuted,
-  },
-});
