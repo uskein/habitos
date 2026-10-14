@@ -7,6 +7,10 @@ import {
 import { habitRepository } from '@/core/repositories/habitRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
+import {
+  cancelHabitReminder,
+  syncHabitReminder,
+} from '@/core/services/notificationService';
 
 export function useHabitsToday() {
   const today = localDateISO();
@@ -50,13 +54,15 @@ export function useArchiveHabit() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (habitId: string) => habitRepository.archive(habitId),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['habits'] }),
+    onSuccess: (_data, habitId) => {
+      void qc.invalidateQueries({ queryKey: ['habits'] });
+      void cancelHabitReminder(habitId);
+    },
   });
 }
 
 export function useToggleLog() {
   const qc = useQueryClient();
-  const today = localDateISO();
   return useMutation({
     mutationFn: ({ habitId, date }: { habitId: string; date: string }) =>
       habitRepository.toggleLog(habitId, date),
@@ -73,9 +79,10 @@ export function useCreateHabit() {
   return useMutation({
     mutationFn: (input: Parameters<typeof habitRepository.create>[0]) =>
       habitRepository.create(input),
-    onSuccess: () => {
+    onSuccess: (created) => {
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void qc.invalidateQueries({ queryKey: ['achievements'] });
+      void syncHabitReminder(created);
     },
   });
 }

@@ -11,4 +11,6 @@ export const PrefKeys = {
   pinAttempts: 'lock.pinAttempts',
   pinLockedUntil: 'lock.pinLockedUntil',
   notificationsAsked: 'onboarding.notificationsAsked',
+  notificationsEnabled: 'notifications.enabled',
+  reminderIds: 'notifications.reminderIds',
 } as const;

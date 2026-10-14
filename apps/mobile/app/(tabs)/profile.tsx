@@ -1,8 +1,13 @@
-import { Linking } from 'react-native';
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { authRepository } from '@/core/repositories/authRepository';
+import {
+  ensurePermissionAsync,
+  remindersEnabled,
+  setRemindersEnabled,
+} from '@/core/services/notificationService';
 import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { sessionBus } from '@/core/storage/sessionBus';
 import { fonts, palette, radii, spacing } from '@/core/theme/theme';
@@ -27,6 +32,7 @@ export default function ProfileScreen() {
   const goals = useGoals('active');
   const todayHabits = useHabitsToday();
   const avatar = useAvatarPicker();
+  const [remindersOn, setRemindersOn] = useState(remindersEnabled);
 
   if (profile.isPending || streak.isPending || achievements.isPending) {
     return (
@@ -74,7 +80,6 @@ export default function ProfileScreen() {
   const level = Math.min(10, Math.floor((streak.data?.bestStreak ?? 0) / 3) + 1);
   const biometrics = prefs.getBoolean(PrefKeys.biometrics) ?? false;
   const lockEnabled = prefs.getBoolean(PrefKeys.lockEnabled) ?? false;
-  const notifications = prefs.getBoolean(PrefKeys.notificationsAsked) ?? false;
   const medals = achievements.data!.unlocked.length;
   const totalMedals = achievements.data!.catalog.length;
 
@@ -163,7 +168,30 @@ export default function ProfileScreen() {
             <Stat label="Metas activas" value={`${goals.data?.length ?? 0}`} />
             <Stat label="Hábitos hoy" value={`${todayHabits.data?.length ?? 0}`} />
           </View>
-          <Row label="Notificaciones" sub="Recordatorios (MMKV)" toggle={{ value: notifications, onChange: () => {} }} />
+          <Row
+            label="Notificaciones"
+            sub="Recordatorios diarios por hábito"
+            toggle={{
+              value: remindersOn,
+              onChange: (v) => {
+                void (async () => {
+                  if (v) {
+                    const ok = await ensurePermissionAsync();
+                    if (!ok) {
+                      toast.show('Permiso de notificaciones denegado', 'error');
+                      return;
+                    }
+                  }
+                  await setRemindersEnabled(v);
+                  setRemindersOn(v);
+                  toast.show(
+                    v ? 'Recordatorios activados' : 'Recordatorios desactivados',
+                    'success',
+                  );
+                })();
+              },
+            }}
+          />
           <ClayButton
             label="Backup y restauración"
             variant="secondary"

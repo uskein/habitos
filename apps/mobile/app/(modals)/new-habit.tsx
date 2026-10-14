@@ -6,14 +6,18 @@ import {
   type CreateHabitInputType,
   type TimeSlot,
 } from '@habitos/shared';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { defaultReminderTime } from '@/core/domain/services/reminderPlanner';
+import { ensurePermissionAsync } from '@/core/services/notificationService';
 import { useCreateHabit } from '@/features/habits/useHabits';
 import { fonts, habitSwatches, palette, spacing } from '@/core/theme/theme';
 import { useToast } from '@/ui/feedback/Toast';
 import { ClayButton } from '@/ui/primitives/ClayButton';
 import { ClayInput } from '@/ui/primitives/ClayInput';
+import { ClayToggle } from '@/ui/primitives/ClayToggle';
 import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
 
 const ICONS = ['💧', '📚', '🏃', '🧘', '🥗', '🧹', '💊', '🛏️'];
@@ -43,6 +47,10 @@ export default function NewHabitSheet() {
   const [slot, setSlot] = useState<(typeof SLOT_OPTIONS)[number]>('none');
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [reminderOn, setReminderOn] = useState(false);
+  const [reminderTime, setReminderTime] = useState('09:00');
+  const [timeTouched, setTimeTouched] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const nameError =
     touched && (name.trim().length === 0 || name.trim().length > 60)
@@ -57,6 +65,7 @@ export default function NewHabitSheet() {
     frequency,
     customDays: frequency === 'custom' ? customDays : undefined,
     timeSlot: (slot === 'none' ? undefined : slot) as TimeSlot | undefined,
+    reminderTime: reminderOn ? reminderTime : null,
   });
 
   const submit = async () => {
@@ -80,6 +89,45 @@ export default function NewHabitSheet() {
 
   const toggleDay = (d: number) =>
     setCustomDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort()));
+
+  /** Cambio de tramo: prellena la hora del recordatorio (si no se editó a mano). */
+  const changeSlot = (v: (typeof SLOT_OPTIONS)[number]) => {
+    setSlot(v);
+    if (!timeTouched) {
+      setReminderTime(defaultReminderTime(v === 'none' ? null : v));
+      setReminderOn(v !== 'none');
+    }
+  };
+
+  /** Activar recordatorio pide el permiso (Android 13+) antes de encender. */
+  const changeReminder = (v: boolean) => {
+    if (!v) {
+      setReminderOn(false);
+      return;
+    }
+    void (async () => {
+      const ok = await ensurePermissionAsync();
+      if (ok) setReminderOn(true);
+      else toast.show('Permite los permisos de notificaciones', 'error');
+    })();
+  };
+
+  const onTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
+    setShowTimePicker(false);
+    if (date) {
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      setReminderTime(`${hh}:${mm}`);
+      setTimeTouched(true);
+    }
+  };
+
+  const reminderDate = (): Date => {
+    const d = new Date();
+    const [h, m] = reminderTime.split(':').map(Number);
+    d.setHours(h ?? 9, m ?? 0, 0, 0);
+    return d;
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -127,12 +175,7 @@ export default function NewHabitSheet() {
         labels={{ daily: 'Todos los días', custom: 'Días personalizados' }}
       />
       <Text style={styles.label}>Tramo (opcional)</Text>
-      <ChipsTabs
-        options={SLOT_OPTIONS}
-        value={slot}
-        onChange={setSlot}
-        labels={SLOT_LABELS}
-      />
+      <ChipsTabs options={SLOT_OPTIONS} value={slot} onChange={changeSlot} labels={SLOT_LABELS} />
       {frequency === 'custom' && (
         <View style={styles.daysRow}>
           {DAYS.map((d, idx) => (
@@ -145,6 +188,24 @@ export default function NewHabitSheet() {
             </Pressable>
           ))}
         </View>
+      )}
+
+      <Text style={styles.label}>Recordatorio</Text>
+      <View style={styles.reminderRow}>
+        <ClayToggle value={reminderOn} onValueChange={changeReminder} testID="reminder-toggle" />
+        <Pressable
+          disabled={!reminderOn}
+          onPress={() => setShowTimePicker(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`Hora del recordatorio ${reminderTime}`}
+          style={[styles.timeBtn, !reminderOn && styles.timeBtnOff]}
+        >
+          <Text style={[styles.timeText, !reminderOn && styles.timeTextOff]}>🕐 {reminderTime}</Text>
+        </Pressable>
+        <Text style={styles.reminderHint}>Avisos diarios</Text>
+      </View>
+      {showTimePicker && (
+        <DateTimePicker value={reminderDate()} mode="time" display="default" onChange={onTimeChange} />
       )}
 
       <Text style={styles.label}>Color</Text>
@@ -286,6 +347,37 @@ const styles = StyleSheet.create({
   swatchNameOn: {
     color: palette.primary,
     fontWeight: '600',
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.xs,
+  },
+  timeBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: palette.border,
+    backgroundColor: palette.surface,
+  },
+  timeBtnOff: {
+    opacity: 0.5,
+  },
+  timeText: {
+    fontFamily: fonts.mono,
+    fontWeight: '600',
+    fontSize: 15,
+    color: palette.text,
+  },
+  timeTextOff: {
+    color: palette.textMuted,
+  },
+  reminderHint: {
+    fontFamily: fonts.body,
+    fontSize: 12,
+    color: palette.textMuted,
   },
   submit: {
     marginTop: spacing.lg,
