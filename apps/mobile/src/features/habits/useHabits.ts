@@ -20,6 +20,14 @@ export function useHabitsToday() {
   });
 }
 
+/** Hábitos activos (no archivados) — selector de retos (M36). */
+export function useHabitsActive() {
+  return useQuery({
+    queryKey: ['habits', 'active'],
+    queryFn: () => habitRepository.listActive(),
+  });
+}
+
 export function useGlobalStreak() {
   return useQuery({
     queryKey: ['streaks', 'global'],

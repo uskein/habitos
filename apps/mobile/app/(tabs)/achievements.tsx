@@ -180,6 +180,10 @@ const makeStyles = (colors: ActivePalette) =>
       justifyContent: 'space-between',
       marginTop: spacing.sm,
     },
+    medalsActions: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
     customActions: {
       flexDirection: 'row',
       justifyContent: 'center',
@@ -392,11 +396,18 @@ export default function AchievementsScreen() {
 
         <View style={styles.medalsHeader}>
           <Text style={styles.section}>Medallas</Text>
-          <ClayButton
-            label="+ Crear"
-            variant="secondary"
-            onPress={() => router.push('/(modals)/new-logro')}
-          />
+          <View style={styles.medalsActions}>
+            <ClayButton
+              label="🏆 Retos"
+              variant="secondary"
+              onPress={() => router.push('/challenges')}
+            />
+            <ClayButton
+              label="+ Crear"
+              variant="secondary"
+              onPress={() => router.push('/(modals)/new-logro')}
+            />
+          </View>
         </View>
         <ChipsTabs options={VIEWS} value={view} onChange={setView} labels={VIEW_LABELS} />
 

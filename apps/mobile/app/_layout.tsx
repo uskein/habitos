@@ -44,10 +44,12 @@ function ThemedApp() {
           <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/hitos-viewer" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/new-challenge" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="goal/[id]" />
           <Stack.Screen name="habit/[id]" />
           <Stack.Screen name="hitos/index" />
           <Stack.Screen name="hito/[id]" />
+          <Stack.Screen name="challenges/index" />
         </Stack>
         <CelebrationWatcher />
       </SessionGate>
