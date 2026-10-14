@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initNotifications } from '@/core/services/notificationService';
-import { palette } from '@/core/theme/theme';
+import { ThemeProvider, useAppTheme } from '@/core/theme/ThemeProvider';
 import { CelebrationWatcher } from '@/features/achievements/CelebrationWatcher';
 import { SessionGate } from '@/features/settings/SessionGate';
 import { Spinner } from '@/ui/feedback/Spinner';
@@ -18,6 +18,51 @@ const queryClient = new QueryClient({
     queries: { staleTime: 30_000, retry: 1 },
   },
 });
+
+/** Fondo + StatusBar según el tema activo (M33 · modo oscuro). */
+function ThemedApp() {
+  const { colors, isDark } = useAppTheme();
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <SessionGate>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.bg },
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="showcase" options={{ presentation: 'modal', title: 'Design System' }} />
+          <Stack.Screen name="(modals)/new-habit" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/new-goal" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/check-in" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/change-pin" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/edit-profile" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/new-hito" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/new-logro" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/hitos-viewer" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="goal/[id]" />
+          <Stack.Screen name="habit/[id]" />
+          <Stack.Screen name="hitos/index" />
+          <Stack.Screen name="hito/[id]" />
+        </Stack>
+        <CelebrationWatcher />
+      </SessionGate>
+    </>
+  );
+}
+
+function ThemedSplash() {
+  const { colors } = useAppTheme();
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+      <Spinner />
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -31,47 +76,23 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, backgroundColor: palette.bg, alignItems: 'center', justifyContent: 'center' }}>
-        <Spinner />
-      </View>
+      <ThemeProvider>
+        <ThemedSplash />
+      </ThemeProvider>
     );
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <BottomSheetModalProvider>
-          <ToastProvider>
-            <StatusBar style="dark" />
-            <SessionGate>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: palette.bg },
-                }}
-              >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="showcase" options={{ presentation: 'modal', title: 'Design System' }} />
-                <Stack.Screen name="(modals)/new-habit" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/new-goal" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/check-in" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/change-pin" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/edit-profile" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/new-hito" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/new-logro" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/hitos-viewer" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
-                <Stack.Screen name="goal/[id]" />
-                <Stack.Screen name="habit/[id]" />
-                <Stack.Screen name="hitos/index" />
-                <Stack.Screen name="hito/[id]" />
-              </Stack>
-              <CelebrationWatcher />
-            </SessionGate>
-          </ToastProvider>
-        </BottomSheetModalProvider>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <BottomSheetModalProvider>
+            <ToastProvider>
+              <ThemedApp />
+            </ToastProvider>
+          </BottomSheetModalProvider>
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 }
