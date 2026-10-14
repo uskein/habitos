@@ -56,13 +56,30 @@ export const habitSwatches = {
   'accent-soft': badgeTints.danger.bg,
 } as const;
 
-export const darkPalette = {
+/**
+ * Paleta oscura (M33) — derivada de la clara. Los 6 tokens definidos en el
+ * manual (§2.2) se sobrescriben; el resto se hereda del tema claro.
+ * SSOT de hex: solo en theme.ts (regla 7).
+ */
+export const darkPalette: Record<keyof typeof palette, string> = {
+  ...palette,
   bg: '#12101C',
   surface: '#1C1930',
+  surfaceAlt: '#241F3D',
+  border: '#2E2947',
   text: '#F2EFFF',
   textMuted: '#9B95B5',
+  textFaded: '#6D6788',
+  track: '#2E2947',
   primarySoft: '#8B78FF',
-} as const;
+  primaryDisabledBg: '#3A3454',
+  primaryDisabledText: '#6D6788',
+  dangerSoft: '#3A1F24',
+  dangerLegend: '#5C2A31',
+  secondarySoft: '#12332F',
+  awardSoft: '#3A2E14',
+  chartArea: 'rgba(139,120,255,0.14)',
+};
 
 export const fonts = {
   display: 'Sora',
