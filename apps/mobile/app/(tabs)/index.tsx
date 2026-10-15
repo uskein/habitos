@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { localDateISO } from '@habitos/shared';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
@@ -90,6 +90,7 @@ export default function HoyScreen() {
   const habits = useHabitsToday();
   const freezes = useFreezes();
   const toggle = useToggleLog();
+  const [onlyReminders, setOnlyReminders] = useState(false);
 
   // M34 · widget: snapshot del día → home screen (best-effort, sin bloquear la UI).
   useEffect(() => {
@@ -142,6 +143,7 @@ export default function HoyScreen() {
   const list = habits.data ?? [];
   const greeting = `${greetingFor(new Date().getHours())}, ${profile.data?.displayName ?? ''}`;
   const completed = list.filter((h) => h.log?.completed).length;
+  const filteredList = onlyReminders ? list.filter((h) => h.reminderTime) : list;
 
   if (list.length === 0) {
     return (
@@ -183,6 +185,32 @@ export default function HoyScreen() {
           <Progress progress={list.length === 0 ? 0 : completed / list.length} />
         </View>
 
+        {/* Filtro: solo hábitos con recordatorio */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+          <Pressable
+            onPress={() => setOnlyReminders((v: boolean) => !v)}
+            accessibilityRole="switch"
+            accessibilityState={{ checked: onlyReminders }}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: onlyReminders ? colors.primary : colors.border,
+              backgroundColor: onlyReminders ? colors.primarySoft : 'transparent',
+            }}
+          >
+            <Text style={{ fontFamily: fonts.body, fontSize: 12, fontWeight: '600', color: onlyReminders ? colors.primary : colors.textMuted }}>
+              ⏰ Solo recordatorios
+            </Text>
+          </Pressable>
+          {onlyReminders && (
+            <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.textMuted }}>
+              {filteredList.length} de {list.length}
+            </Text>
+          )}
+        </View>
+
         <CheckInCard />
 
         <ClayButton
@@ -192,7 +220,7 @@ export default function HoyScreen() {
         />
 
         <View style={styles.list}>
-          {list.map((h) => (
+          {filteredList.map((h) => (
             <HabitCard
               key={h.id}
               habit={h}

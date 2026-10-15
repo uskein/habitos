@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { habitRepository } from '@/core/repositories/habitRepository';
+import { getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
 import { statsRepository } from '@/core/repositories/statsRepository';
@@ -26,6 +27,14 @@ export function useHabitsActive() {
   return useQuery({
     queryKey: ['habits', 'active'],
     queryFn: () => habitRepository.listActive(),
+  });
+}
+
+/** M39 · tendencia semanal por hábito (sparkline de Plan). */
+export function useWeeklyTrend() {
+  return useQuery({
+    queryKey: ['habits', 'weekly-trend'],
+    queryFn: () => getWeeklyTrend(),
   });
 }
 

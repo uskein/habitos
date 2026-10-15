@@ -20,6 +20,8 @@ export interface HabitCardProps {
   habit: HabitWithLog;
   onToggle: () => void;
   disabled?: boolean;
+  /** M39 · tendencia7 días (0/1) para el sparkline. */
+  trend?: number[];
 }
 
 const EASE_STD = Easing.bezier(...(easings.std as [number, number, number, number]));
@@ -72,7 +74,7 @@ function applyToggleAnimation(
 }
 
 /** HabitCard — icono clay + check 32 px, pop ease-clay y «+1 🔥» flotante (R8: sin motion si reduce-motion). */
-export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps) {
+export function HabitCard({ habit, onToggle, disabled = false, trend }: HabitCardProps) {
   const { colors } = useAppTheme();
   const styles = useMemo(
     () =>
@@ -242,6 +244,21 @@ export function HabitCard({ habit, onToggle, disabled = false }: HabitCardProps)
                   ? 'Bienestar'
                   : 'Hábito'}
             </Text>
+            {trend && trend.length > 0 ? (
+              <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
+                {trend.map((v, i) => (
+                  <View
+                    key={i}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: v ? colors.primary : colors.surfaceAlt,
+                    }}
+                  />
+                ))}
+              </View>
+            ) : null}
           </View>
         </View>
 

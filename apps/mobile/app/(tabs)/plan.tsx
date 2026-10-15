@@ -5,7 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { habitRepository } from '@/core/repositories/habitRepository';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
-import { useHabitsToday, useProfile, useWeeklyConsistency } from '@/features/habits/useHabits';
+import { useHabitsToday, useProfile, useWeeklyConsistency, useWeeklyTrend } from '@/features/habits/useHabits';
 import { GoalCard } from '@/features/goals/GoalCard';
 import { useGoals, useDeleteGoal } from '@/features/goals/useGoals';
 import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
@@ -171,6 +171,7 @@ export default function PlanScreen() {
   const goals = useGoals();
   const deleteGoal = useDeleteGoal();
   const weeklyConsistency = useWeeklyConsistency();
+  const weeklyTrend = useWeeklyTrend();
 
   const loading = habits.isPending || goals.isPending || profile.isPending;
   const error = habits.isError || goals.isError;
@@ -294,6 +295,21 @@ export default function PlanScreen() {
                             {h.category} · {h.frequency === 'daily' ? 'diario' : 'personalizado'}
                             {h.timeSlot ? ` · ${SLOT_LABELS[h.timeSlot] ?? ''}` : ''}
                           </Text>
+                          {weeklyTrend.data?.[h.id] ? (
+                            <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
+                              {(weeklyTrend.data[h.id] ?? []).map((v: number, i: number) => (
+                                <View
+                                  key={i}
+                                  style={{
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: 3,
+                                    backgroundColor: v ? colors.primary : colors.surfaceAlt,
+                                  }}
+                                />
+                              ))}
+                            </View>
+                          ) : null}
                         </View>
                         {h.log?.completed ? (
                           <Text style={{ color: colors.success, fontWeight: '700' }}>✓</Text>

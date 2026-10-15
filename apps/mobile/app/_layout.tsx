@@ -44,6 +44,7 @@ function ThemedApp() {
           <Stack.Screen name="(modals)/new-hito" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/new-logro" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/new-motivacion" options={{ presentation: 'formSheet' }} />
+          <Stack.Screen name="(modals)/motivations" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/hitos-viewer" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/backup" options={{ presentation: 'formSheet' }} />
           <Stack.Screen name="(modals)/new-challenge" options={{ presentation: 'formSheet' }} />
