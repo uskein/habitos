@@ -55,6 +55,12 @@ export interface MilestoneActivity {
   after: number;
 }
 
+/** M38 · consistencia semanal por día de la semana (Lun–Dom). */
+export interface WeeklyConsistency {
+  /** Array de 7 elementos: Lun=0 ... Dom=6. Valor 0–100. */
+  days: { day: number; label: string; value: number }[];
+}
+
 const CACHE_TTL_HOURS = 24;
 
 async function readCache<T>(key: string): Promise<T | null> {
@@ -90,6 +96,54 @@ function pct(n: number, total: number): number {
 export const statsRepository = {
   getMonthCompletedDates,
   getYearActivity,
+
+  /**
+   * M38 · consistencia semanal: % de días completados por día de la semana (Lun–Dom)
+   * en los últimos 90 días (o desde el primer log si hay menos).
+   */
+  async getWeeklyConsistency(): Promise<WeeklyConsistency> {
+    const db = await getDb();
+    const today = localDateISO();
+    const d0 = new Date(today + 'T00:00:00');
+    const start90 = new Date(d0);
+    start90.setDate(start90.getDate() - 89); // 90 días incluyendo hoy
+
+    const rows = await db.getAllAsync<{ weekday: number | null; total: number; done: number }>(
+      `SELECT
+         (strftime('%w', log_date) + 6) % 7 AS weekday, -- 0=Lun ... 6=Dom
+         COUNT(*) AS total,
+         SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) AS done
+       FROM habit_log
+       WHERE log_date >= ? AND log_date <= ?
+       GROUP BY weekday`,
+      localDateISO(start90),
+      localDateISO(),
+    );
+
+    const daysByWeekday = new Map<number, { total: number; done: number }>();
+    for (let i = 0; i < 7; i++) daysByWeekday.set(i, { total: 0, done: 0 });
+
+    for (const r of rows) {
+      const wd = r.weekday ?? 0;
+      const acc = daysByWeekday.get(wd);
+      if (acc) {
+        acc.total += r.total;
+        acc.done += r.done;
+      }
+    }
+
+    const labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    return {
+      days: labels.map((label, i) => {
+        const { total, done } = daysByWeekday.get(i) ?? { total: 0, done: 0 };
+        return {
+          day: i,
+          label,
+          value: total > 0 ? Math.round((done / total) * 100) : 0,
+        };
+      }),
+    };
+  },
 
   /**
    * V2 · HU-26 — stats del hábito desde stats_cache (TTL 24 h).

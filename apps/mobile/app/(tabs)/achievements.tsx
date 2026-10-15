@@ -1,9 +1,11 @@
-﻿import { router } from 'expo-router';
+import { router } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { localDateISO } from '@habitos/shared';
 import { fonts, spacing } from '@/core/theme/theme';
+import { streakShareService } from '@/core/services/streakShareService';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useAchievements, useRemoveCustomAchievement } from '@/features/achievements/useAchievements';
 import { AchievementCard } from '@/features/achievements/AchievementCard';
@@ -20,7 +22,7 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 const VIEWS = ['all', 'mine'] as const;
 const VIEW_LABELS = { all: 'Todas', mine: 'Mis logros' } as const;
 
-/** Estilos dependientes de la paleta activa â€” se recalculan por tema. */
+/** Estilos dependientes de la paleta activa — se recalculan por tema. */
 const makeStyles = (colors: ActivePalette) =>
   StyleSheet.create({
     screen: {
@@ -180,10 +182,6 @@ const makeStyles = (colors: ActivePalette) =>
       justifyContent: 'space-between',
       marginTop: spacing.sm,
     },
-    medalsActions: {
-      flexDirection: 'row',
-      gap: spacing.sm,
-    },
     customActions: {
       flexDirection: 'row',
       justifyContent: 'center',
@@ -192,7 +190,7 @@ const makeStyles = (colors: ActivePalette) =>
     },
   });
 
-/** Tab Logros â€” HU-12/HU-13: racha, nivel, calendario del mes y medallas + V2 HU-21/23. */
+/** Tab Logros — HU-12/HU-13: racha, nivel, calendario del mes y medallas + V2 HU-21/23. */
 export default function AchievementsScreen() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -203,7 +201,7 @@ export default function AchievementsScreen() {
   const freezes = useFreezes();
   const toggleFreeze = useToggleFreeze();
   const [view, setView] = useState<(typeof VIEWS)[number]>('all');
-  /** M35 Â· offset de mes navegado (0 = actual; negativo = anteriores). */
+  /** M35 · offset de mes navegado (0 = actual; negativo = anteriores). */
   const [monthOffset, setMonthOffset] = useState(0);
   const now = new Date();
   const viewDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
@@ -234,7 +232,7 @@ export default function AchievementsScreen() {
           <EmptyState
             title="No se pudieron cargar tus logros"
             description="Error leyendo la base local."
-            blob="âš "
+            blob="⚠"
           />
         </View>
       </View>
@@ -250,7 +248,7 @@ export default function AchievementsScreen() {
   const visible = view === 'mine' ? catalog.filter((a) => a.isCustom) : catalog;
 
   const confirmDelete = (id: string, title: string) => {
-    Alert.alert('Borrar medalla', `Â¿Eliminar Â«${title}Â»?`, [
+    Alert.alert('Borrar medalla', `¿Eliminar «${title}»?`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Borrar',
@@ -264,12 +262,12 @@ export default function AchievementsScreen() {
     ]);
   };
 
-  /** HU-27 â€” activar/desactivar el freeze manual con confirmaciÃ³n. */
+  /** HU-27 — activar/desactivar el freeze manual con confirmación. */
   const confirmFreeze = () => {
     const today = localDateISO();
     const frozen = freezes.data?.frozenToday ?? false;
     if (frozen) {
-      Alert.alert('Desactivar freeze', 'Â¿Quitar la protecciÃ³n de la racha de hoy?', [
+      Alert.alert('Desactivar freeze', '¿Quitar la protección de la racha de hoy?', [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Desactivar',
@@ -299,7 +297,7 @@ export default function AchievementsScreen() {
             toggleFreeze.mutate(
               { date: today, activate: true },
               {
-                onSuccess: () => toast.show('Racha congelada â„', 'success'),
+                onSuccess: () => toast.show('Racha salvada ❄', 'success'),
                 onError: (e) =>
                   toast.show(
                     e instanceof Error ? e.message : 'Cuota de freeze agotada',
@@ -316,7 +314,7 @@ export default function AchievementsScreen() {
     return (
       <View style={styles.screen}>
         <View style={styles.center}>
-          <EmptyState title="Sin medallas aÃºn" description="El seed de logros no se cargÃ³." blob="âœ¦" />
+          <EmptyState title="Sin medallas aún" description="El seed de logros no se cargó." blob="✦" />
         </View>
       </View>
     );
@@ -331,20 +329,42 @@ export default function AchievementsScreen() {
             <Text style={styles.heroLevel}>{level}</Text>
           </View>
           <View style={styles.heroStats}>
-            <Stat label="Racha" value={`${current}`} suffix="ðŸ”¥" />
-            <Stat label="Mejor" value={`${best}`} suffix="ðŸ†" />
-            <Stat label="Medallas" value={`${doneCount}/${catalog.length}`} suffix="ðŸŽ–ï¸" />
+            <Stat label="Racha" value={`${current}`} suffix="🔥" />
+            <Stat label="Mejor" value={`${best}`} suffix="🏆" />
+            <Stat label="Medallas" value={`${doneCount}/${catalog.length}`} suffix="🎖️" />
           </View>
         </Animated.View>
 
         <ClayButton
           label={
             freezes.data?.frozenToday
-              ? 'â„ Racha congelada hoy â€” desactivar'
-              : `â„ Congelar racha Â· quedan ${freezes.data?.available ?? 0}/2`
+              ? '❄ Racha congelada hoy — desactivar'
+              : `❄ Congelar racha · quedan ${freezes.data?.available ?? 0}/2`
           }
           variant={freezes.data?.frozenToday ? 'secondary' : 'ghost'}
           onPress={confirmFreeze}
+        />
+
+        <ClayButton
+          label="🏆 Compartir mi racha"
+          variant="secondary"
+          onPress={() => {
+            void (async () => {
+              try {
+                const uri = await streakShareService.render();
+                if (await Sharing.isAvailableAsync()) {
+                  await Sharing.shareAsync(uri, {
+                    mimeType: 'image/png',
+                    dialogTitle: 'Compartir racha',
+                  });
+                } else {
+                  toast.show('Compartir no disponible en este dispositivo', 'error');
+                }
+              } catch {
+                toast.show('No se pudo generar la tarjeta de racha', 'error');
+              }
+            })();
+          }}
         />
 
         <Text style={styles.section}>Calendario del mes</Text>
@@ -357,10 +377,10 @@ export default function AchievementsScreen() {
               style={styles.calNavBtn}
               hitSlop={8}
             >
-              <Text style={styles.calNavGlyph}>â€¹</Text>
+              <Text style={styles.calNavGlyph}>‹</Text>
             </Pressable>
             <Text style={styles.calCaption}>
-              DÃ­as con logros en {viewDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+              Días con logros en {viewDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
             </Text>
             <Pressable
               accessibilityRole="button"
@@ -371,7 +391,7 @@ export default function AchievementsScreen() {
               style={[styles.calNavBtn, monthOffset >= 0 && styles.calNavBtnOff]}
               hitSlop={8}
             >
-              <Text style={styles.calNavGlyph}>â€º</Text>
+              <Text style={styles.calNavGlyph}>›</Text>
             </Pressable>
           </View>
           <View style={styles.calRow}>
@@ -396,26 +416,19 @@ export default function AchievementsScreen() {
 
         <View style={styles.medalsHeader}>
           <Text style={styles.section}>Medallas</Text>
-          <View style={styles.medalsActions}>
-            <ClayButton
-              label="ðŸ† Retos"
-              variant="secondary"
-              onPress={() => router.push('/challenges')}
-            />
-            <ClayButton
-              label="+ Crear"
-              variant="secondary"
-              onPress={() => router.push('/(modals)/new-logro')}
-            />
-          </View>
+          <ClayButton
+            label="+ Crear"
+            variant="secondary"
+            onPress={() => router.push('/(modals)/new-logro')}
+          />
         </View>
         <ChipsTabs options={VIEWS} value={view} onChange={setView} labels={VIEW_LABELS} />
 
         {view === 'mine' && visible.length === 0 ? (
           <EmptyState
-            title="AÃºn no tienes medallas propias"
-            description="Crea una con el criterio que quieras: hÃ¡bito, meta o ambos."
-            blob="âœ¦"
+            title="Aún no tienes medallas propias"
+            description="Crea una con el criterio que quieras: hábito, meta o ambos."
+            blob="✦"
             action={
               <ClayButton
                 label="Crear medalla"
@@ -501,4 +514,3 @@ function buildMonthCells(now: Date, dates: string[]): Cell[] {
   }
   return cells;
 }
-

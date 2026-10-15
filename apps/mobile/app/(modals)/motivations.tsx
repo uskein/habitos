@@ -2,12 +2,9 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { useAppTheme } from "@/core/theme/ThemeProvider";
-import { spacing } from "@/core/theme/theme";
 import { useMotivations } from "@/features/motivations/useMotivations";
 import { ClayButton } from "@/ui/primitives/ClayButton";
 import { ClayCard } from "@/ui/primitives/ClayCard";
-
-const ITEM_WIDTH = 280;
 
 function makeStyles(colors: any) {
   return StyleSheet.create({

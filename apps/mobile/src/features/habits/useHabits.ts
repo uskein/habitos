@@ -7,6 +7,7 @@ import {
 import { habitRepository } from '@/core/repositories/habitRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
+import { statsRepository } from '@/core/repositories/statsRepository';
 import {
   cancelHabitReminder,
   syncHabitReminder,
@@ -32,6 +33,13 @@ export function useGlobalStreak() {
   return useQuery({
     queryKey: ['streaks', 'global'],
     queryFn: () => streakCacheRepository.getGlobal(),
+  });
+}
+
+export function useWeeklyConsistency() {
+  return useQuery({
+    queryKey: ['stats', 'weekly-consistency'],
+    queryFn: () => statsRepository.getWeeklyConsistency(),
   });
 }
 
