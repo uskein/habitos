@@ -108,23 +108,71 @@ export function HabitWidgetScreen({ snapshot }: { snapshot: WidgetSnapshot }) {
   );
 }
 
+/** JSX del widget compacto 2×1 (M40): contador grande + H + progreso. */
+export function HabitWidgetSmallScreen({ snapshot }: { snapshot: WidgetSnapshot }) {
+  const pct = snapshot.total > 0 ? Math.round((snapshot.completed / snapshot.total) * 100) : 0;
+  return (
+    <FlexWidget
+      clickAction="OPEN_APP"
+      style={{
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: palette.primary,
+        borderRadius: 20,
+        padding: 10,
+        flexGap: 4,
+      }}
+    >
+      <TextWidget
+        text="H"
+        style={{ fontWeight: '900', fontSize: 22, color: palette.surface }}
+      />
+      <TextWidget
+        text={`${snapshot.completed}/${snapshot.total}`}
+        style={{ fontWeight: '800', fontSize: 18, color: palette.surface }}
+      />
+      <TextWidget
+        text={`${pct}%`}
+        style={{ fontSize: 11, color: palette.surface }}
+      />
+    </FlexWidget>
+  );
+}
+
 /** Pide al sistema redibujar todos los widgets con el snapshot actual. */
 export async function syncHabitWidget(): Promise<void> {
+  const snapshot = readSnapshot();
   try {
     await requestWidgetUpdate({
       widgetName: 'HabitWidget',
-      renderWidget: () => <HabitWidgetScreen snapshot={readSnapshot()} />,
+      renderWidget: () => <HabitWidgetScreen snapshot={snapshot} />,
     });
   } catch {
-    /* best-effort: sin widgets en home no hay nada que redibujar */
+    /* best-effort */
+  }
+  try {
+    await requestWidgetUpdate({
+      widgetName: 'HabitWidgetSmall',
+      renderWidget: () => <HabitWidgetSmallScreen snapshot={snapshot} />,
+    });
+  } catch {
+    /* best-effort */
   }
 }
 
 /**
- * Handler del sistema: mantiene el widget vivo (añadido/actualizado/redimensionado)
- * y re-renderiza al tocarlo. El tap con OPEN_APP lo resuelve Android.
+ * Handler del sistema: mantiene ambos widgets vivos (añadidos/actualizados/
+ * redimensionados) y re-renderiza al tocarlos. El tap con OPEN_APP lo resuelve Android.
  */
 registerWidgetTaskHandler(async (props) => {
   if (props.widgetAction === 'WIDGET_DELETED') return;
-  props.renderWidget(<HabitWidgetScreen snapshot={readSnapshot()} />);
+  const snapshot = readSnapshot();
+  const name = props.widgetInfo.widgetName;
+  if (name === 'HabitWidgetSmall') {
+    props.renderWidget(<HabitWidgetSmallScreen snapshot={snapshot} />);
+  } else {
+    props.renderWidget(<HabitWidgetScreen snapshot={snapshot} />);
+  }
 });

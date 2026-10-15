@@ -14,7 +14,7 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 import { HabitCard } from '@/features/habits/HabitCard';
 import { StreakCard } from '@/features/habits/StreakCard';
 import { CheckInCard } from '@/features/wellbeing/CheckInCard';
-import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog } from '@/features/habits/useHabits';
+import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog, useWeekCompletedDays } from '@/features/habits/useHabits';
 import { useFreezes } from '@/features/habits/useFreezes';
 import {
   saveWidgetSnapshot,
@@ -91,6 +91,11 @@ export default function HoyScreen() {
   const freezes = useFreezes();
   const toggle = useToggleLog();
   const [onlyReminders, setOnlyReminders] = useState(false);
+  const weekDays = useWeekCompletedDays();
+  /** Meta semanal automática: objetivo5 días con al menos un hábito. */
+  const WEEKLY_TARGET = 5;
+  const weekDone = weekDays.data ?? 0;
+  const weekMet = weekDone >= WEEKLY_TARGET;
 
   // M34 · widget: snapshot del día → home screen (best-effort, sin bloquear la UI).
   useEffect(() => {
@@ -183,6 +188,34 @@ export default function HoyScreen() {
 
         <View style={styles.progress}>
           <Progress progress={list.length === 0 ? 0 : completed / list.length} />
+        </View>
+
+        {/* M40 · meta semanal automática */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: colors.surface,
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: weekMet ? colors.success : colors.border,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ fontFamily: fonts.body, fontSize: 13, fontWeight: '600', color: colors.text }}>
+            🎯 Meta semanal: {weekDone}/{WEEKLY_TARGET} días
+          </Text>
+          {weekMet ? (
+            <Text style={{ fontFamily: fonts.body, fontSize: 12, fontWeight: '700', color: colors.success }}>
+              ¡Cumplida! 🎉
+            </Text>
+          ) : (
+            <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.textMuted }}>
+              {Math.round((weekDone / WEEKLY_TARGET) * 100)}%
+            </Text>
+          )}
         </View>
 
         {/* Filtro: solo hábitos con recordatorio */}

@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { habitRepository } from '@/core/repositories/habitRepository';
-import { getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
+import { getWeekCompletedDays, getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
 import { statsRepository } from '@/core/repositories/statsRepository';
@@ -35,6 +35,14 @@ export function useWeeklyTrend() {
   return useQuery({
     queryKey: ['habits', 'weekly-trend'],
     queryFn: () => getWeeklyTrend(),
+  });
+}
+
+/** M40 · meta semanal — días completados esta semana (lun→dom). */
+export function useWeekCompletedDays() {
+  return useQuery({
+    queryKey: ['habits', 'week-completed-days'],
+    queryFn: () => getWeekCompletedDays(),
   });
 }
 
@@ -92,6 +100,8 @@ export function useToggleLog() {
     mutationFn: ({ habitId, date }: { habitId: string; date: string }) =>
       habitRepository.toggleLog(habitId, date),
     onSuccess: () => {
+      // La invalidación por prefijo ['habits'] cubre también weekly-trend
+      // y week-completed-days.
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void qc.invalidateQueries({ queryKey: ['streaks'] });
       void qc.invalidateQueries({ queryKey: ['achievements'] });

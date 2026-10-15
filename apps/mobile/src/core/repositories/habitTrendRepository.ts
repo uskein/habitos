@@ -39,3 +39,25 @@ export async function getWeeklyTrend(): Promise<Record<string, number[]>> {
   }
   return result;
 }
+
+/**
+ * M40 · meta semanal — nº de días con ≥1 hábito completado en la semana
+ * natural actual (lunes→domingo).
+ */
+export async function getWeekCompletedDays(): Promise<number> {
+  const db = await getDb();
+  const today = new Date();
+  const [y, m, d] = localDateISO(today).split('-').map(Number);
+  const todayDate = new Date(y!, (m ?? 1) - 1, d ?? 1);
+  const mondayOffset = (todayDate.getDay() + 6) % 7; // 0 = lunes
+  const monday = new Date(todayDate);
+  monday.setDate(todayDate.getDate() - mondayOffset);
+
+  const row = await db.getFirstAsync<{ n: number }>(
+    `SELECT COUNT(DISTINCT log_date) AS n FROM habit_log
+     WHERE completed = 1 AND log_date >= ? AND log_date <= ?`,
+    localDateISO(monday),
+    localDateISO(todayDate),
+  );
+  return row?.n ?? 0;
+}

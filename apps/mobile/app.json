@@ -59,6 +59,16 @@
               "targetCellWidth": 4,
               "targetCellHeight": 2,
               "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "HabitWidgetSmall",
+              "label": "Hábitos (compacto)",
+              "description": "Contador de hábitos completados y acceso rápido",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
             }
           ]
         }
