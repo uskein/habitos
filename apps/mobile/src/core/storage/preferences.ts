@@ -13,5 +13,6 @@ export const PrefKeys = {
   notificationsAsked: 'onboarding.notificationsAsked',
   notificationsEnabled: 'notifications.enabled',
   reminderIds: 'notifications.reminderIds',
+  eveningIds: 'notifications.eveningIds',
   themeMode: 'theme.mode',
 } as const;

@@ -11,6 +11,7 @@ import { userProfileRepository } from '@/core/repositories/userProfileRepository
 import { statsRepository } from '@/core/repositories/statsRepository';
 import {
   cancelHabitReminder,
+  syncEveningReminders,
   syncHabitReminder,
 } from '@/core/services/notificationService';
 
@@ -90,6 +91,7 @@ export function useArchiveHabit() {
     onSuccess: (_data, habitId) => {
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void cancelHabitReminder(habitId);
+      void syncEveningReminders();
     },
   });
 }
@@ -105,6 +107,8 @@ export function useToggleLog() {
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void qc.invalidateQueries({ queryKey: ['streaks'] });
       void qc.invalidateQueries({ queryKey: ['achievements'] });
+      // M41 · el cierre del día depende de qué esté pendiente.
+      void syncEveningReminders();
     },
   });
 }
@@ -118,6 +122,7 @@ export function useCreateHabit() {
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void qc.invalidateQueries({ queryKey: ['achievements'] });
       void syncHabitReminder(created);
+      void syncEveningReminders();
     },
   });
 }
