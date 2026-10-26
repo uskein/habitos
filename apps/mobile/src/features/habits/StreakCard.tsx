@@ -1,3 +1,4 @@
+import { LIMITS } from '@habitos/shared';
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Badge } from '@/ui/feedback/Badge';
@@ -105,7 +106,6 @@ export function StreakCard({
     [colors],
   );
   const pct = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
-  const usedFreezes = freezesLeft === undefined ? null : Math.max(0, 2 - freezesLeft);
 
   return (
     <ClayCard style={styles.card}>
@@ -117,9 +117,16 @@ export function StreakCard({
           </Text>
         </View>
         <View style={styles.headerChips}>
-          {usedFreezes !== null && (
-            <View style={styles.freezeChip}>
-              <Text style={styles.freezeChipText}>❄ {usedFreezes}/2</Text>
+          {freezesLeft !== undefined && (
+            <View
+              style={styles.freezeChip}
+              accessible
+              accessibilityRole="text"
+              accessibilityLabel={`Días de gracia disponibles este mes: ${freezesLeft} de ${LIMITS.FREEZE_MONTHLY_QUOTA}`}
+            >
+              <Text style={styles.freezeChipText}>
+                ❄ {freezesLeft} disp.
+              </Text>
             </View>
           )}
           <Badge label={`Nivel ${Math.min(10, Math.floor(globalStreak / 3) + 1)}`} tint="warning" />

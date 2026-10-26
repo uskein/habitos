@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { habitRepository } from '@/core/repositories/habitRepository';
 import { getWeekCompletedDays, getWeekProgressByHabit, getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
@@ -14,6 +15,7 @@ import {
   syncEveningReminders,
   syncHabitReminder,
 } from '@/core/services/notificationService';
+import { useToast } from '@/ui/feedback/Toast';
 
 export function useHabitsToday() {
   const today = localDateISO();
@@ -106,17 +108,35 @@ export function useArchiveHabit() {
 
 export function useToggleLog() {
   const qc = useQueryClient();
+  const toast = useToast();
+  /** M43 · ¿este toggle consumió un día de gracia (freeze automático)? */
+  const freezeConsumed = useRef(false);
+
   return useMutation({
-    mutationFn: ({ habitId, date }: { habitId: string; date: string }) =>
-      habitRepository.toggleLog(habitId, date),
+    mutationFn: async ({ habitId, date }: { habitId: string; date: string }) => {
+      // M43 · detecta consumo de gracia: si tras el toggle quedan MENOS
+      // freezes disponibles, la racha se salvó con un día de gracia.
+      const month = date.slice(0, 7);
+      const before = await streakCacheRepository.availableFreezes(month);
+      const log = await habitRepository.toggleLog(habitId, date);
+      const after = await streakCacheRepository.availableFreezes(month);
+      freezeConsumed.current = after < before;
+      return log;
+    },
     onSuccess: () => {
       // La invalidación por prefijo ['habits'] cubre también weekly-trend
       // y week-completed-days.
       void qc.invalidateQueries({ queryKey: ['habits'] });
       void qc.invalidateQueries({ queryKey: ['streaks'] });
       void qc.invalidateQueries({ queryKey: ['achievements'] });
+      void qc.invalidateQueries({ queryKey: ['freezes'] });
       // M41 · el cierre del día depende de qué esté pendiente.
       void syncEveningReminders();
+      // M43 · avisa cuando un día de gracia mantuvo viva la racha.
+      if (freezeConsumed.current) {
+        freezeConsumed.current = false;
+        toast.show('❄ Racha salvada — se usó 1 día de gracia', 'success');
+      }
     },
   });
 }
