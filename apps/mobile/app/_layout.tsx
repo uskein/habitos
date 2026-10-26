@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initNotifications } from '@/core/services/notificationService';
+import { autoBackupDatabase } from '@/core/services/localBackupService';
 import { ThemeProvider, useAppTheme } from '@/core/theme/ThemeProvider';
 // M34 · el registro del widget task handler es un side-effect de import.
 import '@/features/widgets/habitWidget';
@@ -77,7 +78,11 @@ export default function RootLayout() {
   });
 
   // M29 · recordatorios: handler, resync diario y tap → detalle del hábito.
-  useEffect(() => initNotifications(), []);
+  // M46 · backup automático local del .db (best-effort, una copia por día).
+  useEffect(() => {
+    void autoBackupDatabase();
+    return initNotifications();
+  }, []);
 
   if (!fontsLoaded) {
     return (

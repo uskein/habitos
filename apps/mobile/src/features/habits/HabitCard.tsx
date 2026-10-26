@@ -196,9 +196,10 @@ export function HabitCard({ habit, onToggle, disabled = false, trend, weekDone }
 
   const press = () => {
     if (disabled) return;
-    haptics.success();
-
     const next = !done;
+    // M46 · háptica diferenciada: éxito al marcar, luz suave al desmarcar.
+    if (next) haptics.success();
+    else haptics.light();
 
     if (reduceMotion) {
       // R8: estados inmediatos, sin «+1 🔥» animado

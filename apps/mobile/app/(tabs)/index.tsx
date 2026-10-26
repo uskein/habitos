@@ -12,6 +12,7 @@ import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Progress } from '@/ui/feedback/Progress';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { ClayButton } from '@/ui/primitives/ClayButton';
+import { useHaptics } from '@/hooks/useHaptics';
 import { HabitCard } from '@/features/habits/HabitCard';
 import { StreakCard } from '@/features/habits/StreakCard';
 import { CheckInCard } from '@/features/wellbeing/CheckInCard';
@@ -97,6 +98,7 @@ export default function HoyScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const haptics = useHaptics();
   const profile = useProfile();
   const streak = useGlobalStreak();
   const habits = useHabitsToday();
@@ -309,6 +311,13 @@ export default function HoyScreen() {
                   {
                     onSuccess: (log) => {
                       if (log.completed) {
+                        // M46 · cerrar el día (último pendiente) → doble pulso háptico.
+                        const othersDone = list.filter(
+                          (x) => x.id !== h.id && x.log?.completed,
+                        ).length;
+                        if (othersDone === list.length - 1) {
+                          setTimeout(() => haptics.success(), 180);
+                        }
                         toast.show('¡Hábito completado! 🔥', 'success', {
                           label: 'Deshacer',
                           onPress: () =>
