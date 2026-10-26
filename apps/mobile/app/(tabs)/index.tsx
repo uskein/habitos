@@ -133,6 +133,7 @@ export default function HoyScreen() {
   };
 
   // M34 · widget: snapshot del día → home screen (best-effort, sin bloquear la UI).
+  // M44 · incluye la meta semanal para el widget grande.
   useEffect(() => {
     const list = habits.data;
     if (!list) return;
@@ -145,9 +146,11 @@ export default function HoyScreen() {
       completed: list.filter((h) => h.log?.completed).length,
       total: list.length,
       habits: widgetHabits,
+      weekDone: weekDays.data ?? 0,
+      weekTarget,
     });
     void syncHabitWidget();
-  }, [habits.data]);
+  }, [habits.data, weekDays.data, weekTarget]);
 
   if (habits.isPending || profile.isPending) {
     return (

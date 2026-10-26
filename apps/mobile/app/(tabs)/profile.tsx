@@ -18,6 +18,7 @@ import { useAchievements } from '@/features/achievements/useAchievements';
 import { useGoals } from '@/features/goals/useGoals';
 import { useGlobalStreak, useHabitsToday, useProfile } from '@/features/habits/useHabits';
 import { useAvatarPicker } from '@/features/settings/useAvatarPicker';
+import { syncHabitWidget } from '@/features/widgets/habitWidget';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
@@ -227,7 +228,12 @@ export default function ProfileScreen() {
           <ChipsTabs
             options={['light', 'dark', 'system'] as const}
             value={mode}
-            onChange={setMode}
+            onChange={(m) => {
+              // M44 · persiste síncrono (MMKV) y redibuja el widget con el nuevo tema.
+              prefs.set(PrefKeys.themeMode, m);
+              setMode(m);
+              void syncHabitWidget();
+            }}
             labels={{ light: 'Claro', dark: 'Oscuro', system: 'Sistema' }}
           />
         </Section>
