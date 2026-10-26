@@ -23,6 +23,8 @@ const HabitInputShape = z
       .optional(),
     /** V2.1 · HU-30 — tramo opcional (mañana/tarde/noche). */
     timeSlot: z.enum(TIME_SLOTS).nullable().optional(),
+    /** V5 · M42 — meta semanal: días por semana que quieres completarlo (1–7). */
+    weeklyTarget: z.number().int().min(1).max(7).nullable().optional(),
   })
   .strict();
 

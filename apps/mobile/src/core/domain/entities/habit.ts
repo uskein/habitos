@@ -21,6 +21,8 @@ export interface Habit {
   createdAt: string;
   /** V2.1 · HU-30 — tramo opcional (mañana/tarde/noche). */
   timeSlot: TimeSlot | null;
+  /** V5 · M42 — meta semanal: días por semana a completar (1–7, NULL = sin meta). */
+  weeklyTarget: number | null;
   updatedAt: string;
   syncStatus: SyncStatus;
 }

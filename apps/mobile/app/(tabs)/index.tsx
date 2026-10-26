@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { localDateISO } from '@habitos/shared';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PrefKeys, prefs } from '@/core/storage/preferences';
 import { useToast } from '@/ui/feedback/Toast';
 import { EmptyState } from '@/ui/feedback/EmptyState';
 import { Progress } from '@/ui/feedback/Progress';
@@ -14,13 +15,24 @@ import { ClayButton } from '@/ui/primitives/ClayButton';
 import { HabitCard } from '@/features/habits/HabitCard';
 import { StreakCard } from '@/features/habits/StreakCard';
 import { CheckInCard } from '@/features/wellbeing/CheckInCard';
-import { useGlobalStreak, useHabitsToday, useProfile, useToggleLog, useWeekCompletedDays } from '@/features/habits/useHabits';
+import {
+  useGlobalStreak,
+  useHabitsToday,
+  useProfile,
+  useToggleLog,
+  useWeekCompletedDays,
+  useWeekProgressByHabit,
+} from '@/features/habits/useHabits';
 import { useFreezes } from '@/features/habits/useFreezes';
 import {
   saveWidgetSnapshot,
   syncHabitWidget,
   type WidgetHabit,
 } from '@/features/widgets/habitWidget';
+
+/** V5 · M42 — opciones de meta semanal configurable (días por semana). */
+const WEEK_TARGET_OPTIONS = [3, 4, 5, 6, 7] as const;
+const DEFAULT_WEEK_TARGET = 5;
 
 function greetingFor(h: number): string {
   if (h < 12) return 'Buenos días';
@@ -92,10 +104,33 @@ export default function HoyScreen() {
   const toggle = useToggleLog();
   const [onlyReminders, setOnlyReminders] = useState(false);
   const weekDays = useWeekCompletedDays();
-  /** Meta semanal automática: objetivo5 días con al menos un hábito. */
-  const WEEKLY_TARGET = 5;
+  const weekProgress = useWeekProgressByHabit();
+  /** Meta semanal configurable (M42): objetivo de días con al menos un hábito. */
+  const [weekTarget, setWeekTarget] = useState<number>(
+    () => prefs.getNumber(PrefKeys.weeklyGoalTarget) ?? DEFAULT_WEEK_TARGET,
+  );
   const weekDone = weekDays.data ?? 0;
-  const weekMet = weekDone >= WEEKLY_TARGET;
+  const weekMet = weekDone >= weekTarget;
+
+  /** Cambia el objetivo de la meta semanal (3–7 días) con diálogo nativo. */
+  const pickWeekTarget = () => {
+    Alert.alert(
+      'Meta semanal',
+      '¿Cuántos días por semana quieres cumplir?',
+      [
+        ...WEEK_TARGET_OPTIONS.map((n) => ({
+          text: `${n} días`,
+          onPress: () => {
+            prefs.set(PrefKeys.weeklyGoalTarget, n);
+            setWeekTarget(n);
+            toast.show(`Meta semanal: ${n} días`, 'success');
+          },
+        })),
+        { text: 'Cancelar', style: 'cancel' as const },
+      ],
+      { cancelable: true },
+    );
+  };
 
   // M34 · widget: snapshot del día → home screen (best-effort, sin bloquear la UI).
   useEffect(() => {
@@ -190,8 +225,11 @@ export default function HoyScreen() {
           <Progress progress={list.length === 0 ? 0 : completed / list.length} />
         </View>
 
-        {/* M40 · meta semanal automática */}
-        <View
+        {/* M40/M42 · meta semanal configurable — toca para cambiar el objetivo */}
+        <Pressable
+          onPress={pickWeekTarget}
+          accessibilityRole="button"
+          accessibilityLabel={`Meta semanal: ${weekDone} de ${weekTarget} días. Toca para cambiar el objetivo`}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -205,18 +243,21 @@ export default function HoyScreen() {
           }}
         >
           <Text style={{ fontFamily: fonts.body, fontSize: 13, fontWeight: '600', color: colors.text }}>
-            🎯 Meta semanal: {weekDone}/{WEEKLY_TARGET} días
+            🎯 Meta semanal: {weekDone}/{weekTarget} días
           </Text>
-          {weekMet ? (
-            <Text style={{ fontFamily: fonts.body, fontSize: 12, fontWeight: '700', color: colors.success }}>
-              ¡Cumplida! 🎉
-            </Text>
-          ) : (
-            <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.textMuted }}>
-              {Math.round((weekDone / WEEKLY_TARGET) * 100)}%
-            </Text>
-          )}
-        </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {weekMet ? (
+              <Text style={{ fontFamily: fonts.body, fontSize: 12, fontWeight: '700', color: colors.success }}>
+                ¡Cumplida! 🎉
+              </Text>
+            ) : (
+              <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.textMuted }}>
+                {Math.round((weekDone / weekTarget) * 100)}%
+              </Text>
+            )}
+            <Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.textMuted }}>›</Text>
+          </View>
+        </Pressable>
 
         {/* Filtro: solo hábitos con recordatorio */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
@@ -258,6 +299,7 @@ export default function HoyScreen() {
               key={h.id}
               habit={h}
               disabled={toggle.isPending}
+              weekDone={weekProgress.data?.[h.id] ?? 0}
               onToggle={() => {
                 toggle.mutate(
                   { habitId: h.id, date: h.log?.logDate ?? localDateISO() },

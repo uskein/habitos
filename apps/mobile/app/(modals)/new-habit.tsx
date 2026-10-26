@@ -31,6 +31,19 @@ const SLOT_LABELS = {
   afternoon: 'Tarde',
   evening: 'Noche',
 } as const;
+/** V5 · M42 — meta semanal: días/semana objetivo (opcional). */
+const WEEK_TARGETS = ['none', '1', '2', '3', '4', '5', '6', '7'] as const;
+type WeekTarget = (typeof WEEK_TARGETS)[number];
+const WEEK_TARGET_LABELS: Partial<Record<WeekTarget, string>> = {
+  none: 'Sin meta',
+  '1': '1 día',
+  '2': '2 días',
+  '3': '3 días',
+  '4': '4 días',
+  '5': '5 días',
+  '6': '6 días',
+  '7': '7 días',
+};
 
 type Category = (typeof HABIT_CATEGORIES)[number];
 type ColorToken = (typeof HABIT_COLOR_TOKENS)[number];
@@ -190,6 +203,7 @@ export default function NewHabitSheet() {
   const [colorToken, setColorToken] = useState<ColorToken>('primary-soft');
   const [frequency, setFrequency] = useState<'daily' | 'custom'>('daily');
   const [customDays, setCustomDays] = useState<number[]>([1, 3, 5]);
+  const [weekTarget, setWeekTarget] = useState<WeekTarget>('none');
   const [slot, setSlot] = useState<(typeof SLOT_OPTIONS)[number]>('none');
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -212,6 +226,7 @@ export default function NewHabitSheet() {
     customDays: frequency === 'custom' ? customDays : undefined,
     timeSlot: (slot === 'none' ? undefined : slot) as TimeSlot | undefined,
     reminderTime: reminderOn ? reminderTime : null,
+    weeklyTarget: weekTarget === 'none' ? null : Number(weekTarget),
   });
 
   const submit = async () => {
@@ -335,6 +350,18 @@ export default function NewHabitSheet() {
           ))}
         </View>
       )}
+
+      {/* V5 · M42 — meta semanal opcional */}
+      <Text style={styles.label}>Meta semanal (opcional)</Text>
+      <ChipsTabs
+        options={WEEK_TARGETS}
+        value={weekTarget}
+        onChange={setWeekTarget}
+        labels={WEEK_TARGET_LABELS}
+      />
+      <Text style={styles.reminderHint}>
+        Días por semana que quieres completarlo — se muestra como chip 🎯 en tus hábitos
+      </Text>
 
       <Text style={styles.label}>Recordatorio</Text>
       <View style={styles.reminderRow}>

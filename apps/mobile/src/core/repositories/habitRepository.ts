@@ -28,6 +28,7 @@ interface HabitRow {
   updated_at: string;
   sync_status: string;
   time_slot: string | null;
+  weekly_target: number | null;
 }
 
 interface LogRow {
@@ -72,6 +73,7 @@ function toHabit(r: HabitRow): Habit {
     updatedAt: r.updated_at,
     syncStatus: r.sync_status as Habit['syncStatus'],
     timeSlot: (r.time_slot as Habit['timeSlot']) ?? null,
+    weeklyTarget: r.weekly_target,
   };
 }
 
@@ -90,7 +92,8 @@ function toLog(r: LogRow): HabitLog {
 }
 
 const HABIT_COLS = `id, name, icon, category, color_token, frequency, custom_days,
-  target_value, unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status, time_slot`;
+  target_value, unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status, time_slot,
+  weekly_target`;
 
 const LOG_COLS = `id, habit_id, log_date, completed, value, completed_at, created_at, updated_at, sync_status`;
 
@@ -172,7 +175,7 @@ export const habitRepository: HabitRepository = {
     const rows = await db.getAllAsync<FeedRow>(
       `SELECT h.id, h.name, h.icon, h.category, h.color_token, h.frequency, h.custom_days,
               h.target_value, h.unit, h.reminder_time, h.sort_order, h.is_archived,
-              h.created_at, h.updated_at, h.sync_status, h.time_slot,
+              h.created_at, h.updated_at, h.sync_status, h.time_slot, h.weekly_target,
               l.id AS l_id, l.habit_id AS l_habit_id, l.log_date AS l_log_date,
               l.completed AS l_completed, l.value AS l_value, l.completed_at AS l_completed_at,
               l.created_at AS l_created_at, l.updated_at AS l_updated_at, l.sync_status AS l_sync_status
@@ -237,8 +240,8 @@ export const habitRepository: HabitRepository = {
     await db.withTransactionAsync(async () => {
       await db.runAsync(
         `INSERT INTO habit (id, name, icon, category, color_token, frequency, custom_days,
-           target_value, unit, reminder_time, sort_order, time_slot)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           target_value, unit, reminder_time, sort_order, time_slot, weekly_target)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         id,
         parsed.name,
         parsed.icon,
@@ -251,6 +254,7 @@ export const habitRepository: HabitRepository = {
         parsed.reminderTime ?? null,
         sortOrder,
         parsed.timeSlot ?? null,
+        parsed.weeklyTarget ?? null,
       );
       await db.runAsync(
         `INSERT INTO habit_streak_cache (habit_id) VALUES (?) ON CONFLICT DO NOTHING`,
@@ -287,12 +291,13 @@ export const habitRepository: HabitRepository = {
       unit: merged.unit,
       reminderTime: merged.reminderTime,
       timeSlot: merged.timeSlot ?? undefined,
+      weeklyTarget: merged.weeklyTarget ?? undefined,
     });
 
     await db.runAsync(
       `UPDATE habit SET name = ?, icon = ?, category = ?, color_token = ?, frequency = ?,
          custom_days = ?, target_value = ?, unit = ?, reminder_time = ?, time_slot = ?,
-         updated_at = datetime('now')
+         weekly_target = ?, updated_at = datetime('now')
        WHERE id = ?`,
       parsed.name,
       parsed.icon,
@@ -304,6 +309,7 @@ export const habitRepository: HabitRepository = {
       parsed.unit ?? null,
       parsed.reminderTime ?? null,
       parsed.timeSlot ?? null,
+      parsed.weeklyTarget ?? null,
       habitId,
     );
     return (await this.getById(habitId))!;

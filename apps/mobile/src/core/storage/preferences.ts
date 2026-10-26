@@ -15,4 +15,6 @@ export const PrefKeys = {
   reminderIds: 'notifications.reminderIds',
   eveningIds: 'notifications.eveningIds',
   themeMode: 'theme.mode',
+  /** V5 · M42 — meta semanal configurable (días por semana, 3–7). */
+  weeklyGoalTarget: 'weeklyGoal.target',
 } as const;

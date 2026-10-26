@@ -178,11 +178,12 @@ export const backupService = {
         for (const h of data.habits) {
           await db.runAsync(
             `INSERT INTO habit (id, name, icon, category, color_token, frequency, custom_days, target_value,
-              unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status, time_slot)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              unit, reminder_time, sort_order, is_archived, created_at, updated_at, sync_status, time_slot,
+              weekly_target)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             h.id, h.name, h.icon, h.category, h.color_token, h.frequency, h.custom_days,
             h.target_value, h.unit, h.reminder_time, h.sort_order, h.is_archived,
-            h.created_at, h.updated_at, h.sync_status, h.time_slot,
+            h.created_at, h.updated_at, h.sync_status, h.time_slot, h.weekly_target ?? null,
           );
         }
         for (const l of data.habitLogs) {

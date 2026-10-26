@@ -45,6 +45,8 @@ const habitRow = z
     updated_at: isoLike,
     sync_status: z.enum(['pending', 'synced', 'deleted']),
     time_slot: z.enum(['morning', 'afternoon', 'evening']).nullable(),
+    /** V5 · M42 — opcional para aceptar backups antiguos sin la columna. */
+    weekly_target: z.number().int().min(1).max(7).nullable().optional(),
   })
   .strict();
 

@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { habitRepository } from '@/core/repositories/habitRepository';
-import { getWeekCompletedDays, getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
+import { getWeekCompletedDays, getWeekProgressByHabit, getWeeklyTrend } from '@/core/repositories/habitTrendRepository';
 import { streakCacheRepository } from '@/core/repositories/streakCacheRepository';
 import { userProfileRepository } from '@/core/repositories/userProfileRepository';
 import { statsRepository } from '@/core/repositories/statsRepository';
@@ -44,6 +44,14 @@ export function useWeekCompletedDays() {
   return useQuery({
     queryKey: ['habits', 'week-completed-days'],
     queryFn: () => getWeekCompletedDays(),
+  });
+}
+
+/** M42 · progreso de meta semanal por hábito (chip 🎯 N/M en las tarjetas). */
+export function useWeekProgressByHabit() {
+  return useQuery({
+    queryKey: ['habits', 'week-progress'],
+    queryFn: () => getWeekProgressByHabit(),
   });
 }
 

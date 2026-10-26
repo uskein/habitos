@@ -41,23 +41,53 @@ export async function getWeeklyTrend(): Promise<Record<string, number[]>> {
 }
 
 /**
- * M40 · meta semanal — nº de días con ≥1 hábito completado en la semana
- * natural actual (lunes→domingo).
+ * M42 · semana natural actual (lunes→domingo) como fechas YYYY-MM-DD.
+ * Compartida por la meta semanal global y el progreso por hábito.
  */
-export async function getWeekCompletedDays(): Promise<number> {
-  const db = await getDb();
+function currentWeekRange(): { from: string; to: string } {
   const today = new Date();
   const [y, m, d] = localDateISO(today).split('-').map(Number);
   const todayDate = new Date(y!, (m ?? 1) - 1, d ?? 1);
   const mondayOffset = (todayDate.getDay() + 6) % 7; // 0 = lunes
   const monday = new Date(todayDate);
   monday.setDate(todayDate.getDate() - mondayOffset);
+  return { from: localDateISO(monday), to: localDateISO(todayDate) };
+}
+
+/**
+ * M40 · meta semanal — nº de días con ≥1 hábito completado en la semana
+ * natural actual (lunes→domingo).
+ */
+export async function getWeekCompletedDays(): Promise<number> {
+  const db = await getDb();
+  const { from, to } = currentWeekRange();
 
   const row = await db.getFirstAsync<{ n: number }>(
     `SELECT COUNT(DISTINCT log_date) AS n FROM habit_log
      WHERE completed = 1 AND log_date >= ? AND log_date <= ?`,
-    localDateISO(monday),
-    localDateISO(todayDate),
+    from,
+    to,
   );
   return row?.n ?? 0;
+}
+
+/**
+ * M42 · progreso de meta semanal POR HÁBITO — días completados esta semana
+ * natural (lun→dom) en cada hábito, para el chip 🎯 N/M de las tarjetas.
+ */
+export async function getWeekProgressByHabit(): Promise<Record<string, number>> {
+  const db = await getDb();
+  const { from, to } = currentWeekRange();
+
+  const rows = await db.getAllAsync<{ habit_id: string; n: number }>(
+    `SELECT habit_id, COUNT(DISTINCT log_date) AS n FROM habit_log
+     WHERE completed = 1 AND log_date >= ? AND log_date <= ?
+     GROUP BY habit_id`,
+    from,
+    to,
+  );
+
+  const result: Record<string, number> = {};
+  for (const r of rows) result[r.habit_id] = r.n;
+  return result;
 }

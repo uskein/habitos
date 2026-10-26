@@ -22,6 +22,8 @@ export interface HabitCardProps {
   disabled?: boolean;
   /** M39 · tendencia7 días (0/1) para el sparkline. */
   trend?: number[];
+  /** M42 · días completados esta semana (chip 🎯 de la meta semanal). */
+  weekDone?: number;
 }
 
 const EASE_STD = Easing.bezier(...(easings.std as [number, number, number, number]));
@@ -74,7 +76,7 @@ function applyToggleAnimation(
 }
 
 /** HabitCard — icono clay + check 32 px, pop ease-clay y «+1 🔥» flotante (R8: sin motion si reduce-motion). */
-export function HabitCard({ habit, onToggle, disabled = false, trend }: HabitCardProps) {
+export function HabitCard({ habit, onToggle, disabled = false, trend, weekDone }: HabitCardProps) {
   const { colors } = useAppTheme();
   const styles = useMemo(
     () =>
@@ -132,6 +134,10 @@ export function HabitCard({ habit, onToggle, disabled = false, trend }: HabitCar
           fontFamily: fonts.body,
           fontSize: 12,
           color: colors.textMuted,
+        },
+        metaMet: {
+          color: colors.success,
+          fontWeight: '700',
         },
         check: {
           width: 32,
@@ -244,6 +250,17 @@ export function HabitCard({ habit, onToggle, disabled = false, trend }: HabitCar
                   ? 'Bienestar'
                   : 'Hábito'}
             </Text>
+            {habit.weeklyTarget ? (
+              <Text
+                style={[
+                  styles.meta,
+                  (weekDone ?? 0) >= habit.weeklyTarget && styles.metaMet,
+                ]}
+              >
+                🎯 {Math.min(weekDone ?? 0, habit.weeklyTarget)}/{habit.weeklyTarget} días esta semana
+                {(weekDone ?? 0) >= habit.weeklyTarget ? ' ✓' : ''}
+              </Text>
+            ) : null}
             {trend && trend.length > 0 ? (
               <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
                 {trend.map((v, i) => (

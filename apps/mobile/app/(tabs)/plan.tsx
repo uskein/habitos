@@ -5,7 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { habitRepository } from '@/core/repositories/habitRepository';
 import { fonts, shadows, spacing } from '@/core/theme/theme';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
-import { useHabitsToday, useProfile, useWeeklyConsistency, useWeeklyTrend } from '@/features/habits/useHabits';
+import { useHabitsToday, useProfile, useWeekProgressByHabit, useWeeklyConsistency, useWeeklyTrend } from '@/features/habits/useHabits';
 import { GoalCard } from '@/features/goals/GoalCard';
 import { useGoals, useDeleteGoal } from '@/features/goals/useGoals';
 import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
@@ -172,6 +172,7 @@ export default function PlanScreen() {
   const deleteGoal = useDeleteGoal();
   const weeklyConsistency = useWeeklyConsistency();
   const weeklyTrend = useWeeklyTrend();
+  const weekProgress = useWeekProgressByHabit();
 
   const loading = habits.isPending || goals.isPending || profile.isPending;
   const error = habits.isError || goals.isError;
@@ -295,6 +296,23 @@ export default function PlanScreen() {
                             {h.category} · {h.frequency === 'daily' ? 'diario' : 'personalizado'}
                             {h.timeSlot ? ` · ${SLOT_LABELS[h.timeSlot] ?? ''}` : ''}
                           </Text>
+                          {/* M42 · chip de meta semanal por hábito */}
+                          {h.weeklyTarget ? (
+                            <Text
+                              style={[
+                                styles.habitMeta,
+                                (weekProgress.data?.[h.id] ?? 0) >= h.weeklyTarget && {
+                                  color: colors.success,
+                                  fontWeight: '700',
+                                },
+                              ]}
+                              numberOfLines={1}
+                            >
+                              🎯 {Math.min(weekProgress.data?.[h.id] ?? 0, h.weeklyTarget)}/
+                              {h.weeklyTarget} días esta semana
+                              {(weekProgress.data?.[h.id] ?? 0) >= h.weeklyTarget ? ' ✓' : ''}
+                            </Text>
+                          ) : null}
                           {weeklyTrend.data?.[h.id] ? (
                             <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
                               {(weeklyTrend.data[h.id] ?? []).map((v: number, i: number) => (
