@@ -26,3 +26,11 @@ export function useYearHeatmap() {
     },
   });
 }
+
+/** M45 · resumen del mes navegado (cumplimiento, ▲▼, perfectos). */
+export function useMonthSummary(year: number, month: number) {
+  return useQuery({
+    queryKey: ['stats', 'summary', year, month],
+    queryFn: () => statsRepository.getMonthSummary(year, month),
+  });
+}

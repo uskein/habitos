@@ -9,7 +9,7 @@ import { streakShareService } from '@/core/services/streakShareService';
 import { useAppTheme, type ActivePalette } from '@/core/theme/ThemeProvider';
 import { useAchievements, useRemoveCustomAchievement } from '@/features/achievements/useAchievements';
 import { AchievementCard } from '@/features/achievements/AchievementCard';
-import { useMonthCompletedDates, useYearHeatmap } from '@/features/achievements/useMonthStats';
+import { useMonthCompletedDates, useMonthSummary, useYearHeatmap } from '@/features/achievements/useMonthStats';
 import { YearHeatmap } from '@/features/achievements/YearHeatmap';
 import { useGlobalStreak } from '@/features/habits/useHabits';
 import { useFreezes, useToggleFreeze } from '@/features/habits/useFreezes';
@@ -18,6 +18,7 @@ import { Skeleton } from '@/ui/feedback/Skeleton';
 import { useToast } from '@/ui/feedback/Toast';
 import { ChipsTabs } from '@/ui/navigation/ChipsTabs';
 import { ClayButton } from '@/ui/primitives/ClayButton';
+import { ClayCard } from '@/ui/primitives/ClayCard';
 
 const VIEWS = ['all', 'mine'] as const;
 const VIEW_LABELS = { all: 'Todas', mine: 'Mis logros' } as const;
@@ -90,6 +91,16 @@ const makeStyles = (colors: ActivePalette) =>
       fontFamily: fonts.body,
       fontSize: 11,
       color: colors.textMuted,
+    },
+    statValueUp: {
+      color: colors.success,
+    },
+    statValueDown: {
+      color: colors.error,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
     },
     section: {
       fontFamily: fonts.display,
@@ -206,6 +217,7 @@ export default function AchievementsScreen() {
   const now = new Date();
   const viewDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
   const month = useMonthCompletedDates(viewDate.getFullYear(), viewDate.getMonth());
+  const summary = useMonthSummary(viewDate.getFullYear(), viewDate.getMonth());
   const heatmap = useYearHeatmap();
 
   if (streak.isPending || achievements.isPending) {
@@ -367,6 +379,42 @@ export default function AchievementsScreen() {
           }}
         />
 
+        {/* M45 · resumen del mes: cumplimiento, comparación, perfectos */}
+        {summary.data ? (
+          <ClayCard style={{ gap: spacing.md }}>
+            <Text style={styles.section}>
+              Resumen de{' '}
+              {(() => {
+                const m = viewDate.toLocaleDateString('es-ES', { month: 'long' });
+                return m.charAt(0).toUpperCase() + m.slice(1);
+              })()}
+            </Text>
+            <View style={styles.summaryRow}>
+              <Stat label="Cumplimiento" value={`${summary.data.pct}%`} suffix="📊" />
+              <Stat
+                label="vs mes anterior"
+                value={
+                  summary.data.delta > 0
+                    ? `+${summary.data.delta}`
+                    : summary.data.delta < 0
+                      ? `−${Math.abs(summary.data.delta)}`
+                      : '0'
+                }
+                suffix={summary.data.delta > 0 ? '▲' : summary.data.delta < 0 ? '▼' : '·'}
+                tint={summary.data.delta > 0 ? 'up' : summary.data.delta < 0 ? 'down' : undefined}
+              />
+            </View>
+            <View style={styles.summaryRow}>
+              <Stat label="Días perfectos" value={`${summary.data.perfectDays}`} suffix="✨" />
+              <Stat
+                label="Días completados"
+                value={`${summary.data.daysCompleted}/${summary.data.daysTotal}`}
+                suffix="✅"
+              />
+            </View>
+          </ClayCard>
+        ) : null}
+
         <Text style={styles.section}>Calendario del mes</Text>
         <View style={styles.calendar}>
           <View style={styles.calNav}>
@@ -479,13 +527,30 @@ export default function AchievementsScreen() {
   );
 }
 
-function Stat({ label, value, suffix }: { label: string; value: string; suffix: string }) {
+function Stat({
+  label,
+  value,
+  suffix,
+  tint,
+}: {
+  label: string;
+  value: string;
+  suffix: string;
+  /** M45 · tinte del valor: up=verde (mejora), down=rojo (empeora). */
+  tint?: 'up' | 'down';
+}) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <View style={styles.stat}>
-      <Text style={styles.statValue}>
+      <Text
+        style={[
+          styles.statValue,
+          tint === 'up' && styles.statValueUp,
+          tint === 'down' && styles.statValueDown,
+        ]}
+      >
         {value} <Text style={styles.statSuffix}>{suffix}</Text>
       </Text>
       <Text style={styles.statLabel}>{label}</Text>

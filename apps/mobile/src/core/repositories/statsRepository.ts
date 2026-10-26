@@ -61,6 +61,20 @@ export interface WeeklyConsistency {
   days: { day: number; label: string; value: number }[];
 }
 
+/** M45 · resumen de mes para Logros (cumplimiento, delta, días perfectos). */
+export interface MonthSummary {
+  /** % de días con ≥1 hábito completado (sobre días transcurridos si es el mes actual). */
+  pct: number;
+  /** Δ en puntos porcentuales vs el mes anterior (positivo = mejora). */
+  delta: number;
+  /** Días con ≥1 hábito completado en el mes. */
+  daysCompleted: number;
+  /** Denominador: días transcurridos (mes actual) o días del mes. */
+  daysTotal: number;
+  /** Días perfectos: TODOS los hábitos activos creados hasta esa fecha, completados. */
+  perfectDays: number;
+}
+
 const CACHE_TTL_HOURS = 24;
 
 async function readCache<T>(key: string): Promise<T | null> {
@@ -96,6 +110,67 @@ function pct(n: number, total: number): number {
 export const statsRepository = {
   getMonthCompletedDates,
   getYearActivity,
+
+  /**
+   * M45 · resumen de un mes para Logros:
+   * % cumplimiento (días transcurridos si es el mes actual), Δ vs mes anterior,
+   * días completados y días perfectos (todos los hábitos activos del día).
+   */
+  async getMonthSummary(year: number, month: number): Promise<MonthSummary> {
+    const db = await getDb();
+    const now = new Date();
+    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const isCurrent = year === now.getFullYear() && month === now.getMonth();
+    const daysTotal = isCurrent ? now.getDate() : daysInMonth;
+    const from = `${monthStr}-01`;
+    const to = isCurrent ? localDateISO() : `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
+
+    const done = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(DISTINCT log_date) AS n FROM habit_log
+       WHERE completed = 1 AND log_date >= ? AND log_date <= ?`,
+      from,
+      to,
+    );
+    const daysCompleted = Math.min(done?.n ?? 0, daysTotal);
+
+    // Día perfecto = todos los hábitos activos creados hasta esa fecha, completados.
+    const perfect = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) AS n FROM (
+         SELECT hl.log_date FROM habit_log hl
+         WHERE hl.completed = 1 AND hl.log_date >= ? AND hl.log_date <= ?
+         GROUP BY hl.log_date
+         HAVING COUNT(DISTINCT hl.habit_id) >= (
+           SELECT COUNT(*) FROM habit
+           WHERE is_archived = 0 AND substr(created_at, 1, 10) <= hl.log_date
+         )
+       )`,
+      from,
+      to,
+    );
+
+    // Mes anterior (cerrado) para la comparación ▲▼.
+    const prevDate = new Date(year, month, 0); // último día del mes previo
+    const prevYear = prevDate.getFullYear();
+    const prevMonth = prevDate.getMonth();
+    const prevStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
+    const prevDays = new Date(prevYear, prevMonth + 1, 0).getDate();
+    const prevDone = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(DISTINCT log_date) AS n FROM habit_log
+       WHERE completed = 1 AND log_date >= ? AND log_date <= ?`,
+      `${prevStr}-01`,
+      `${prevStr}-${String(prevDays).padStart(2, '0')}`,
+    );
+
+    const monthPct = pct(daysCompleted, daysTotal);
+    return {
+      pct: monthPct,
+      delta: monthPct - pct(prevDone?.n ?? 0, prevDays),
+      daysCompleted,
+      daysTotal,
+      perfectDays: perfect?.n ?? 0,
+    };
+  },
 
   /**
    * M38 · consistencia semanal: % de días completados por día de la semana (Lun–Dom)
